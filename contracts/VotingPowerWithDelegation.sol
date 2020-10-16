@@ -19,7 +19,7 @@ contract VotingPower is ReentrancyGuard {
     /// @notice Total amount staked in the VotingPower contract
     uint256 public totalStaked;
 
-    /// @notice Official record of staked balances for each account
+    /// @dev Official record of staked balances for each account
     mapping (address => uint256) internal stakes;
 
     /// @notice A checkpoint for marking number of votes from a given block
@@ -76,10 +76,9 @@ contract VotingPower is ReentrancyGuard {
      */
     function stakeWithPermit(uint256 amount, uint deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
         require(amount > 0, "Cannot stake 0");
+        archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
         totalStaked = totalStaked.add(amount);
         stakes[msg.sender] = stakes[msg.sender].add(amount);
-
-        archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
 
         archToken.transferFrom(msg.sender, address(this), amount);
         emit Staked(msg.sender, amount);
@@ -92,6 +91,7 @@ contract VotingPower is ReentrancyGuard {
      */
     function stake(uint256 amount) external nonReentrant {
         require(amount > 0, "Cannot stake 0");
+        require(archToken.allowance(msg.sender, address(this)) >= amount, "Must approve tokens before staking");
         totalStaked = totalStaked.add(amount);
         stakes[msg.sender] = stakes[msg.sender].add(amount);
         archToken.transferFrom(msg.sender, address(this), amount);
@@ -100,13 +100,33 @@ contract VotingPower is ReentrancyGuard {
     }
 
     /**
+     * @notice Count vesting ARCH tokens toward voting power for `account`
+     * @param account The recipient of voting power
+     * @param amount The amount of voting power to add
+     */
+    function addVotingPowerForVestingTokens(address account, uint256 amount) external nonReentrant {
+        require(amount > 0, "Cannot add 0 voting power");
+        require(msg.sender == address(vesting), "Only vesting contract");
+        _increaseVotingPower(account, amount);
+    }
+
+    /**
+     * @notice Remove claimed vesting ARCH tokens from voting power for `account`
+     * @param account The account with voting power
+     * @param amount The amount of voting power to remove
+     */
+    function removeVotingPowerForClaimedVestingTokens(address account, uint256 amount) external nonReentrant {
+        require(amount > 0, "Cannot remove 0 voting power");
+        require(msg.sender == address(vesting), "Only vesting contract");
+        _decreaseVotingPower(account, amount);
+    }
+
+    /**
      * @notice Withdraw staked ARCH tokens, removing voting power for `msg.sender`
      * @param amount The amount to withdraw
      */
-    function withdraw(uint256 amount) public nonReentrant {
+    function withdraw(uint256 amount) external nonReentrant {
         require(amount > 0, "Cannot withdraw 0");
-        require(vesting.vestedBalance(msg.sender) >= amount, "Can only withdraw vested tokens");
-        // TODO: determine how to handle if user is not on the list of vesting 
         totalStaked = totalStaked.sub(amount);
         stakes[msg.sender] = stakes[msg.sender].sub(amount);
         archToken.transfer(msg.sender, amount);
