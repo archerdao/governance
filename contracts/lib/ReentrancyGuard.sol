@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.12;
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
  *

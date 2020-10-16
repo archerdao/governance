@@ -44,10 +44,10 @@ contract Vesting {
     address public owner;
     uint16 public totalVestingCount;
 
-    constructor(address _token, address _multisig) public {
+    constructor(address _token) public {
         require(_token != address(0));
         token = IArchToken(_token);
-        owner = _multisig;
+        owner = msg.sender;
     }
     
     function addTokenGrant(
@@ -159,7 +159,7 @@ contract Vesting {
     function claimVestedTokens(address _recipient) external {
         uint256 amountVested = calculateGrantClaim(_recipient);
         require(amountVested > 0, "amountVested is 0");
-        votingPower.removeVotingPowerForClaimedVestingTokens(_recipient, amountVested);
+        votingPower.removeVotingPowerForClaimedTokens(_recipient, amountVested);
 
         Grant storage tokenGrant = tokenGrants[_recipient];
         tokenGrant.totalClaimed = uint256(tokenGrant.totalClaimed.add(amountVested));
@@ -179,7 +179,7 @@ contract Vesting {
     {
         Grant storage tokenGrant = tokenGrants[_recipient];
         uint256 amountVested = calculateGrantClaim(_recipient);
-        votingPower.removeVotingPowerForClaimedVestingTokens(_recipient, amountVested);
+        votingPower.removeVotingPowerForClaimedTokens(_recipient, amountVested);
 
         uint256 amountNotVested = (tokenGrant.amount.sub(tokenGrant.totalClaimed)).sub(amountVested);
 

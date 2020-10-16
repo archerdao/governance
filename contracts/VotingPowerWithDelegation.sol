@@ -115,7 +115,7 @@ contract VotingPower is ReentrancyGuard {
      * @param account The account with voting power
      * @param amount The amount of voting power to remove
      */
-    function removeVotingPowerForClaimedVestingTokens(address account, uint256 amount) external nonReentrant {
+    function removeVotingPowerForClaimedTokens(address account, uint256 amount) external nonReentrant {
         require(amount > 0, "Cannot remove 0 voting power");
         require(msg.sender == address(vesting), "Only vesting contract");
         _decreaseVotingPower(account, amount);
