@@ -159,7 +159,7 @@ contract VotingPower is ReentrancyGuard {
         address signatory = ecrecover(digest, v, r, s);
         require(signatory != address(0), "Arch::delegateBySig: invalid signature");
         require(nonce == nonces[signatory]++, "Arch::delegateBySig: invalid nonce");
-        require(now <= deadline, "Arch::delegateBySig: signature expired");
+        require(block.timestamp <= deadline, "Arch::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 

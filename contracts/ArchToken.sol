@@ -25,9 +25,6 @@ contract ArchToken {
     /// @notice Address which may change token metadata
     address public manager;
 
-    /// @notice Boolean of whether minting is allowed
-    bool public mintingAllowed;
-
     /// @notice The timestamp after which minting may occur
     uint public mintingAllowedAfter;
 
@@ -51,9 +48,6 @@ contract ArchToken {
 
     /// @notice A record of states for signing / validating signatures
     mapping (address => uint) public nonces;
-
-     /// @notice An event that's emitted when minting is permanently disabled
-    event MintingDisabled(bool mintingEnabled);
 
     /// @notice An event that's emitted when the minter address is changed
     event MinterChanged(address minter, address newMinter);
@@ -83,7 +77,6 @@ contract ArchToken {
         balances[_account] = uint256(totalSupply);
         emit Transfer(address(0), _account, totalSupply);
 
-        mintingAllowed = true;
         mintingAllowedAfter = _mintingAllowedAfter;
         minter = _minter;
         emit MinterChanged(address(0), minter);
@@ -135,14 +128,10 @@ contract ArchToken {
     }
 
     /**
-     * @notice Permanently disable minting of new tokens
+     * @notice Update the token name and symbol
+     * @param _tokenName The new name for the token
+     * @param _tokenSymbol The new symbol for the token
      */
-    function disableMinting() external {
-        require(msg.sender == minter, "Arch::disableMinting: only the minter can disable minting");
-        mintingAllowed = false;
-        emit MintingDisabled(mintingAllowed);
-    }
-
     function updateTokenMetadata(string memory _tokenName, string memory _tokenSymbol) external {
         require(msg.sender == manager, "Arch::updateTokenMeta: only the manager can update token metadata");
         name = _tokenName;
@@ -191,7 +180,7 @@ contract ArchToken {
         address signatory = ecrecover(digest, v, r, s);
         require(signatory != address(0), "Arch::permit: invalid signature");
         require(signatory == owner, "Arch::permit: unauthorized");
-        require(now <= deadline, "Arch::permit: signature expired");
+        require(block.timestamp <= deadline, "Arch::permit: signature expired");
 
         allowances[owner][spender] = amount;
 
