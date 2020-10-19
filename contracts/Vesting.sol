@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./lib/SafeMath.sol";
@@ -44,7 +44,7 @@ contract Vesting {
     address public owner;
     uint16 public totalVestingCount;
 
-    constructor(address _token) public {
+    constructor(address _token) {
         require(_token != address(0));
         token = IArchToken(_token);
         owner = msg.sender;

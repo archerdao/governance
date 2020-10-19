@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD 3-Clause
-pragma solidity ^0.6.12;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./lib/SafeMath.sol";
@@ -71,7 +71,7 @@ contract ArchToken {
      * @param _manager The account with the ability to change token metadata
      * @param _mintingAllowedAfter The timestamp after which minting may occur
      */
-    constructor(address _account, address _minter, address _manager, uint _mintingAllowedAfter) public {
+    constructor(address _account, address _minter, address _manager, uint _mintingAllowedAfter) {
         require(_mintingAllowedAfter >= block.timestamp, "Arch::constructor: minting can only begin after deployment");
 
         balances[_account] = uint256(totalSupply);
@@ -114,12 +114,12 @@ contract ArchToken {
         require(msg.sender == minter, "Arch::mint: only the minter can mint");
         require(block.timestamp >= mintingAllowedAfter, "Arch::mint: minting not allowed yet");
         require(dst != address(0), "Arch::mint: cannot transfer to the zero address");
+        require(amount <= totalSupply.mul(mintCap).div(100), "Arch::mint: exceeded mint cap");
 
         // record the mint
         mintingAllowedAfter = block.timestamp.add(minimumTimeBetweenMints);
 
         // mint the amount
-        require(amount <= totalSupply.mul(mintCap).div(100), "Arch::mint: exceeded mint cap");
         totalSupply = totalSupply.add(amount);
 
         // transfer the amount to the recipient
