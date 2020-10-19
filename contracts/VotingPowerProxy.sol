@@ -175,4 +175,11 @@ contract VotingPowerProxy {
               default { return(free_mem_ptr, returndatasize()) }
         }
     }
+
+    /**
+     * @dev Disallow sending ETH to proxy contract directly
+     */
+    receive() external payable {
+        revert("Cannot send ETH directly");
+    }
 }
