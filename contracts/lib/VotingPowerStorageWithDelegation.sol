@@ -60,11 +60,20 @@ struct StakeStorage {
     mapping (address => mapping (address => uint256)) stakes;
 }
 
+ /// @notice All storage variables related to delegation
+ struct DelegateStorage {
+    mapping (address => address) delegates;
+ }
+
 library VotingPowerStorage {
     bytes32 constant VOTING_POWER_ADMIN_STORAGE_POSITION = keccak256("voting.power.admin.storage");
     bytes32 constant VOTING_POWER_APP_STORAGE_POSITION = keccak256("voting.power.app.storage");
     bytes32 constant VOTING_POWER_CHECKPOINT_STORAGE_POSITION = keccak256("voting.power.checkpoint.storage");
     bytes32 constant VOTING_POWER_STAKE_STORAGE_POSITION = keccak256("voting.power.stake.storage");
+    bytes32 constant VOTING_POWER_DELEGATE_STORAGE_POSITION = keccak256("voting.power.delegate.storage");
+
+    bytes32 constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
+    bytes32 constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     function adminStorage() internal pure returns (AdminStorage storage adm) {        
         bytes32 position = VOTING_POWER_ADMIN_STORAGE_POSITION;
@@ -92,5 +101,20 @@ library VotingPowerStorage {
         assembly {
             ss.slot := position
         }
+    }
+
+    function delegateStorage() internal pure returns (DelegateStorage storage ds) {        
+        bytes32 position = VOTING_POWER_DELEGATE_STORAGE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
+    function domainTypeHash() internal pure returns (bytes32) {        
+        return DOMAIN_TYPEHASH;
+    }
+
+    function delegationTypeHash() internal pure returns (bytes32) {        
+        return DELEGATION_TYPEHASH;
     }
 }
