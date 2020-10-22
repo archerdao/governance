@@ -7,21 +7,23 @@ import "./lib/Initializable.sol";
 import "./lib/ReentrancyGuardUpgradeSafe.sol";
 import "./lib/VotingPowerStorageWithDelegation.sol";
 import "./VotingPowerProxyWithDelegation.sol";
+import "./interfaces/IERC20.sol";
+
 
 contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     using SafeMath for uint256;
 
     /// @notice An event that's emitted when a user's staked balance increases
-    event Staked(address indexed user, uint256 amount);
+    event Staked(address indexed user, address token, uint256 amount);
 
     /// @notice An event that's emitted when a user's staked balance decreases
-    event Withdrawn(address indexed user, uint256 amount);
+    event Withdrawn(address indexed user, address token, uint256 amount);
 
     /// @notice An event that's emitted when an account's vote balance changes
     event VotingPowerChanged(address indexed voter, uint previousBalance, uint newBalance);
 
     /// @notice An event thats emitted when an account changes its delegate
-    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
+    event DelegationChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate, uint256 previousDelegatedBalance, uint256 newDelegatedBalance);
 
     function initialize(
         address _archToken,
@@ -46,15 +48,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         AppStorage storage app = VotingPowerStorage.appStorage();
         app.archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
 
-        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        ss.totalStaked[address(app.archToken)].add(amount);
-        ss.stakes[msg.sender][address(app.archToken)].add(amount);
-
-        app.archToken.transferFrom(msg.sender, address(this), amount);
-
-        emit Staked(msg.sender, amount);
-
-        _increaseVotingPower(msg.sender, amount);
+        _stake(address(app.archToken), amount, amount);
     }
 
     /**
@@ -66,15 +60,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         require(amount > 0, "Cannot stake 0");
         require(app.archToken.allowance(msg.sender, address(this)) >= amount, "Must approve tokens before staking");
 
-        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        ss.totalStaked[address(app.archToken)].add(amount);
-        ss.stakes[msg.sender][address(app.archToken)].add(amount);
-
-        app.archToken.transferFrom(msg.sender, address(this), amount);
-
-        emit Staked(msg.sender, amount);
-
-        _increaseVotingPower(msg.sender, amount);
+        _stake(address(app.archToken), amount, amount);
     }
 
     /**
@@ -110,15 +96,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     function withdraw(uint256 amount) external nonReentrant {
         require(amount > 0, "Cannot withdraw 0");
         AppStorage storage app = VotingPowerStorage.appStorage();
-        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        ss.totalStaked[address(app.archToken)].sub(amount);
-        ss.stakes[msg.sender][address(app.archToken)].sub(amount);
-        
-        app.archToken.transfer(msg.sender, amount);
-
-        emit Withdrawn(msg.sender, amount);
-        
-        _decreaseVotingPower(msg.sender, amount);
+        _withdraw(address(app.archToken), amount, amount);
     }
 
     /**
@@ -142,7 +120,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      * @notice Delegate votes from `msg.sender` to `delegatee`
      * @param delegatee The address to delegate votes to
      */
-    function delegate(address delegatee) public {
+    function delegate(address delegatee) public nonReentrant {
         return _delegate(msg.sender, delegatee);
     }
 
@@ -155,9 +133,9 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      * @param r Half of the ECDSA signature pair
      * @param s Half of the ECDSA signature pair
      */
-    function delegateBySig(address delegatee, uint nonce, uint expiry, uint8 v, bytes32 r, bytes32 s) public {
+    function delegateBySig(address delegatee, uint nonce, uint expiry, uint8 v, bytes32 r, bytes32 s) public nonReentrant {
         AppStorage storage app = VotingPowerStorage.appStorage();
-        bytes32 domainSeparator = keccak256(abi.encode(VotingPowerStorage.domainTypeHash(), keccak256(bytes(app.archToken.name())), getChainId(), address(this)));
+        bytes32 domainSeparator = keccak256(abi.encode(VotingPowerStorage.domainTypeHash(), keccak256(bytes(app.archToken.name())), _getChainId(), address(this)));
         bytes32 structHash = keccak256(abi.encode(VotingPowerStorage.delegationTypeHash(), delegatee, nonce, expiry));
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
         address signatory = ecrecover(digest, v, r, s);
@@ -176,6 +154,46 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 nCheckpoints = cs.numCheckpoints[account];
         return nCheckpoints > 0 ? cs.checkpoints[account][nCheckpoints - 1].votes : 0;
+    }
+
+    /**
+     * @notice Gets the current number of votes delegated to `account`
+     * @param account The address to get delegated votes balance
+     * @return The number of current votes delegated to `account`
+     */
+    function getVotesDelegatedTo(address account) public view returns (uint256) {
+        DelegateStorage storage ds = VotingPowerStorage.delegateStorage();
+        return ds.delegatedVotes[account];
+    }
+
+    /**
+     * @notice Gets the current number of votes delegated from `account`
+     * @param account The address to get delegated votes balance
+     * @return The number of current votes delegated from `account`
+     */
+    function getVotesDelegatedFrom(address account) public view returns (uint256) {
+        DelegateStorage storage ds = VotingPowerStorage.delegateStorage();
+        return ds.delegations[account].amount;
+    }
+
+    /**
+     * @notice Gets the current number of votes `account` has available to delegate
+     * @param account The address to get delegable votes balance
+     * @return The number of current votes `account` can delegate
+     */
+    function getDelegableVotes(address account) public view returns (uint256) {
+        return getCurrentVotes(account).add(getVotesDelegatedFrom(account)).sub(getVotesDelegatedTo(account));
+    }
+
+    /**
+     * @notice Gets the current delegate for `account`
+     * @param account The address to get current delegate
+     * @return The current delegate for `account`, if no delegate exists - returns `account`
+     */
+    function getCurrentDelegate(address account) public view returns (address) {
+        DelegateStorage storage ds = VotingPowerStorage.delegateStorage();
+        address currentDelegate = ds.delegations[account].delegate;
+        return currentDelegate != address(0) ? currentDelegate : account;
     }
 
     /**
@@ -220,8 +238,31 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         return cs.checkpoints[account][lower].votes;
     }
 
+    function _stake(address token, uint256 tokenAmount, uint256 votingPower) internal {
+        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
+        ss.totalStaked[token].add(tokenAmount);
+        ss.stakes[msg.sender][token].add(tokenAmount);
+
+        IERC20(token).transferFrom(msg.sender, address(this), tokenAmount);
+
+        emit Staked(msg.sender, token, tokenAmount);
+
+        _increaseVotingPower(msg.sender, votingPower);
+    }
+
+    function _withdraw(address token, uint256 tokenAmount, uint256 votingPower) internal {
+        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
+        ss.totalStaked[token].sub(tokenAmount);
+        ss.stakes[msg.sender][token].sub(tokenAmount);
+        
+        IERC20(token).transfer(msg.sender, tokenAmount);
+
+        emit Withdrawn(msg.sender, token, tokenAmount);
+        
+        _decreaseVotingPower(msg.sender, votingPower);
+    }
+
     function _increaseVotingPower(address voter, uint256 amount) internal {
-        // TODO: make sure it's not possible to mint voting power
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 checkpointNum = cs.numCheckpoints[voter];
         uint256 votingPowerOld = checkpointNum > 0 ? cs.checkpoints[voter][checkpointNum - 1].votes : 0;
@@ -230,7 +271,6 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     }
 
     function _decreaseVotingPower(address voter, uint256 amount) internal {
-        // TODO: make sure it's not possible to burn voting power
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 checkpointNum = cs.numCheckpoints[voter];
         uint256 votingPowerOld = checkpointNum > 0 ? cs.checkpoints[voter][checkpointNum - 1].votes : 0;
@@ -239,32 +279,36 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     }
 
     function _delegate(address delegator, address delegatee) internal {
-        uint256 delegatorBalance = getCurrentVotes(delegator);
-        require(delegatorBalance > 0, "No votes to delegate");
+        uint256 delegableVotes = getDelegableVotes(delegator);
+        require(delegableVotes > 0, "No votes to delegate");
 
         DelegateStorage storage ds = VotingPowerStorage.delegateStorage();
-        address currentDelegate = ds.delegates[delegator];
-        ds.delegates[delegator] = delegatee;
+        Delegation memory currentDelegation = ds.delegations[delegator];
+        address currentDelegate = currentDelegation.delegate;
+        uint256 currentDelegatedAmount = currentDelegation.amount;
 
-        emit DelegateChanged(delegator, currentDelegate, delegatee);
+        ds.delegations[delegator] = Delegation(delegatee, delegableVotes);
+        ds.delegatedVotes[delegatee].add(delegableVotes);
 
-        _moveDelegates(currentDelegate, delegatee, delegatorBalance);
+        emit DelegationChanged(delegator, currentDelegate, delegatee, currentDelegatedAmount, delegableVotes);
+
+        _moveDelegates(currentDelegate, delegatee, currentDelegatedAmount, delegableVotes);
     }
 
-    function _moveDelegates(address srcRep, address dstRep, uint256 amount) internal {
-        if (srcRep != dstRep && amount > 0) {
-            if (srcRep != address(0)) {
-                _decreaseVotingPower(srcRep, amount);
+    function _moveDelegates(address srcRep, address dstRep, uint256 oldDelegatedAmount, uint256 newDelegatedAmount) internal {
+        if (srcRep != dstRep) {
+            if (srcRep != address(0) && oldDelegatedAmount > 0) {
+                _decreaseVotingPower(srcRep, oldDelegatedAmount);
             }
 
-            if (dstRep != address(0)) {
-                _increaseVotingPower(dstRep, amount);
+            if (dstRep != address(0) && newDelegatedAmount > 0) {
+                _increaseVotingPower(dstRep, newDelegatedAmount);
             }
         }
     }
 
     function _writeCheckpoint(address voter, uint32 nCheckpoints, uint256 oldVotes, uint256 newVotes) internal {
-      uint32 blockNumber = safe32(block.number, "Arch::_writeCheckpoint: block number exceeds 32 bits");
+      uint32 blockNumber = _safe32(block.number, "Arch::_writeCheckpoint: block number exceeds 32 bits");
 
       CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
       if (nCheckpoints > 0 && cs.checkpoints[voter][nCheckpoints - 1].fromBlock == blockNumber) {
@@ -277,12 +321,12 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
       emit VotingPowerChanged(voter, oldVotes, newVotes);
     }
 
-    function safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
+    function _safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
         require(n < 2**32, errorMessage);
         return uint32(n);
     }
 
-    function getChainId() internal pure returns (uint) {
+    function _getChainId() internal pure returns (uint) {
         uint256 chainId;
         assembly { chainId := chainid() }
         return chainId;

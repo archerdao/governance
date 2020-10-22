@@ -60,9 +60,18 @@ struct StakeStorage {
     mapping (address => mapping (address => uint256)) stakes;
 }
 
+struct Delegation {
+    address delegate;
+    uint256 amount;
+}
+
  /// @notice All storage variables related to delegation
  struct DelegateStorage {
-    mapping (address => address) delegates;
+    // Mapping of delegator > delegate + amount
+    mapping (address => Delegation) delegations;
+
+    // How much total Voting Power a delegate currently has delegated to them
+    mapping (address => uint256) delegatedVotes;
  }
 
 library VotingPowerStorage {

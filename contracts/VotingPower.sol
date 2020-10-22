@@ -6,8 +6,9 @@ import "./lib/SafeMath.sol";
 import "./lib/Initializable.sol";
 import "./lib/ReentrancyGuardUpgradeSafe.sol";
 import "./lib/VotingPowerStorage.sol";
-import "./interfaces/IERC20.sol";
 import "./VotingPowerProxy.sol";
+import "./interfaces/IERC20.sol";
+
 
 contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     using SafeMath for uint256;
@@ -117,7 +118,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      * @param account The address to get votes balance
      * @return The number of current votes for `account`
      */
-    function getCurrentVotes(address account) external view returns (uint256) {
+    function getCurrentVotes(address account) public view returns (uint256) {
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 nCheckpoints = cs.numCheckpoints[account];
         return nCheckpoints > 0 ? cs.checkpoints[account][nCheckpoints - 1].votes : 0;
@@ -206,7 +207,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     }
 
     function _writeCheckpoint(address voter, uint32 nCheckpoints, uint256 oldVotes, uint256 newVotes) internal {
-      uint32 blockNumber = safe32(block.number, "Arch::_writeCheckpoint: block number exceeds 32 bits");
+      uint32 blockNumber = _safe32(block.number, "Arch::_writeCheckpoint: block number exceeds 32 bits");
 
       CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
       if (nCheckpoints > 0 && cs.checkpoints[voter][nCheckpoints - 1].fromBlock == blockNumber) {
@@ -219,7 +220,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
       emit VotingPowerChanged(voter, oldVotes, newVotes);
     }
 
-    function safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
+    function _safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
         require(n < 2**32, errorMessage);
         return uint32(n);
     }

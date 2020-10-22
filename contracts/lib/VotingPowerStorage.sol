@@ -25,7 +25,6 @@ struct AdminStorage {
 
 /// @notice App metadata storage
 struct AppStorage {
-
     // A record of states for signing / validating signatures
     mapping (address => uint) nonces;
 
