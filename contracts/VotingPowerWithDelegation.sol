@@ -6,12 +6,14 @@ import "./lib/SafeMath.sol";
 import "./lib/Initializable.sol";
 import "./lib/ReentrancyGuardUpgradeSafe.sol";
 import "./lib/VotingPowerStorageWithDelegation.sol";
+import "./lib/SafeERC20.sol";
 import "./VotingPowerProxyWithDelegation.sol";
 import "./interfaces/IERC20.sol";
 
 
 contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
     /// @notice An event that's emitted when a user's staked balance increases
     event Staked(address indexed user, address token, uint256 amount);
@@ -109,11 +111,11 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
 
     /**
      * @notice Get total amount of tokens staked in contract
-     * @param _stakedToken The staked token
+     * @param stakedToken The staked token
      */
-    function totalStaked(address _stakedToken) public view returns (uint256) {
+    function totalStaked(address stakedToken) public view returns (uint256) {
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        return ss.totalStaked[_stakedToken];
+        return ss.totalStaked[stakedToken];
     }
 
     /**
@@ -243,7 +245,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         ss.totalStaked[token].add(tokenAmount);
         ss.stakes[msg.sender][token].add(tokenAmount);
 
-        IERC20(token).transferFrom(msg.sender, address(this), tokenAmount);
+        IERC20(token).safeTransferFrom(msg.sender, address(this), tokenAmount);
 
         emit Staked(msg.sender, token, tokenAmount);
 
@@ -255,7 +257,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         ss.totalStaked[token].sub(tokenAmount);
         ss.stakes[msg.sender][token].sub(tokenAmount);
         
-        IERC20(token).transfer(msg.sender, tokenAmount);
+        IERC20(token).safeTransfer(msg.sender, tokenAmount);
 
         emit Withdrawn(msg.sender, token, tokenAmount);
         

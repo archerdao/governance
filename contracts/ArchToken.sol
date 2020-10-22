@@ -17,22 +17,25 @@ contract ArchToken {
     uint8 public constant decimals = 18;
 
     /// @notice Total number of tokens in circulation
-    uint public totalSupply = 100_000_000e18; // 100 million
+    uint256 public totalSupply = 100_000_000e18; // 100 million
 
-    /// @notice Address which may mint new tokens
-    address public minter;
+    /// @notice Address which may mint/burn tokens
+    address public supplyManager;
 
     /// @notice Address which may change token metadata
-    address public manager;
+    address public metadataManager;
 
-    /// @notice The timestamp after which minting may occur
-    uint public mintingAllowedAfter;
+    /// @notice The timestamp after which a supply change may occur
+    uint256 public supplyChangeAllowedAfter;
 
-    /// @notice Minimum time between mints
-    uint32 public constant minimumTimeBetweenMints = 1 days * 365;
+    /// @notice The initial minimum time between changing the token supply
+    uint32 public supplyChangeWaitingPeriod = 1 days * 365;
 
-    /// @notice Cap on the percentage of totalSupply that can be minted at each mint
-    uint8 public constant mintCap = 2;
+    /// @notice Hard cap on the minimum time between changing the token supply
+    uint32 public constant supplyChangeWaitingPeriodMinimum = 1 days * 90;
+
+    /// @notice Cap on the total amount that can be minted at each mint (measured in bips: 10,000 bips = 1% of current totalSupply)
+    uint16 public mintCap = 20_000;
 
     /// @dev Allowance amounts on behalf of others
     mapping (address => mapping (address => uint256)) internal allowances;
@@ -49,11 +52,17 @@ contract ArchToken {
     /// @notice A record of states for signing / validating signatures
     mapping (address => uint) public nonces;
 
-    /// @notice An event that's emitted when the minter address is changed
-    event MinterChanged(address minter, address newMinter);
+    /// @notice An event that's emitted when the mintCap is changed
+    event MintCapChanged(uint16 indexed oldMintCap, uint16 indexed newMintCap);
 
-    /// @notice An event that's emitted when the minter address is changed
-    event ManagerChanged(address manager, address newManager);
+    /// @notice An event that's emitted when the supplyManager address is changed
+    event SupplyManagerChanged(address indexed oldManager, address indexed newManager);
+
+    /// @notice An event that's emitted when the supplyChangeWaitingPeriod is changed
+    event SupplyChangeWaitingPeriodChanged(uint32 indexed oldWaitingPeriod, uint32 indexed newWaitingPeriod);
+
+    /// @notice An event that's emitted when the metadataManager address is changed
+    event MetadataManagerChanged(address indexed oldManager, address indexed newManager);
 
     /// @notice An event that's emitted when the token name and symbol are changed
     event TokenMetaUpdated(string name, string symbol);
@@ -67,42 +76,42 @@ contract ArchToken {
     /**
      * @notice Construct a new Arch token
      * @param _account The initial account to grant all the tokens
-     * @param _minter The account with minting ability
-     * @param _manager The account with the ability to change token metadata
-     * @param _mintingAllowedAfter The timestamp after which minting may occur
+     * @param _metadataManager The account with the ability to change token metadata
+     * @param _supplyManager The address with minting ability
+     * @param _firstSupplyChangeAllowed The timestamp after which the first supply change may occur
      */
-    constructor(address _account, address _minter, address _manager, uint _mintingAllowedAfter) {
-        require(_mintingAllowedAfter >= block.timestamp, "Arch::constructor: minting can only begin after deployment");
+    constructor(address _account, address _metadataManager, address _supplyManager, uint256 _firstSupplyChangeAllowed) {
+        require(_firstSupplyChangeAllowed >= block.timestamp, "Arch::constructor: minting can only begin after deployment");
 
         balances[_account] = uint256(totalSupply);
         emit Transfer(address(0), _account, totalSupply);
 
-        mintingAllowedAfter = _mintingAllowedAfter;
-        minter = _minter;
-        emit MinterChanged(address(0), minter);
+        supplyChangeAllowedAfter = _firstSupplyChangeAllowed;
+        supplyManager = _supplyManager;
+        emit SupplyManagerChanged(address(0), _supplyManager);
 
-        manager = _manager;
-        emit ManagerChanged(address(0), manager);
+        metadataManager = _metadataManager;
+        emit MetadataManagerChanged(address(0), metadataManager);
     }
 
     /**
-     * @notice Change the minter address
-     * @param _minter The address of the new minter
+     * @notice Change the supplyManager address
+     * @param newSupplyManager The address of the new supply manager
      */
-    function setMinter(address _minter) external {
-        require(msg.sender == minter, "Arch::setMinter: only the minter can change the minter address");
-        emit MinterChanged(minter, _minter);
-        minter = _minter;
+    function setSupplyManager(address newSupplyManager) external {
+        require(msg.sender == supplyManager, "Arch::setSupplyManager: only the current supplyManager can change the supplyManager address");
+        emit SupplyManagerChanged(supplyManager, newSupplyManager);
+        supplyManager = newSupplyManager;
     }
 
     /**
-     * @notice Change the manager address
-     * @param _manager The address of the new manager
+     * @notice Change the metadataManager address
+     * @param newMetadataManager The address of the new metadata manager
      */
-    function setManager(address _manager) external {
-        require(msg.sender == manager, "Arch::setManager: only the manager can change the manager address");
-        emit ManagerChanged(manager, _manager);
-        manager = _manager;
+    function setMetadataManager(address newMetadataManager) external {
+        require(msg.sender == metadataManager, "Arch::setMetadataManager: only the current metadataManager can change the metadataManager address");
+        emit MetadataManagerChanged(metadataManager, newMetadataManager);
+        metadataManager = newMetadataManager;
     }
 
     /**
@@ -110,14 +119,14 @@ contract ArchToken {
      * @param dst The address of the destination account
      * @param amount The number of tokens to be minted
      */
-    function mint(address dst, uint amount) external {
-        require(msg.sender == minter, "Arch::mint: only the minter can mint");
-        require(block.timestamp >= mintingAllowedAfter, "Arch::mint: minting not allowed yet");
+    function mint(address dst, uint256 amount) external {
+        require(msg.sender == supplyManager, "Arch::mint: only the supplyManager can mint");
+        require(block.timestamp >= supplyChangeAllowedAfter, "Arch::mint: minting not allowed yet");
         require(dst != address(0), "Arch::mint: cannot transfer to the zero address");
-        require(amount <= totalSupply.mul(mintCap).div(100), "Arch::mint: exceeded mint cap");
+        require(amount <= totalSupply.mul(mintCap).div(1000000), "Arch::mint: exceeded mint cap");
 
         // record the mint
-        mintingAllowedAfter = block.timestamp.add(minimumTimeBetweenMints);
+        supplyChangeAllowedAfter = block.timestamp.add(supplyChangeWaitingPeriod);
 
         // mint the amount
         totalSupply = totalSupply.add(amount);
@@ -128,14 +137,35 @@ contract ArchToken {
     }
 
     /**
-     * @notice Update the token name and symbol
-     * @param _tokenName The new name for the token
-     * @param _tokenSymbol The new symbol for the token
+     * @notice Set the maximum amount of tokens that can be minted at once
+     * @param newCap The new mint cap in bips (10,000 bips = 1% of totalSupply)
      */
-    function updateTokenMetadata(string memory _tokenName, string memory _tokenSymbol) external {
-        require(msg.sender == manager, "Arch::updateTokenMeta: only the manager can update token metadata");
-        name = _tokenName;
-        symbol = _tokenSymbol;
+    function setMintCap(uint16 newCap) external {
+        require(msg.sender == supplyManager, "Arch::setMintCap: only the supplyManager can change the mint cap");
+        emit MintCapChanged(mintCap, newCap);
+        mintCap = newCap;
+    }
+
+    /**
+     * @notice Set the minimum time between supply changes
+     * @param period The new supply change waiting period
+     */
+    function setSupplyChangeWaitingPeriod(uint32 period) external {
+        require(msg.sender == supplyManager, "Arch::setSupplyChangeWaitingPeriod: only the supplyManager can change the waiting period");
+        require(period >= supplyChangeWaitingPeriodMinimum, "Arch::setSupplyChangeWaitingPeriod: waiting period must be greater than minimum");
+        emit SupplyChangeWaitingPeriodChanged(supplyChangeWaitingPeriod, period);
+        supplyChangeWaitingPeriod = period;
+    }
+
+    /**
+     * @notice Update the token name and symbol
+     * @param tokenName The new name for the token
+     * @param tokenSymbol The new symbol for the token
+     */
+    function updateTokenMetadata(string memory tokenName, string memory tokenSymbol) external {
+        require(msg.sender == metadataManager, "Arch::updateTokenMeta: only the metadataManager can update token metadata");
+        name = tokenName;
+        symbol = tokenSymbol;
         emit TokenMetaUpdated(name, symbol);
     }
 
@@ -173,7 +203,7 @@ contract ArchToken {
      * @param r Half of the ECDSA signature pair
      * @param s Half of the ECDSA signature pair
      */
-    function permit(address owner, address spender, uint amount, uint deadline, uint8 v, bytes32 r, bytes32 s) external {
+    function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
         bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), _getChainId(), address(this)));
         bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, amount, nonces[owner]++, deadline));
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
