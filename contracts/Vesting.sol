@@ -160,33 +160,6 @@ contract Vesting {
         emit GrantTokensClaimed(recipient, amountVested);
     }
 
-    /// @notice Terminate token grant transferring all vested tokens to the `recipient`
-    /// and returning all non-vested tokens to the owner
-    /// Secured to the owner only
-    /// @param recipient the token grant recipient
-    // TODO: determine if needed
-    function removeTokenGrant(address recipient) 
-        external 
-    {
-        require(msg.sender == owner, "ArchVest::removeTokenGrant: not owner");
-        Grant storage tokenGrant = tokenGrants[recipient];
-        uint256 amountVested = calculateGrantClaim(recipient);
-        votingPower.removeVotingPowerForClaimedTokens(recipient, amountVested);
-
-        uint256 amountNotVested = (tokenGrant.amount.sub(tokenGrant.totalClaimed)).sub(amountVested);
-
-        require(token.transfer(recipient, amountVested));
-        require(token.transfer(owner, amountNotVested));
-
-        tokenGrant.startTime = 0;
-        tokenGrant.amount = 0;
-        tokenGrant.vestingDuration = 0;
-        tokenGrant.vestingCliff = 0;
-        tokenGrant.totalClaimed = 0;
-        
-        emit GrantRemoved(recipient, amountVested, amountNotVested);
-    }
-
     function tokensVestedPerDay(address recipient) public view returns(uint256) {
         Grant storage tokenGrant = tokenGrants[recipient];
         return tokenGrant.amount.div(uint256(tokenGrant.vestingDuration));
