@@ -113,7 +113,7 @@ contract SupplyManager {
     event BurnCanceled(uint256 indexed amount, address indexed source);
 
     /// @notice An event that's emitted when a new burn is accepted
-    event BurnAccepted(uint256 indexed amount, address indexed source, uint256 oldSupply, uint256 newSupply, );
+    event BurnAccepted(uint256 indexed amount, address indexed source, uint256 oldSupply, uint256 newSupply);
 
     /// @notice An event that's emitted when a new mint cap is proposed
     event MintCapProposed(uint16 indexed oldCap, uint16 indexed newCap, uint256 eta);
@@ -175,7 +175,7 @@ contract SupplyManager {
         uint256 eta = block.timestamp.add(proposalLength);
         require(eta >= token.supplyChangeAllowedAfter(), "Arch::proposeMint: minting not allowed yet");
         pendingMint = MintProposal(eta, dst, amount);
-        emit MintProposed(amount, dst, eta);
+        emit MintProposed(amount, dst, currentSupply, currentSupply.add(amount), eta);
     }
 
     /**
@@ -197,9 +197,10 @@ contract SupplyManager {
         require(block.timestamp >= pendingMint.eta, "Arch::acceptMint: proposal eta not yet passed");
         address dst = pendingMint.destination;
         uint256 amount = pendingMint.amount;
+        uint256 oldSupply = token.totalSupply();
         pendingMint = MintProposal(0, address(0), 0);
         require(token.mint(dst, amount), "Arch::acceptMint: unsuccessful");
-        emit MintAccepted(amount, dst);
+        emit MintAccepted(amount, dst, oldSupply, oldSupply.add(amount));
     }
 
     /**
@@ -211,10 +212,12 @@ contract SupplyManager {
         require(msg.sender == admin, "Arch::proposeBurn: caller must be admin");
         require(src != address(0), "Arch::proposeBurn: cannot transfer from the zero address");
         require(token.allowance(src, address(this)) >= amount, "Arch::proposeBurn: supplyManager approval < amount");
+        uint256 currentSupply = token.totalSupply();
+        uint256 newSupply = currentSupply.sub(amount);
         uint256 eta = block.timestamp.add(proposalLength);
         require(eta >= token.supplyChangeAllowedAfter(), "Arch::proposeBurn: burning not allowed yet");
         pendingBurn = BurnProposal(eta, src, amount);
-        emit BurnProposed(amount, src, eta);
+        emit BurnProposed(amount, src, currentSupply, newSupply, eta);
     }
 
     /**
@@ -238,7 +241,8 @@ contract SupplyManager {
         uint256 amount = pendingBurn.amount;
         pendingBurn = BurnProposal(0, address(0), 0);
         require(token.burn(src, amount), "Arch::acceptBurn: unsuccessful");
-        emit BurnAccepted(amount, src);
+        uint256 newSupply = token.totalSupply();
+        emit BurnAccepted(amount, src, newSupply.add(amount), newSupply);
     }
 
     /**
