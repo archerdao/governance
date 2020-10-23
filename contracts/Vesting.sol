@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./lib/SafeMath.sol";
@@ -9,16 +9,6 @@ import "./interfaces/IVotingPower.sol";
 contract Vesting {
     using SafeMath for uint256;
     using SafeMath for uint16;
-    
-    modifier onlyOwner {
-        require(msg.sender == owner, "not owner");
-        _;
-    }
-
-    modifier onlyValidAddress(address _address) {
-        require(_address != address(0) && _address != address(this) && _address != address(token), "not valid _address");
-        _;
-    }
 
     uint256 constant internal SECONDS_PER_DAY = 86400;
 
@@ -30,78 +20,80 @@ contract Vesting {
         uint256 totalClaimed;
     }
 
-    event GrantAdded(address indexed recipient, uint256 amount, uint16 vestingDurationInDays, uint16 vestingCliffInDays, uint16 grantId);
+    event GrantAdded(address indexed recipient, uint256 amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays, uint16 grantId);
     event GrantTokensClaimed(address indexed recipient, uint256 amountClaimed);
     event GrantRemoved(address recipient, uint256 amountVested, uint256 amountNotVested);
     event ChangedOwner(address indexed newOwner, address oldOwner);
     event ChangedVotingPower(address indexed newContract, address oldContract);
 
     IArchToken public token;
-
     IVotingPower public votingPower;
     
     mapping (address => Grant) public tokenGrants;
     address public owner;
-    uint16 public totalVestingCount;
+    uint16 public currentGrantId;
 
-    constructor(address _token) public {
-        require(_token != address(0));
+    constructor(address _token) {
+        require(_token != address(0), "ArchVest::constructor: must be valid token address");
         token = IArchToken(_token);
         owner = msg.sender;
     }
     
     function addTokenGrant(
-        address _recipient,
-        uint256 _startTime,
-        uint256 _amount,
-        uint16 _vestingDurationInDays,
-        uint16 _vestingCliffInDays
+        address recipient,
+        uint256 startTime,
+        uint256 amount,
+        uint16 vestingDurationInDays,
+        uint16 vestingCliffInDays
     ) 
         external
-        onlyOwner
     {
-        require(address(votingPower) != address(0), "Set Voting Power contract first");
-        require(_vestingCliffInDays <= 10*365, "more than 10 years");
-        require(_vestingDurationInDays <= 25*365, "more than 25 years");
-        require(_vestingDurationInDays >= _vestingCliffInDays, "Duration < Cliff");
-        require(tokenGrants[_recipient].amount == 0, "grant already exists for account");
+        require(msg.sender == owner, "ArchVest::addTokenGrant: not owner");
+        require(address(votingPower) != address(0), "ArchVest::addTokenGrant: Set Voting Power contract first");
+        require(vestingCliffInDays <= 10*365, "ArchVest::addTokenGrant: cliff more than 10 years");
+        require(vestingDurationInDays > 0, "ArchVest::addTokenGrant: duration must be > 0");
+        require(vestingDurationInDays <= 25*365, "ArchVest::addTokenGrant: duration more than 25 years");
+        require(vestingDurationInDays >= vestingCliffInDays, "ArchVest::addTokenGrant: Duration < Cliff");
+        require(tokenGrants[recipient].amount == 0, "ArchVest::addTokenGrant: grant already exists for account");
         
-        uint256 amountVestedPerDay = _amount.div(_vestingDurationInDays);
-        require(amountVestedPerDay > 0, "amountVestedPerDay > 0");
+        uint256 amountVestedPerDay = amount.div(vestingDurationInDays);
+        require(amountVestedPerDay > 0, "ArchVest::addTokenGrant: amountVestedPerDay > 0");
 
         // Transfer the grant tokens under the control of the vesting contract
-        require(token.transferFrom(owner, address(this), _amount), "transfer failed");
+        require(token.transferFrom(owner, address(this), amount), "ArchVest::addTokenGrant: transfer failed");
+
+        uint256 grantStartTime = startTime == 0 ? block.timestamp : startTime;
 
         Grant memory grant = Grant({
-            startTime: _startTime == 0 ? currentTime() : _startTime,
-            amount: _amount,
-            vestingDuration: _vestingDurationInDays,
-            vestingCliff: _vestingCliffInDays,
+            startTime: grantStartTime,
+            amount: amount,
+            vestingDuration: vestingDurationInDays,
+            vestingCliff: vestingCliffInDays,
             totalClaimed: 0
         });
-        tokenGrants[_recipient] = grant;
-        emit GrantAdded(_recipient, _amount, _vestingDurationInDays, _vestingCliffInDays, totalVestingCount);
-        totalVestingCount++;
-        votingPower.addVotingPowerForVestingTokens(_recipient, _amount);
+        tokenGrants[recipient] = grant;
+        emit GrantAdded(recipient, amount, grantStartTime, vestingDurationInDays, vestingCliffInDays, currentGrantId);
+        currentGrantId++;
+        votingPower.addVotingPowerForVestingTokens(recipient, amount);
     }
 
-    function getTokenGrant(address _recipient) public view returns(Grant memory){
-        return tokenGrants[_recipient];
+    function getTokenGrant(address recipient) public view returns(Grant memory){
+        return tokenGrants[recipient];
     }
 
-    /// @notice Calculate the vested and unclaimed tokens available for `_recipient` to claim
+    /// @notice Calculate the vested and unclaimed tokens available for `recipient` to claim
     /// Due to rounding errors once grant duration is reached, returns the entire left grant amount
     /// Returns 0 if cliff has not been reached
-    function calculateGrantClaim(address _recipient) public view returns (uint256) {
-        Grant storage tokenGrant = tokenGrants[_recipient];
+    function calculateGrantClaim(address recipient) public view returns (uint256) {
+        Grant storage tokenGrant = tokenGrants[recipient];
 
         // For grants created with a future start date, that hasn't been reached, return 0, 0
-        if (currentTime() < tokenGrant.startTime) {
+        if (block.timestamp < tokenGrant.startTime) {
             return 0;
         }
 
         // Check cliff was reached
-        uint elapsedTime = currentTime().sub(tokenGrant.startTime);
+        uint elapsedTime = block.timestamp.sub(tokenGrant.startTime);
         uint elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
         
         if (elapsedDays < tokenGrant.vestingCliff) {
@@ -120,18 +112,18 @@ contract Vesting {
         }
     }
 
-    /// @notice Calculate the vested (claimed + unclaimed) tokens for `_recipient`
+    /// @notice Calculate the vested (claimed + unclaimed) tokens for `recipient`
     /// Returns 0 if cliff has not been reached
-    function vestedBalance(address _recipient) external view returns (uint256) {
-        Grant storage tokenGrant = tokenGrants[_recipient];
+    function vestedBalance(address recipient) external view returns (uint256) {
+        Grant storage tokenGrant = tokenGrants[recipient];
 
         // For grants created with a future start date, that hasn't been reached, return 0, 0
-        if (currentTime() < tokenGrant.startTime) {
+        if (block.timestamp < tokenGrant.startTime) {
             return 0;
         }
 
         // Check cliff was reached
-        uint elapsedTime = currentTime().sub(tokenGrant.startTime);
+        uint elapsedTime = block.timestamp.sub(tokenGrant.startTime);
         uint elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
         
         if (elapsedDays < tokenGrant.vestingCliff) {
@@ -148,79 +140,49 @@ contract Vesting {
         }
     }
 
-    /// @notice Return the number of claimed tokens by `_recipient`
-    function claimedBalance(address _recipient) external view returns (uint256) {
-        Grant storage tokenGrant = tokenGrants[_recipient];
+    /// @notice Return the number of claimed tokens by `recipient`
+    function claimedBalance(address recipient) external view returns (uint256) {
+        Grant storage tokenGrant = tokenGrants[recipient];
         return tokenGrant.totalClaimed;
     }
 
     /// @notice Allows a grant recipient to claim their vested tokens. Errors if no tokens have vested
     /// It is advised recipients check they are entitled to claim via `calculateGrantClaim` before calling this
-    function claimVestedTokens(address _recipient) external {
-        uint256 amountVested = calculateGrantClaim(_recipient);
+    function claimVestedTokens(address recipient) external {
+        uint256 amountVested = calculateGrantClaim(recipient);
         require(amountVested > 0, "amountVested is 0");
-        votingPower.removeVotingPowerForClaimedTokens(_recipient, amountVested);
+        votingPower.removeVotingPowerForClaimedTokens(recipient, amountVested);
 
-        Grant storage tokenGrant = tokenGrants[_recipient];
+        Grant storage tokenGrant = tokenGrants[recipient];
         tokenGrant.totalClaimed = uint256(tokenGrant.totalClaimed.add(amountVested));
         
-        require(token.transfer(_recipient, amountVested), "no tokens");
-        emit GrantTokensClaimed(_recipient, amountVested);
+        require(token.transfer(recipient, amountVested), "no tokens");
+        emit GrantTokensClaimed(recipient, amountVested);
     }
 
-    /// @notice Terminate token grant transferring all vested tokens to the `_recipient`
-    /// and returning all non-vested tokens to the owner
-    /// Secured to the owner only
-    /// @param _recipient the token grant recipient
-    // TODO: determine if needed
-    function removeTokenGrant(address _recipient) 
-        external 
-        onlyOwner
-    {
-        Grant storage tokenGrant = tokenGrants[_recipient];
-        uint256 amountVested = calculateGrantClaim(_recipient);
-        votingPower.removeVotingPowerForClaimedTokens(_recipient, amountVested);
-
-        uint256 amountNotVested = (tokenGrant.amount.sub(tokenGrant.totalClaimed)).sub(amountVested);
-
-        require(token.transfer(_recipient, amountVested));
-        require(token.transfer(owner, amountNotVested));
-
-        tokenGrant.startTime = 0;
-        tokenGrant.amount = 0;
-        tokenGrant.vestingDuration = 0;
-        tokenGrant.vestingCliff = 0;
-        tokenGrant.totalClaimed = 0;
-        
-        emit GrantRemoved(_recipient, amountVested, amountNotVested);
-    }
-
-    function currentTime() private view returns(uint256) {
-        return block.timestamp;
-    }
-
-    function tokensVestedPerDay(address _recipient) public view returns(uint256) {
-        Grant storage tokenGrant = tokenGrants[_recipient];
+    function tokensVestedPerDay(address recipient) public view returns(uint256) {
+        Grant storage tokenGrant = tokenGrants[recipient];
         return tokenGrant.amount.div(uint256(tokenGrant.vestingDuration));
     }
 
-    function setVotingPowerContract(address _newContract) 
+    function setVotingPowerContract(address newContract) 
         external 
-        onlyOwner
-        onlyValidAddress(_newContract)
     {
+        require(msg.sender == owner, "ArchVest::setVotingPowerContract: not owner");
+        require(newContract != address(0) && newContract != address(this) && newContract != address(token), "ArchVest::setVotingPowerContract: not valid contract address");
         address oldContract = address(votingPower);
-        votingPower = IVotingPower(_newContract);
-        emit ChangedVotingPower(_newContract, oldContract);
+        votingPower = IVotingPower(newContract);
+        emit ChangedVotingPower(newContract, oldContract);
     }
 
-    function changeOwner(address _newOwner) 
-        external 
-        onlyOwner
-        onlyValidAddress(_newOwner)
+    function changeOwner(address newOwner) 
+        external
     {
+        require(msg.sender == owner, "ArchVest::changeOwner: not owner");
+        require(newOwner != address(0) && newOwner != address(this) && newOwner != address(token), "ArchVest::changeOwner: not valid address");
+
         address oldOwner = owner;
-        owner = _newOwner;
-        emit ChangedOwner(_newOwner, oldOwner);
+        owner = newOwner;
+        emit ChangedOwner(newOwner, oldOwner);
     }
 }

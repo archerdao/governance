@@ -1,57 +1,37 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./lib/SafeMath.sol";
-import "./lib/ReentrancyGuard.sol";
-import "./interfaces/IArchToken.sol";
-import "./interfaces/IVesting.sol";
+import "./lib/Initializable.sol";
+import "./lib/ReentrancyGuardUpgradeSafe.sol";
+import "./lib/VotingPowerStorage.sol";
+import "./lib/SafeERC20.sol";
+import "./VotingPowerProxy.sol";
+import "./interfaces/IERC20.sol";
 
-contract VotingPower is ReentrancyGuard {
+
+contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     using SafeMath for uint256;
-
-    /// @notice ARCH token
-    IArchToken public archToken;
-
-    /// @notice Vesting contract
-    IVesting public vesting;
-
-    /// @notice Total amount staked in the VotingPower contract
-    uint256 public totalStaked;
-
-    /// @dev Official record of staked balances for each account
-    mapping (address => uint256) internal stakes;
-
-    /// @notice A checkpoint for marking number of votes from a given block
-    struct Checkpoint {
-        uint32 fromBlock;
-        uint256 votes;
-    }
-
-    /// @notice A record of votes checkpoints for each account, by index
-    mapping (address => mapping (uint32 => Checkpoint)) public checkpoints;
-
-    /// @notice The number of checkpoints for each account
-    mapping (address => uint32) public numCheckpoints;
-
-    /// @notice A record of states for signing / validating signatures
-    mapping (address => uint) public nonces;
+    using SafeERC20 for IERC20;
 
     /// @notice An event that's emitted when a user's staked balance increases
-    event Staked(address indexed user, uint256 amount);
+    event Staked(address indexed user, address token, uint256 amount);
 
     /// @notice An event that's emitted when a user's staked balance decreases
-    event Withdrawn(address indexed user, uint256 amount);
+    event Withdrawn(address indexed user, address token, uint256 amount);
 
     /// @notice An event that's emitted when an account's vote balance changes
     event VotingPowerChanged(address indexed voter, uint previousBalance, uint newBalance);
 
-    constructor(
+    function initialize(
         address _archToken,
         address _vestingContract
-    ) public {
-        archToken = IArchToken(_archToken);
-        vesting = IVesting(_vestingContract);
+    ) public initializer {
+        __ReentrancyGuard_init_unchained();
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        app.archToken = IArchToken(_archToken);
+        app.vesting = IVesting(_vestingContract);
     }
 
     /**
@@ -64,13 +44,10 @@ contract VotingPower is ReentrancyGuard {
      */
     function stakeWithPermit(uint256 amount, uint deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
         require(amount > 0, "Cannot stake 0");
-        archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
-        totalStaked = totalStaked.add(amount);
-        stakes[msg.sender] = stakes[msg.sender].add(amount);
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        app.archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
 
-        archToken.transferFrom(msg.sender, address(this), amount);
-        emit Staked(msg.sender, amount);
-        _increaseVotingPower(msg.sender, amount);
+        _stake(address(app.archToken), amount, amount);
     }
 
     /**
@@ -78,13 +55,11 @@ contract VotingPower is ReentrancyGuard {
      * @param amount The amount to stake
      */
     function stake(uint256 amount) external nonReentrant {
+        AppStorage storage app = VotingPowerStorage.appStorage();
         require(amount > 0, "Cannot stake 0");
-        require(archToken.allowance(msg.sender, address(this)) >= amount, "Must approve tokens before staking");
-        totalStaked = totalStaked.add(amount);
-        stakes[msg.sender] = stakes[msg.sender].add(amount);
-        archToken.transferFrom(msg.sender, address(this), amount);
-        emit Staked(msg.sender, amount);
-        _increaseVotingPower(msg.sender, amount);
+        require(app.archToken.allowance(msg.sender, address(this)) >= amount, "Must approve tokens before staking");
+
+        _stake(address(app.archToken), amount, amount);
     }
 
     /**
@@ -93,8 +68,10 @@ contract VotingPower is ReentrancyGuard {
      * @param amount The amount of voting power to add
      */
     function addVotingPowerForVestingTokens(address account, uint256 amount) external nonReentrant {
+        AppStorage storage app = VotingPowerStorage.appStorage();
         require(amount > 0, "Cannot add 0 voting power");
-        require(msg.sender == address(vesting), "Only vesting contract");
+        require(msg.sender == address(app.vesting), "Only vesting contract");
+
         _increaseVotingPower(account, amount);
     }
 
@@ -104,8 +81,10 @@ contract VotingPower is ReentrancyGuard {
      * @param amount The amount of voting power to remove
      */
     function removeVotingPowerForClaimedTokens(address account, uint256 amount) external nonReentrant {
+        AppStorage storage app = VotingPowerStorage.appStorage();
         require(amount > 0, "Cannot remove 0 voting power");
-        require(msg.sender == address(vesting), "Only vesting contract");
+        require(msg.sender == address(app.vesting), "Only vesting contract");
+
         _decreaseVotingPower(account, amount);
     }
 
@@ -115,11 +94,25 @@ contract VotingPower is ReentrancyGuard {
      */
     function withdraw(uint256 amount) external nonReentrant {
         require(amount > 0, "Cannot withdraw 0");
-        totalStaked = totalStaked.sub(amount);
-        stakes[msg.sender] = stakes[msg.sender].sub(amount);
-        archToken.transfer(msg.sender, amount);
-        emit Withdrawn(msg.sender, amount);
-        _decreaseVotingPower(msg.sender, amount);
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        _withdraw(address(app.archToken), amount, amount);
+    }
+
+    /**
+     * @notice Get total amount of ARCH tokens staked in contract
+     */
+    function totalARCHStaked() public view returns (uint256) {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        return totalStaked(address(app.archToken));
+    }
+
+    /**
+     * @notice Get total amount of tokens staked in contract
+     * @param stakedToken The staked token
+     */
+    function totalStaked(address stakedToken) public view returns (uint256) {
+        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
+        return ss.totalStaked[stakedToken];
     }
 
     /**
@@ -127,9 +120,10 @@ contract VotingPower is ReentrancyGuard {
      * @param account The address to get votes balance
      * @return The number of current votes for `account`
      */
-    function getCurrentVotes(address account) external view returns (uint256) {
-        uint32 nCheckpoints = numCheckpoints[account];
-        return nCheckpoints > 0 ? checkpoints[account][nCheckpoints - 1].votes : 0;
+    function getCurrentVotes(address account) public view returns (uint256) {
+        CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
+        uint32 nCheckpoints = cs.numCheckpoints[account];
+        return nCheckpoints > 0 ? cs.checkpoints[account][nCheckpoints - 1].votes : 0;
     }
 
     /**
@@ -141,19 +135,20 @@ contract VotingPower is ReentrancyGuard {
      */
     function getPriorVotes(address account, uint blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "Arch::getPriorVotes: not yet determined");
-
-        uint32 nCheckpoints = numCheckpoints[account];
+        
+        CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
+        uint32 nCheckpoints = cs.numCheckpoints[account];
         if (nCheckpoints == 0) {
             return 0;
         }
 
         // First check most recent balance
-        if (checkpoints[account][nCheckpoints - 1].fromBlock <= blockNumber) {
-            return checkpoints[account][nCheckpoints - 1].votes;
+        if (cs.checkpoints[account][nCheckpoints - 1].fromBlock <= blockNumber) {
+            return cs.checkpoints[account][nCheckpoints - 1].votes;
         }
 
         // Next check implicit zero balance
-        if (checkpoints[account][0].fromBlock > blockNumber) {
+        if (cs.checkpoints[account][0].fromBlock > blockNumber) {
             return 0;
         }
 
@@ -161,7 +156,7 @@ contract VotingPower is ReentrancyGuard {
         uint32 upper = nCheckpoints - 1;
         while (upper > lower) {
             uint32 center = upper - (upper - lower) / 2; // ceil, avoiding overflow
-            Checkpoint memory cp = checkpoints[account][center];
+            Checkpoint memory cp = cs.checkpoints[account][center];
             if (cp.fromBlock == blockNumber) {
                 return cp.votes;
             } else if (cp.fromBlock < blockNumber) {
@@ -170,52 +165,70 @@ contract VotingPower is ReentrancyGuard {
                 upper = center - 1;
             }
         }
-        return checkpoints[account][lower].votes;
+        return cs.checkpoints[account][lower].votes;
+    }
+
+    function _stake(address token, uint256 tokenAmount, uint256 votingPower) internal {
+        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
+        ss.totalStaked[token].add(tokenAmount);
+        ss.stakes[msg.sender][token].add(tokenAmount);
+
+        IERC20(token).safeTransferFrom(msg.sender, address(this), tokenAmount);
+
+        emit Staked(msg.sender, token, tokenAmount);
+
+        _increaseVotingPower(msg.sender, votingPower);
+    }
+
+    function _withdraw(address token, uint256 tokenAmount, uint256 votingPower) internal {
+        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
+        ss.totalStaked[token].sub(tokenAmount);
+        ss.stakes[msg.sender][token].sub(tokenAmount);
+        
+        IERC20(token).safeTransfer(msg.sender, tokenAmount);
+
+        emit Withdrawn(msg.sender, token, tokenAmount);
+        
+        _decreaseVotingPower(msg.sender, votingPower);
     }
 
     function _increaseVotingPower(address voter, uint256 amount) internal {
-        // TODO: make sure it's not possible to mint voting power
-        uint32 checkpointNum = numCheckpoints[voter];
-        uint256 votingPowerOld = checkpointNum > 0 ? checkpoints[voter][checkpointNum - 1].votes : 0;
+        CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
+        uint32 checkpointNum = cs.numCheckpoints[voter];
+        uint256 votingPowerOld = checkpointNum > 0 ? cs.checkpoints[voter][checkpointNum - 1].votes : 0;
         uint256 votingPowerNew = votingPowerOld.add(amount);
         _writeCheckpoint(voter, checkpointNum, votingPowerOld, votingPowerNew);
     }
 
     function _decreaseVotingPower(address voter, uint256 amount) internal {
-        // TODO: make sure it's not possible to burn voting power
-        uint32 checkpointNum = numCheckpoints[voter];
-        uint256 votingPowerOld = checkpointNum > 0 ? checkpoints[voter][checkpointNum - 1].votes : 0;
+        CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
+        uint32 checkpointNum = cs.numCheckpoints[voter];
+        uint256 votingPowerOld = checkpointNum > 0 ? cs.checkpoints[voter][checkpointNum - 1].votes : 0;
         uint256 votingPowerNew = votingPowerOld.sub(amount);
         _writeCheckpoint(voter, checkpointNum, votingPowerOld, votingPowerNew);
     }
 
-    function _moveVotingPower(address srcRep, address dstRep, uint256 amount) internal {
-        if (srcRep != dstRep && amount > 0) {
-            if (srcRep != address(0)) {
-                _decreaseVotingPower(srcRep, amount);
-            }
-
-            if (dstRep != address(0)) {
-                _increaseVotingPower(dstRep, amount);
-            }
-        }
-    }
-
     function _writeCheckpoint(address voter, uint32 nCheckpoints, uint256 oldVotes, uint256 newVotes) internal {
-      uint32 blockNumber = safe32(block.number, "Arch::_writeCheckpoint: block number exceeds 32 bits");
+      uint32 blockNumber = _safe32(block.number, "Arch::_writeCheckpoint: block number exceeds 32 bits");
 
-      if (nCheckpoints > 0 && checkpoints[voter][nCheckpoints - 1].fromBlock == blockNumber) {
-          checkpoints[voter][nCheckpoints - 1].votes = newVotes;
+      CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
+      if (nCheckpoints > 0 && cs.checkpoints[voter][nCheckpoints - 1].fromBlock == blockNumber) {
+          cs.checkpoints[voter][nCheckpoints - 1].votes = newVotes;
       } else {
-          checkpoints[voter][nCheckpoints] = Checkpoint(blockNumber, newVotes);
-          numCheckpoints[voter] = nCheckpoints + 1;
+          cs.checkpoints[voter][nCheckpoints] = Checkpoint(blockNumber, newVotes);
+          cs.numCheckpoints[voter] = nCheckpoints + 1;
       }
 
       emit VotingPowerChanged(voter, oldVotes, newVotes);
     }
 
-    function safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
+    function _safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
         require(n < 2**32, errorMessage);
         return uint32(n);
+    }
+
+    function become(VotingPowerProxy proxy) public {
+        require(msg.sender == proxy.proxyAdmin(), "only proxy admin can change implementation");
+        require(proxy.acceptImplementation() == true, "change not authorized");
     }
 }

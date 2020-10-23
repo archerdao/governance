@@ -3,7 +3,9 @@ bin/
 flattened/
 node_modules/
 .env*
+!.env.sample
 yarn.lock
 package.lock
 package-lock.json
 *.DS_Store
+.vscode

@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: BSD 3-Clause
-pragma solidity ^0.6.12;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./lib/SafeMath.sol";
@@ -17,22 +17,25 @@ contract ArchToken {
     uint8 public constant decimals = 18;
 
     /// @notice Total number of tokens in circulation
-    uint public totalSupply = 100_000_000e18; // 100 million
+    uint256 public totalSupply = 100_000_000e18; // 100 million
 
-    /// @notice Address which may mint new tokens
-    address public minter;
+    /// @notice Address which may mint/burn tokens
+    address public supplyManager;
 
     /// @notice Address which may change token metadata
-    address public manager;
+    address public metadataManager;
 
-    /// @notice The timestamp after which minting may occur
-    uint public mintingAllowedAfter;
+    /// @notice The timestamp after which a supply change may occur
+    uint256 public supplyChangeAllowedAfter;
 
-    /// @notice Minimum time between mints
-    uint32 public constant minimumTimeBetweenMints = 1 days * 365;
+    /// @notice The initial minimum time between changing the token supply
+    uint32 public supplyChangeWaitingPeriod = 1 days * 365;
 
-    /// @notice Cap on the percentage of totalSupply that can be minted at each mint
-    uint8 public constant mintCap = 2;
+    /// @notice Hard cap on the minimum time between changing the token supply
+    uint32 public constant supplyChangeWaitingPeriodMinimum = 1 days * 90;
+
+    /// @notice Cap on the total amount that can be minted at each mint (measured in bips: 10,000 bips = 1% of current totalSupply)
+    uint16 public mintCap = 20_000;
 
     /// @dev Allowance amounts on behalf of others
     mapping (address => mapping (address => uint256)) internal allowances;
@@ -41,19 +44,38 @@ contract ArchToken {
     mapping (address => uint256) internal balances;
 
     /// @notice The EIP-712 typehash for the contract's domain
-    bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
+    /// keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")
+    bytes32 public constant DOMAIN_TYPEHASH = 0x8b73c3c69bb8fe3d512ecc4cf759cc79239f7b179b0ffacaa9a75d522b39400f;
+    
+    /// @notice The EIP-712 version hash
+    /// keccak256("1");
+    bytes32 public constant VERSION_HASH = 0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6;
 
     /// @notice The EIP-712 typehash for the permit struct used by the contract
-    bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+    /// keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+
+    /// @notice The EIP-3009 typehash for transferWithAuthorization
+    /// keccak256("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)");
+    bytes32 public constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH = 0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267;
 
     /// @notice A record of states for signing / validating signatures
     mapping (address => uint) public nonces;
 
-    /// @notice An event that's emitted when the minter address is changed
-    event MinterChanged(address minter, address newMinter);
+    /// @dev authorizer address > nonce > state (true = used / false = unused)
+    mapping (address => mapping (bytes32 => bool)) public authorizationState;
 
-    /// @notice An event that's emitted when the minter address is changed
-    event ManagerChanged(address manager, address newManager);
+    /// @notice An event that's emitted when the mintCap is changed
+    event MintCapChanged(uint16 indexed oldMintCap, uint16 indexed newMintCap);
+
+    /// @notice An event that's emitted when the supplyManager address is changed
+    event SupplyManagerChanged(address indexed oldManager, address indexed newManager);
+
+    /// @notice An event that's emitted when the supplyChangeWaitingPeriod is changed
+    event SupplyChangeWaitingPeriodChanged(uint32 indexed oldWaitingPeriod, uint32 indexed newWaitingPeriod);
+
+    /// @notice An event that's emitted when the metadataManager address is changed
+    event MetadataManagerChanged(address indexed oldManager, address indexed newManager);
 
     /// @notice An event that's emitted when the token name and symbol are changed
     event TokenMetaUpdated(string name, string symbol);
@@ -64,79 +86,140 @@ contract ArchToken {
     /// @notice The standard EIP-20 approval event
     event Approval(address indexed owner, address indexed spender, uint256 amount);
 
+    /// @notice An event that's emitted whenever an authorized transfer occurs
+    event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
+
     /**
      * @notice Construct a new Arch token
      * @param _account The initial account to grant all the tokens
-     * @param _minter The account with minting ability
-     * @param _manager The account with the ability to change token metadata
-     * @param _mintingAllowedAfter The timestamp after which minting may occur
+     * @param _metadataManager The account with the ability to change token metadata
+     * @param _supplyManager The address with minting ability
+     * @param _firstSupplyChangeAllowed The timestamp after which the first supply change may occur
      */
-    constructor(address _account, address _minter, address _manager, uint _mintingAllowedAfter) public {
-        require(_mintingAllowedAfter >= block.timestamp, "Arch::constructor: minting can only begin after deployment");
+    constructor(address _account, address _metadataManager, address _supplyManager, uint256 _firstSupplyChangeAllowed) {
+        require(_firstSupplyChangeAllowed >= block.timestamp, "Arch::constructor: minting can only begin after deployment");
 
         balances[_account] = uint256(totalSupply);
         emit Transfer(address(0), _account, totalSupply);
 
-        mintingAllowedAfter = _mintingAllowedAfter;
-        minter = _minter;
-        emit MinterChanged(address(0), minter);
+        supplyChangeAllowedAfter = _firstSupplyChangeAllowed;
+        supplyManager = _supplyManager;
+        emit SupplyManagerChanged(address(0), _supplyManager);
 
-        manager = _manager;
-        emit ManagerChanged(address(0), manager);
+        metadataManager = _metadataManager;
+        emit MetadataManagerChanged(address(0), metadataManager);
     }
 
     /**
-     * @notice Change the minter address
-     * @param _minter The address of the new minter
+     * @notice Change the supplyManager address
+     * @param newSupplyManager The address of the new supply manager
+     * @return true if successful
      */
-    function setMinter(address _minter) external {
-        require(msg.sender == minter, "Arch::setMinter: only the minter can change the minter address");
-        emit MinterChanged(minter, _minter);
-        minter = _minter;
+    function setSupplyManager(address newSupplyManager) external returns (bool) {
+        require(msg.sender == supplyManager, "Arch::setSupplyManager: only the current supplyManager can change the supplyManager address");
+        emit SupplyManagerChanged(supplyManager, newSupplyManager);
+        supplyManager = newSupplyManager;
+        return true;
     }
 
     /**
-     * @notice Change the manager address
-     * @param _manager The address of the new manager
+     * @notice Change the metadataManager address
+     * @param newMetadataManager The address of the new metadata manager
+     * @return true if successful
      */
-    function setManager(address _manager) external {
-        require(msg.sender == manager, "Arch::setManager: only the manager can change the manager address");
-        emit ManagerChanged(manager, _manager);
-        manager = _manager;
+    function setMetadataManager(address newMetadataManager) external returns (bool) {
+        require(msg.sender == metadataManager, "Arch::setMetadataManager: only the current metadataManager can change the metadataManager address");
+        emit MetadataManagerChanged(metadataManager, newMetadataManager);
+        metadataManager = newMetadataManager;
+        return true;
     }
 
     /**
      * @notice Mint new tokens
      * @param dst The address of the destination account
      * @param amount The number of tokens to be minted
+     * @return Boolean indicating success of mint
      */
-    function mint(address dst, uint amount) external {
-        require(msg.sender == minter, "Arch::mint: only the minter can mint");
-        require(block.timestamp >= mintingAllowedAfter, "Arch::mint: minting not allowed yet");
+    function mint(address dst, uint256 amount) external returns (bool) {
+        require(msg.sender == supplyManager, "Arch::mint: only the supplyManager can mint");
+        require(block.timestamp >= supplyChangeAllowedAfter, "Arch::mint: minting not allowed yet");
         require(dst != address(0), "Arch::mint: cannot transfer to the zero address");
+        require(amount <= totalSupply.mul(mintCap).div(1000000), "Arch::mint: exceeded mint cap");
 
-        // record the mint
-        mintingAllowedAfter = block.timestamp.add(minimumTimeBetweenMints);
+        // update the next supply change allowed timestamp
+        supplyChangeAllowedAfter = block.timestamp.add(supplyChangeWaitingPeriod);
 
         // mint the amount
-        require(amount <= totalSupply.mul(mintCap).div(100), "Arch::mint: exceeded mint cap");
-        totalSupply = totalSupply.add(amount);
+        _mint(dst, amount);
+        return true;
+    }
 
-        // transfer the amount to the recipient
-        balances[dst] = balances[dst].add(amount);
-        emit Transfer(address(0), dst, amount);
+    /**
+     * @notice Burn tokens
+     * @param src The account that will burn tokens
+     * @param amount The number of tokens to be burned
+     * @return Boolean indicating success of burn
+     */
+    function burn(address src, uint256 amount) external returns (bool) {
+        address spender = msg.sender;
+        uint256 spenderAllowance = allowances[src][spender];
+        require(src != address(0), "Arch::burn: cannot transfer from the zero address");
+        require(spender == supplyManager, "Arch::burn: only the supplyManager can burn");
+        require(block.timestamp >= supplyChangeAllowedAfter, "Arch::burn: burning not allowed yet");
+        
+        // check allowance and reduce by amount
+        if (spender != src && spenderAllowance != uint256(-1)) {
+            uint256 newAllowance = spenderAllowance.sub(amount);
+            allowances[src][spender] = newAllowance;
+
+            emit Approval(src, spender, newAllowance);
+        }
+
+        // update the next supply change allowed timestamp
+        supplyChangeAllowedAfter = block.timestamp.add(supplyChangeWaitingPeriod);
+
+        // burn the amount
+        _burn(src, amount);
+        return true;
+    }
+
+    /**
+     * @notice Set the maximum amount of tokens that can be minted at once
+     * @param newCap The new mint cap in bips (10,000 bips = 1% of totalSupply)
+     * @return true if successful
+     */
+    function setMintCap(uint16 newCap) external returns (bool) {
+        require(msg.sender == supplyManager, "Arch::setMintCap: only the supplyManager can change the mint cap");
+        emit MintCapChanged(mintCap, newCap);
+        mintCap = newCap;
+        return true;
+    }
+
+    /**
+     * @notice Set the minimum time between supply changes
+     * @param period The new supply change waiting period
+     * @return true if succssful
+     */
+    function setSupplyChangeWaitingPeriod(uint32 period) external returns (bool) {
+        require(msg.sender == supplyManager, "Arch::setSupplyChangeWaitingPeriod: only the supplyManager can change the waiting period");
+        require(period >= supplyChangeWaitingPeriodMinimum, "Arch::setSupplyChangeWaitingPeriod: waiting period must be greater than minimum");
+        emit SupplyChangeWaitingPeriodChanged(supplyChangeWaitingPeriod, period);
+        supplyChangeWaitingPeriod = period;
+        return true;
     }
 
     /**
      * @notice Update the token name and symbol
-     * @param _tokenName The new name for the token
-     * @param _tokenSymbol The new symbol for the token
+     * @param tokenName The new name for the token
+     * @param tokenSymbol The new symbol for the token
+     * @return true if successful
      */
-    function updateTokenMetadata(string memory _tokenName, string memory _tokenSymbol) external {
-        require(msg.sender == manager, "Arch::updateTokenMeta: only the manager can update token metadata");
-        name = _tokenName;
-        symbol = _tokenSymbol;
+    function updateTokenMetadata(string memory tokenName, string memory tokenSymbol) external returns (bool) {
+        require(msg.sender == metadataManager, "Arch::updateTokenMeta: only the metadataManager can update token metadata");
+        name = tokenName;
+        symbol = tokenSymbol;
         emit TokenMetaUpdated(name, symbol);
+        return true;
     }
 
     /**
@@ -157,34 +240,28 @@ contract ArchToken {
      * @param amount The number of tokens that are approved (2^256-1 means infinite)
      * @return Whether or not the approval succeeded
      */
-    function approve(address spender, uint amount) external returns (bool) {
-        allowances[msg.sender][spender] = amount;
-        emit Approval(msg.sender, spender, amount);
+    function approve(address spender, uint256 amount) external returns (bool) {
+        _approve(msg.sender, spender, amount);
         return true;
     }
 
     /**
-     * @notice Triggers an approval from owner to spends
+     * @notice Triggers an approval from owner to spender
      * @param owner The address to approve from
      * @param spender The address to be approved
-     * @param amount The number of tokens that are approved (2^256-1 means infinite)
+     * @param value The number of tokens that are approved (2^256-1 means infinite)
      * @param deadline The time at which to expire the signature
      * @param v The recovery byte of the signature
      * @param r Half of the ECDSA signature pair
      * @param s Half of the ECDSA signature pair
      */
-    function permit(address owner, address spender, uint amount, uint deadline, uint8 v, bytes32 r, bytes32 s) external {
-        bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), _getChainId(), address(this)));
-        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, amount, nonces[owner]++, deadline));
-        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
-        address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "Arch::permit: invalid signature");
-        require(signatory == owner, "Arch::permit: unauthorized");
-        require(block.timestamp <= deadline, "Arch::permit: signature expired");
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+        require(deadline >= block.timestamp, "Arch::permit: signature expired");
 
-        allowances[owner][spender] = amount;
+        bytes32 encodeData = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline));
+        _validateSignedData(owner, encodeData, v, r, s);
 
-        emit Approval(owner, spender, amount);
+        _approve(owner, spender, value);
     }
 
     /**
@@ -229,15 +306,123 @@ contract ArchToken {
         return true;
     }
 
-    function _transferTokens(address src, address dst, uint256 amount) internal {
-        require(src != address(0), "Arch::_transferTokens: cannot transfer from the zero address");
-        require(dst != address(0), "Arch::_transferTokens: cannot transfer to the zero address");
+    /**
+     * @notice Transfer tokens with a signed authorization
+     * @param from Payer's address (Authorizer)
+     * @param to Payee's address
+     * @param value Amount to be transferred
+     * @param validAfter The time after which this is valid (unix time)
+     * @param validBefore The time before which this is valid (unix time)
+     * @param nonce Unique nonce
+     * @param v The recovery byte of the signature
+     * @param r Half of the ECDSA signature pair
+     * @param s Half of the ECDSA signature pair
+     */
+    function transferWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    )
+        external
+    {
+        require(block.timestamp > validAfter, "Arch::transferWithAuth: auth not yet valid");
+        require(block.timestamp < validBefore, "Arch::transferWithAuth: auth expired");
+        require(!authorizationState[from][nonce],  "Arch::transferWithAuth: auth already used");
 
-        balances[src] = balances[src].sub(amount);
-        balances[dst] = balances[dst].add(amount);
-        emit Transfer(src, dst, amount);
+        bytes32 encodeData = keccak256(abi.encode(TRANSFER_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce));
+        _validateSignedData(from, encodeData, v, r, s);
+
+        authorizationState[from][nonce] = true;
+        emit AuthorizationUsed(from, nonce);
+
+        _transferTokens(from, to, value);
     }
 
+    /**
+     * @notice EIP-712 Domain separator
+     * @return Separator
+     */
+    function getDomainSeparator() public view returns (bytes32) {
+        return keccak256(
+            abi.encode(
+                DOMAIN_TYPEHASH,
+                keccak256(bytes(name)),
+                VERSION_HASH,
+                _getChainId(),
+                address(this)
+            )
+        );
+    }
+
+    /**
+     * @notice Recovers address from signed data and validates the signature
+     * @param signer Address that signed the data
+     * @param encodeData Data signed by the address
+     * @param v The recovery byte of the signature
+     * @param r Half of the ECDSA signature pair
+     * @param s Half of the ECDSA signature pair
+     */
+    function _validateSignedData(address signer, bytes32 encodeData, uint8 v, bytes32 r, bytes32 s) internal view {
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                getDomainSeparator(),
+                encodeData
+            )
+        );
+        address recoveredAddress = ecrecover(digest, v, r, s);
+        // Explicitly disallow authorizations for address(0) as ecrecover returns address(0) on malformed messages
+        require(recoveredAddress != address(0) && recoveredAddress == signer, "Arch::validateSig: invalid signature");
+    }
+
+    /**
+     * @notice Approval implementation
+     * @param owner The address of the account which owns tokens
+     * @param spender The address of the account which may transfer tokens
+     * @param amount The number of tokens that are approved (2^256-1 means infinite)
+     */
+    function _approve(address owner, address spender, uint256 amount) internal {
+        allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+    }
+
+    /**
+     * @notice Transfer implementation
+     * @param from The address of the account which owns tokens
+     * @param to The address of the account which is receiving tokens
+     * @param value The number of tokens that are being transferred
+     */
+    function _transferTokens(address from, address to, uint256 value) internal {
+        require(from != address(0), "Arch::_transferTokens: cannot transfer from the zero address");
+        require(to != address(0), "Arch::_transferTokens: cannot transfer to the zero address");
+
+        balances[from] = balances[from].sub(value);
+        balances[to] = balances[to].add(value);
+        emit Transfer(from, to, value);
+    }
+
+    function _mint(address to, uint256 value) internal {
+        totalSupply = totalSupply.add(value);
+        balances[to] = balances[to].add(value);
+        emit Transfer(address(0), to, value);
+    }
+
+    function _burn(address from, uint value) internal {
+        balances[from] = balances[from].sub(value);
+        totalSupply = totalSupply.sub(value);
+        emit Transfer(from, address(0), value);
+    }
+
+    /**
+     * @notice Current id of the chain where this contract is deployed
+     * @return Chain id
+     */
     function _getChainId() internal pure returns (uint) {
         uint256 chainId;
         assembly { chainId := chainid() }
