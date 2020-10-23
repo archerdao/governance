@@ -7,4 +7,4 @@ interface IVotingPower {
     function withdraw(uint256 amount) external;
     function addVotingPowerForVestingTokens(address account, uint256 amount) external;
     function removeVotingPowerForClaimedTokens(address account, uint256 amount) external;
-} 
+}

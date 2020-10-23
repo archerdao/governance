@@ -113,76 +113,113 @@ contract ArchToken {
     /**
      * @notice Change the supplyManager address
      * @param newSupplyManager The address of the new supply manager
+     * @return true if successful
      */
-    function setSupplyManager(address newSupplyManager) external {
+    function setSupplyManager(address newSupplyManager) external returns (bool) {
         require(msg.sender == supplyManager, "Arch::setSupplyManager: only the current supplyManager can change the supplyManager address");
         emit SupplyManagerChanged(supplyManager, newSupplyManager);
         supplyManager = newSupplyManager;
+        return true;
     }
 
     /**
      * @notice Change the metadataManager address
      * @param newMetadataManager The address of the new metadata manager
+     * @return true if successful
      */
-    function setMetadataManager(address newMetadataManager) external {
+    function setMetadataManager(address newMetadataManager) external returns (bool) {
         require(msg.sender == metadataManager, "Arch::setMetadataManager: only the current metadataManager can change the metadataManager address");
         emit MetadataManagerChanged(metadataManager, newMetadataManager);
         metadataManager = newMetadataManager;
+        return true;
     }
 
     /**
      * @notice Mint new tokens
      * @param dst The address of the destination account
      * @param amount The number of tokens to be minted
+     * @return Boolean indicating success of mint
      */
-    function mint(address dst, uint256 amount) external {
+    function mint(address dst, uint256 amount) external returns (bool) {
         require(msg.sender == supplyManager, "Arch::mint: only the supplyManager can mint");
         require(block.timestamp >= supplyChangeAllowedAfter, "Arch::mint: minting not allowed yet");
         require(dst != address(0), "Arch::mint: cannot transfer to the zero address");
         require(amount <= totalSupply.mul(mintCap).div(1000000), "Arch::mint: exceeded mint cap");
 
-        // record the mint
+        // update the next supply change allowed timestamp
         supplyChangeAllowedAfter = block.timestamp.add(supplyChangeWaitingPeriod);
 
         // mint the amount
-        totalSupply = totalSupply.add(amount);
+        _mint(dst, amount);
+        return true;
+    }
 
-        // transfer the amount to the recipient
-        balances[dst] = balances[dst].add(amount);
-        emit Transfer(address(0), dst, amount);
+    /**
+     * @notice Burn tokens
+     * @param src The account that will burn tokens
+     * @param amount The number of tokens to be burned
+     * @return Boolean indicating success of burn
+     */
+    function burn(address src, uint256 amount) external returns (bool) {
+        address spender = msg.sender;
+        uint256 spenderAllowance = allowances[src][spender];
+        require(src != address(0), "Arch::burn: cannot transfer from the zero address");
+        require(spender == supplyManager, "Arch::burn: only the supplyManager can burn");
+        require(block.timestamp >= supplyChangeAllowedAfter, "Arch::burn: burning not allowed yet");
+        
+        // check allowance and reduce by amount
+        if (spender != src && spenderAllowance != uint256(-1)) {
+            uint256 newAllowance = spenderAllowance.sub(amount);
+            allowances[src][spender] = newAllowance;
+
+            emit Approval(src, spender, newAllowance);
+        }
+
+        // update the next supply change allowed timestamp
+        supplyChangeAllowedAfter = block.timestamp.add(supplyChangeWaitingPeriod);
+
+        // burn the amount
+        _burn(src, amount);
+        return true;
     }
 
     /**
      * @notice Set the maximum amount of tokens that can be minted at once
      * @param newCap The new mint cap in bips (10,000 bips = 1% of totalSupply)
+     * @return true if successful
      */
-    function setMintCap(uint16 newCap) external {
+    function setMintCap(uint16 newCap) external returns (bool) {
         require(msg.sender == supplyManager, "Arch::setMintCap: only the supplyManager can change the mint cap");
         emit MintCapChanged(mintCap, newCap);
         mintCap = newCap;
+        return true;
     }
 
     /**
      * @notice Set the minimum time between supply changes
      * @param period The new supply change waiting period
+     * @return true if succssful
      */
-    function setSupplyChangeWaitingPeriod(uint32 period) external {
+    function setSupplyChangeWaitingPeriod(uint32 period) external returns (bool) {
         require(msg.sender == supplyManager, "Arch::setSupplyChangeWaitingPeriod: only the supplyManager can change the waiting period");
         require(period >= supplyChangeWaitingPeriodMinimum, "Arch::setSupplyChangeWaitingPeriod: waiting period must be greater than minimum");
         emit SupplyChangeWaitingPeriodChanged(supplyChangeWaitingPeriod, period);
         supplyChangeWaitingPeriod = period;
+        return true;
     }
 
     /**
      * @notice Update the token name and symbol
      * @param tokenName The new name for the token
      * @param tokenSymbol The new symbol for the token
+     * @return true if successful
      */
-    function updateTokenMetadata(string memory tokenName, string memory tokenSymbol) external {
+    function updateTokenMetadata(string memory tokenName, string memory tokenSymbol) external returns (bool) {
         require(msg.sender == metadataManager, "Arch::updateTokenMeta: only the metadataManager can update token metadata");
         name = tokenName;
         symbol = tokenSymbol;
         emit TokenMetaUpdated(name, symbol);
+        return true;
     }
 
     /**
@@ -357,17 +394,29 @@ contract ArchToken {
 
     /**
      * @notice Transfer implementation
-     * @param src The address of the account which owns tokens
-     * @param dst The address of the account which is receiving tokens
-     * @param amount The number of tokens that are being transferred
+     * @param from The address of the account which owns tokens
+     * @param to The address of the account which is receiving tokens
+     * @param value The number of tokens that are being transferred
      */
-    function _transferTokens(address src, address dst, uint256 amount) internal {
-        require(src != address(0), "Arch::_transferTokens: cannot transfer from the zero address");
-        require(dst != address(0), "Arch::_transferTokens: cannot transfer to the zero address");
+    function _transferTokens(address from, address to, uint256 value) internal {
+        require(from != address(0), "Arch::_transferTokens: cannot transfer from the zero address");
+        require(to != address(0), "Arch::_transferTokens: cannot transfer to the zero address");
 
-        balances[src] = balances[src].sub(amount);
-        balances[dst] = balances[dst].add(amount);
-        emit Transfer(src, dst, amount);
+        balances[from] = balances[from].sub(value);
+        balances[to] = balances[to].add(value);
+        emit Transfer(from, to, value);
+    }
+
+    function _mint(address to, uint256 value) internal {
+        totalSupply = totalSupply.add(value);
+        balances[to] = balances[to].add(value);
+        emit Transfer(address(0), to, value);
+    }
+
+    function _burn(address from, uint value) internal {
+        balances[from] = balances[from].sub(value);
+        totalSupply = totalSupply.sub(value);
+        emit Transfer(from, address(0), value);
     }
 
     /**
