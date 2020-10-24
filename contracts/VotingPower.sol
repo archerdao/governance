@@ -7,8 +7,8 @@ import "./lib/Initializable.sol";
 import "./lib/ReentrancyGuardUpgradeSafe.sol";
 import "./lib/VotingPowerStorage.sol";
 import "./lib/SafeERC20.sol";
-import "./VotingPowerProxy.sol";
 import "./interfaces/IERC20.sol";
+import "./VotingPowerPrism.sol";
 
 
 contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
@@ -227,8 +227,8 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         return uint32(n);
     }
 
-    function become(VotingPowerProxy proxy) public {
-        require(msg.sender == proxy.proxyAdmin(), "only proxy admin can change implementation");
-        require(proxy.acceptImplementation() == true, "change not authorized");
+    function become(VotingPowerPrism prism) public {
+        require(msg.sender == prism.proxyAdmin(), "only proxy admin can change implementation");
+        require(prism.acceptImplementation() == true, "change not authorized");
     }
 }

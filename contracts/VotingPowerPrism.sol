@@ -5,11 +5,11 @@ pragma experimental ABIEncoderV2;
 import "./lib/VotingPowerStorage.sol";
 
 /**
- * @title VotingPowerProxy
- * @dev Storage for the comptroller is at this address, while execution is delegated to the `votingPowerImplementation`.
- * CTokens should reference this contract as their comptroller.
+ * @title VotingPowerPrism
+ * @dev Storage for voting power is at this address, while execution is delegated to the `votingPowerImplementation`.
+ * All contracts that use voting power should reference this contract.
  */
-contract VotingPowerProxy {
+contract VotingPowerPrism {
     /**
       * @notice Emitted when pendingVotingPowerImplementation is changed
       */
