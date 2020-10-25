@@ -169,11 +169,11 @@ contract SupplyManager {
      */
     function proposeMint(address dst, uint256 amount) external {
         uint256 currentSupply = token.totalSupply();
-        require(msg.sender == admin, "Arch::proposeMint: caller must be admin");
-        require(dst != address(0), "Arch::proposeMint: cannot transfer to the zero address");
-        require(amount <= currentSupply.mul(token.mintCap()).div(1000000), "Arch::proposeMint: amount exceeds mint cap");
+        require(msg.sender == admin, "SM::proposeMint: caller must be admin");
+        require(dst != address(0), "SM::proposeMint: cannot transfer to the zero address");
+        require(amount <= currentSupply.mul(token.mintCap()).div(1000000), "SM::proposeMint: amount exceeds mint cap");
         uint256 eta = block.timestamp.add(proposalLength);
-        require(eta >= token.supplyChangeAllowedAfter(), "Arch::proposeMint: minting not allowed yet");
+        require(eta >= token.supplyChangeAllowedAfter(), "SM::proposeMint: minting not allowed yet");
         pendingMint = MintProposal(eta, dst, amount);
         emit MintProposed(amount, dst, currentSupply, currentSupply.add(amount), eta);
     }
@@ -182,8 +182,8 @@ contract SupplyManager {
      * @notice Cancel proposed token mint
      */
     function cancelMint() external {
-        require(msg.sender == admin, "Arch::cancelMint: caller must be admin");
-        require(pendingMint.eta != 0, "Arch::cancelMint: no active proposal");
+        require(msg.sender == admin, "SM::cancelMint: caller must be admin");
+        require(pendingMint.eta != 0, "SM::cancelMint: no active proposal");
         emit MintCanceled(pendingMint.amount, pendingMint.destination);
         pendingMint = MintProposal(0, address(0), 0);
     }
@@ -192,14 +192,14 @@ contract SupplyManager {
      * @notice Accept proposed token mint
      */
     function acceptMint() external {
-        require(msg.sender == admin, "Arch::acceptMint: caller must be admin");
-        require(pendingMint.eta != 0, "Arch::acceptMint: no active proposal");
-        require(block.timestamp >= pendingMint.eta, "Arch::acceptMint: proposal eta not yet passed");
+        require(msg.sender == admin, "SM::acceptMint: caller must be admin");
+        require(pendingMint.eta != 0, "SM::acceptMint: no active proposal");
+        require(block.timestamp >= pendingMint.eta, "SM::acceptMint: proposal eta not yet passed");
         address dst = pendingMint.destination;
         uint256 amount = pendingMint.amount;
         uint256 oldSupply = token.totalSupply();
         pendingMint = MintProposal(0, address(0), 0);
-        require(token.mint(dst, amount), "Arch::acceptMint: unsuccessful");
+        require(token.mint(dst, amount), "SM::acceptMint: unsuccessful");
         emit MintAccepted(amount, dst, oldSupply, oldSupply.add(amount));
     }
 
@@ -209,13 +209,13 @@ contract SupplyManager {
      * @param amount The number of tokens to be burned
      */
     function proposeBurn(address src, uint256 amount) external {
-        require(msg.sender == admin, "Arch::proposeBurn: caller must be admin");
-        require(src != address(0), "Arch::proposeBurn: cannot transfer from the zero address");
-        require(token.allowance(src, address(this)) >= amount, "Arch::proposeBurn: supplyManager approval < amount");
+        require(msg.sender == admin, "SM::proposeBurn: caller must be admin");
+        require(src != address(0), "SM::proposeBurn: cannot transfer from the zero address");
+        require(token.allowance(src, address(this)) >= amount, "SM::proposeBurn: supplyManager approval < amount");
         uint256 currentSupply = token.totalSupply();
         uint256 newSupply = currentSupply.sub(amount);
         uint256 eta = block.timestamp.add(proposalLength);
-        require(eta >= token.supplyChangeAllowedAfter(), "Arch::proposeBurn: burning not allowed yet");
+        require(eta >= token.supplyChangeAllowedAfter(), "SM::proposeBurn: burning not allowed yet");
         pendingBurn = BurnProposal(eta, src, amount);
         emit BurnProposed(amount, src, currentSupply, newSupply, eta);
     }
@@ -224,8 +224,8 @@ contract SupplyManager {
      * @notice Cancel proposed token burn
      */
     function cancelBurn() external {
-        require(msg.sender == admin, "Arch::cancelBurn: caller must be admin");
-        require(pendingBurn.eta != 0, "Arch::cancelBurn: no active proposal");
+        require(msg.sender == admin, "SM::cancelBurn: caller must be admin");
+        require(pendingBurn.eta != 0, "SM::cancelBurn: no active proposal");
         emit BurnCanceled(pendingBurn.amount, pendingBurn.source);
         pendingBurn = BurnProposal(0, address(0), 0);
     }
@@ -234,13 +234,13 @@ contract SupplyManager {
      * @notice Accept proposed token burn
      */
     function acceptBurn() external {
-        require(msg.sender == admin, "Arch::acceptBurn: caller must be admin");
-        require(pendingBurn.eta != 0, "Arch::acceptBurn: no active proposal");
-        require(block.timestamp >= pendingBurn.eta, "Arch::acceptBurn: proposal eta not yet passed");
+        require(msg.sender == admin, "SM::acceptBurn: caller must be admin");
+        require(pendingBurn.eta != 0, "SM::acceptBurn: no active proposal");
+        require(block.timestamp >= pendingBurn.eta, "SM::acceptBurn: proposal eta not yet passed");
         address src = pendingBurn.source;
         uint256 amount = pendingBurn.amount;
         pendingBurn = BurnProposal(0, address(0), 0);
-        require(token.burn(src, amount), "Arch::acceptBurn: unsuccessful");
+        require(token.burn(src, amount), "SM::acceptBurn: unsuccessful");
         uint256 newSupply = token.totalSupply();
         emit BurnAccepted(amount, src, newSupply.add(amount), newSupply);
     }
@@ -250,7 +250,7 @@ contract SupplyManager {
      * @param newCap The new mint cap in bips (10,000 bips = 1% of totalSupply)
      */
     function proposeMintCap(uint16 newCap) external {
-        require(msg.sender == admin, "Arch::proposeMintCap: caller must be admin");
+        require(msg.sender == admin, "SM::proposeMC: caller must be admin");
         uint256 eta = block.timestamp.add(proposalLength);
         pendingMintCap = MintCapProposal(eta, newCap);
         emit MintCapProposed(token.mintCap(), newCap, eta);
@@ -260,8 +260,8 @@ contract SupplyManager {
      * @notice Cancel proposed mint cap
      */
     function cancelMintCap() external {
-        require(msg.sender == admin, "Arch::cancelMintCap: caller must be admin");
-        require(pendingMintCap.eta != 0, "Arch::cancelMintCap: no active proposal");
+        require(msg.sender == admin, "SM::cancelMC: caller must be admin");
+        require(pendingMintCap.eta != 0, "SM::cancelMC: no active proposal");
         emit MintCapCanceled(pendingMintCap.newCap);
         pendingMintCap = MintCapProposal(0, 0);
     }
@@ -270,13 +270,13 @@ contract SupplyManager {
      * @notice Accept change to the maximum amount of tokens that can be minted at once
      */
     function acceptMintCap() external {
-        require(msg.sender == admin, "Arch::acceptMintCap: caller must be admin");
-        require(pendingMintCap.eta != 0, "Arch::acceptMintCap: no active proposal");
-        require(block.timestamp >= pendingMintCap.eta, "Arch::acceptMintCap: proposal eta not yet passed");
+        require(msg.sender == admin, "SM::acceptMC: caller must be admin");
+        require(pendingMintCap.eta != 0, "SM::acceptMC: no active proposal");
+        require(block.timestamp >= pendingMintCap.eta, "SM::acceptMC: proposal eta not yet passed");
         uint16 oldCap = token.mintCap();
         uint16 newCap = pendingMintCap.newCap;
         pendingMintCap = MintCapProposal(0, 0);
-        require(token.setMintCap(newCap), "Arch::acceptMintCap: unsuccessful");
+        require(token.setMintCap(newCap), "SM::acceptMC: unsuccessful");
         emit MintCapAccepted(oldCap, newCap);
     }
 
@@ -285,7 +285,7 @@ contract SupplyManager {
      * @param newPeriod new waiting period
      */
     function proposeSupplyChangeWaitingPeriod(uint32 newPeriod) external {
-        require(msg.sender == admin, "Arch::proposeSupplyChangeWaitingPeriod: caller must be admin");
+        require(msg.sender == admin, "SM::proposeWP: caller must be admin");
         uint256 eta = block.timestamp.add(proposalLength);
         pendingWaitingPeriod = WaitingPeriodProposal(eta, newPeriod);
         emit WaitingPeriodProposed(token.supplyChangeWaitingPeriod(), newPeriod, eta);
@@ -295,8 +295,8 @@ contract SupplyManager {
      * @notice Cancel proposed waiting period
      */
     function cancelWaitingPeriod() external {
-        require(msg.sender == admin, "Arch::cancelWaitingPeriod: caller must be admin");
-        require(pendingWaitingPeriod.eta != 0, "Arch::cancelWaitingPeriod: no active proposal");
+        require(msg.sender == admin, "SM::cancelWP: caller must be admin");
+        require(pendingWaitingPeriod.eta != 0, "SM::cancelWaitingPeriod: no active proposal");
         pendingWaitingPeriod = WaitingPeriodProposal(0, 0);
         emit WaitingPeriodCanceled(pendingWaitingPeriod.newPeriod);
     }
@@ -305,13 +305,13 @@ contract SupplyManager {
      * @notice Accept change to the supply change waiting period
      */
     function acceptSupplyChangeWaitingPeriod() external {
-        require(msg.sender == admin, "Arch::acceptSupplyChangeWaitingPeriod: caller must be admin");
-        require(pendingWaitingPeriod.eta != 0, "Arch::acceptSupplyChangeWaitingPeriod: no active proposal");
-        require(block.timestamp >= pendingWaitingPeriod.eta, "Arch::acceptSupplyChangeWaitingPeriod: proposal eta not yet passed");
+        require(msg.sender == admin, "SM::acceptWP: caller must be admin");
+        require(pendingWaitingPeriod.eta != 0, "SM::acceptWP: no active proposal");
+        require(block.timestamp >= pendingWaitingPeriod.eta, "SM::acceptWP: proposal eta not yet passed");
         uint32 oldPeriod = token.supplyChangeWaitingPeriod();
         uint32 newPeriod = pendingWaitingPeriod.newPeriod;
         pendingWaitingPeriod = WaitingPeriodProposal(0, 0);
-        require(token.setSupplyChangeWaitingPeriod(newPeriod), "Arch::acceptSupplyChangeWaitingPeriod: unsuccessful");
+        require(token.setSupplyChangeWaitingPeriod(newPeriod), "SM::acceptWP: unsuccessful");
         emit WaitingPeriodAccepted(oldPeriod, newPeriod);
     }
 
@@ -320,7 +320,7 @@ contract SupplyManager {
      * @param newSupplyManager new supply manager address
      */
     function proposeSupplyManager(address newSupplyManager) external {
-        require(msg.sender == admin, "Arch::proposeSupplyManager: caller must be admin");
+        require(msg.sender == admin, "SM::proposeSM: caller must be admin");
         uint256 eta = block.timestamp.add(proposalLength);
         pendingSupplyManager = SupplyManagerProposal(eta, newSupplyManager);
         emit SupplyManagerProposed(token.supplyManager(), newSupplyManager, eta);
@@ -330,8 +330,8 @@ contract SupplyManager {
      * @notice Cancel proposed supply manager update
      */
     function cancelSupplyManager() external {
-        require(msg.sender == admin, "Arch::cancelSupplyManager: caller must be admin");
-        require(pendingSupplyManager.eta != 0, "Arch::cancelSupplyManager: no active proposal");
+        require(msg.sender == admin, "SM::cancelSM: caller must be admin");
+        require(pendingSupplyManager.eta != 0, "SM::cancelSM: no active proposal");
         emit SupplyManagerCanceled(pendingSupplyManager.newSupplyManager);
         pendingSupplyManager = SupplyManagerProposal(0, address(0));
     }
@@ -340,13 +340,13 @@ contract SupplyManager {
      * @notice Accept change to the supplyManager address
      */
     function acceptSupplyManager() external {
-        require(msg.sender == admin, "Arch::acceptSupplyManager: caller must be admin");
-        require(pendingSupplyManager.eta != 0, "Arch::acceptSupplyManager: no active proposal");
-        require(block.timestamp >= pendingSupplyManager.eta, "Arch::acceptSupplyManager: proposal eta not yet passed");
+        require(msg.sender == admin, "SM::acceptSM: caller must be admin");
+        require(pendingSupplyManager.eta != 0, "SM::acceptSM: no active proposal");
+        require(block.timestamp >= pendingSupplyManager.eta, "SM::acceptSM: proposal eta not yet passed");
         address oldSupplyManager = token.supplyManager();
         address newSupplyManager = pendingSupplyManager.newSupplyManager;
         pendingSupplyManager = SupplyManagerProposal(0, address(0));
-        require(token.setSupplyManager(newSupplyManager), "Arch::acceptSupplyManager: unsuccessful");
+        require(token.setSupplyManager(newSupplyManager), "SM::acceptSM: unsuccessful");
         emit SupplyManagerAccepted(oldSupplyManager, newSupplyManager);
     }
 
@@ -355,8 +355,8 @@ contract SupplyManager {
      * @param newLength new proposal length
      */
     function proposeNewProposalLength(uint32 newLength) external {
-        require(msg.sender == admin, "Arch::proposeNewProposalLength: caller must be admin");
-        require(newLength >= proposalLengthMinimum, "Arch::proposeNewProposalLength: length must be >= minimum");
+        require(msg.sender == admin, "SM::proposePL: caller must be admin");
+        require(newLength >= proposalLengthMinimum, "SM::proposePL: length must be >= minimum");
         uint256 eta = block.timestamp.add(proposalLength);
         pendingProposalLength = ProposalLengthProposal(eta, newLength);
         emit ProposalLengthProposed(proposalLength, newLength, eta);
@@ -366,8 +366,8 @@ contract SupplyManager {
      * @notice Cancel proposed update to proposal length
      */
     function cancelProposalLength() external {
-        require(msg.sender == admin, "Arch::cancelProposalLength: caller must be admin");
-        require(pendingProposalLength.eta != 0, "Arch::cancelProposalLength: no active proposal");
+        require(msg.sender == admin, "SM::cancelPL: caller must be admin");
+        require(pendingProposalLength.eta != 0, "SM::cancelPL: no active proposal");
         emit ProposalLengthCanceled(pendingProposalLength.newLength);
         pendingProposalLength = ProposalLengthProposal(0, 0);
     }
@@ -376,9 +376,9 @@ contract SupplyManager {
      * @notice Accept change to the proposal length
      */
     function acceptProposalLength() external {
-        require(msg.sender == admin, "Arch::acceptProposalLength: caller must be admin");
-        require(pendingProposalLength.eta != 0, "Arch::acceptProposalLength: no active proposal");
-        require(block.timestamp >= pendingProposalLength.eta, "Arch::acceptProposalLength: proposal eta not yet passed");
+        require(msg.sender == admin, "SM::acceptPL: caller must be admin");
+        require(pendingProposalLength.eta != 0, "SM::acceptPL: no active proposal");
+        require(block.timestamp >= pendingProposalLength.eta, "SM::acceptPL: proposal eta not yet passed");
         uint32 oldLength = proposalLength;
         uint32 newLength = pendingProposalLength.newLength;
         pendingProposalLength = ProposalLengthProposal(0, 0);
@@ -391,7 +391,7 @@ contract SupplyManager {
      * @param newAdmin The address of the new admin
      */
     function proposeAdmin(address newAdmin) external {
-        require(msg.sender == admin, "Arch::proposeAdmin: caller must be admin");
+        require(msg.sender == admin, "SM::proposeAdmin: caller must be admin");
         // ETA set to minimum to allow for quicker changes if necessary
         uint256 eta = block.timestamp.add(proposalLengthMinimum);
         pendingAdmin = AdminProposal(eta, newAdmin);
@@ -402,8 +402,8 @@ contract SupplyManager {
      * @notice Cancel proposed admin change
      */
     function cancelAdmin() external {
-        require(msg.sender == admin, "Arch::cancelAdmin: caller must be admin");
-        require(pendingAdmin.eta != 0, "Arch::cancelAdmin: no active proposal");
+        require(msg.sender == admin, "SM::cancelAdmin: caller must be admin");
+        require(pendingAdmin.eta != 0, "SM::cancelAdmin: no active proposal");
         emit AdminCanceled(pendingAdmin.newAdmin);
         pendingAdmin = AdminProposal(0, address(0));
     }
@@ -412,9 +412,9 @@ contract SupplyManager {
      * @notice Accept proposed admin
      */
     function acceptAdmin() external {
-        require(msg.sender == admin, "Arch::acceptAdmin: caller must be admin");
-        require(pendingAdmin.eta != 0, "Arch::acceptAdmin: no active proposal");
-        require(block.timestamp >= pendingAdmin.eta, "Arch::acceptAdmin: proposal eta not yet passed");
+        require(msg.sender == admin, "SM::acceptAdmin: caller must be admin");
+        require(pendingAdmin.eta != 0, "SM::acceptAdmin: no active proposal");
+        require(block.timestamp >= pendingAdmin.eta, "SM::acceptAdmin: proposal eta not yet passed");
         address oldAdmin = admin;
         address newAdmin = pendingAdmin.newAdmin;
         pendingAdmin = AdminProposal(0, address(0));
