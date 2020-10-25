@@ -8,7 +8,6 @@ import "./interfaces/IVotingPower.sol";
 
 contract Vesting {
     using SafeMath for uint256;
-    using SafeMath for uint16;
 
     uint256 constant internal SECONDS_PER_DAY = 86400;
 
@@ -20,7 +19,7 @@ contract Vesting {
         uint256 totalClaimed;
     }
 
-    event GrantAdded(address indexed recipient, uint256 amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays, uint16 grantId);
+    event GrantAdded(address indexed recipient, uint256 amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays);
     event GrantTokensClaimed(address indexed recipient, uint256 amountClaimed);
     event GrantRemoved(address recipient, uint256 amountVested, uint256 amountNotVested);
     event ChangedOwner(address indexed newOwner, address oldOwner);
@@ -31,7 +30,6 @@ contract Vesting {
     
     mapping (address => Grant) public tokenGrants;
     address public owner;
-    uint16 public currentGrantId;
 
     constructor(address _token) {
         require(_token != address(0), "ArchVest::constructor: must be valid token address");
@@ -72,8 +70,7 @@ contract Vesting {
             totalClaimed: 0
         });
         tokenGrants[recipient] = grant;
-        emit GrantAdded(recipient, amount, grantStartTime, vestingDurationInDays, vestingCliffInDays, currentGrantId);
-        currentGrantId++;
+        emit GrantAdded(recipient, amount, grantStartTime, vestingDurationInDays, vestingCliffInDays);
         votingPower.addVotingPowerForVestingTokens(recipient, amount);
     }
 
@@ -93,8 +90,8 @@ contract Vesting {
         }
 
         // Check cliff was reached
-        uint elapsedTime = block.timestamp.sub(tokenGrant.startTime);
-        uint elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
+        uint256 elapsedTime = block.timestamp.sub(tokenGrant.startTime);
+        uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
         
         if (elapsedDays < tokenGrant.vestingCliff) {
             return 0;
@@ -123,8 +120,8 @@ contract Vesting {
         }
 
         // Check cliff was reached
-        uint elapsedTime = block.timestamp.sub(tokenGrant.startTime);
-        uint elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
+        uint256 elapsedTime = block.timestamp.sub(tokenGrant.startTime);
+        uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
         
         if (elapsedDays < tokenGrant.vestingCliff) {
             return 0;

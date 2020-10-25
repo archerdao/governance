@@ -279,7 +279,7 @@ contract ArchToken {
      * @param amount The number of tokens to transfer
      * @return Whether or not the transfer succeeded
      */
-    function transfer(address dst, uint amount) external returns (bool) {
+    function transfer(address dst, uint256 amount) external returns (bool) {
         _transferTokens(msg.sender, dst, amount);
         return true;
     }
@@ -291,7 +291,7 @@ contract ArchToken {
      * @param amount The number of tokens to transfer
      * @return Whether or not the transfer succeeded
      */
-    function transferFrom(address src, address dst, uint amount) external returns (bool) {
+    function transferFrom(address src, address dst, uint256 amount) external returns (bool) {
         address spender = msg.sender;
         uint256 spenderAllowance = allowances[src][spender];
 
@@ -413,7 +413,7 @@ contract ArchToken {
         emit Transfer(address(0), to, value);
     }
 
-    function _burn(address from, uint value) internal {
+    function _burn(address from, uint256 value) internal {
         balances[from] = balances[from].sub(value);
         totalSupply = totalSupply.sub(value);
         emit Transfer(from, address(0), value);

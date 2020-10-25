@@ -22,7 +22,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     event Withdrawn(address indexed user, address token, uint256 amount);
 
     /// @notice An event that's emitted when an account's vote balance changes
-    event VotingPowerChanged(address indexed voter, uint previousBalance, uint newBalance);
+    event VotingPowerChanged(address indexed voter, uint256 previousBalance, uint256 newBalance);
 
     function initialize(
         address _archToken,
@@ -42,7 +42,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      * @param r Half of the ECDSA signature pair
      * @param s Half of the ECDSA signature pair
      */
-    function stakeWithPermit(uint256 amount, uint deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
+    function stakeWithPermit(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
         require(amount > 0, "Cannot stake 0");
         AppStorage storage app = VotingPowerStorage.appStorage();
         app.archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
@@ -133,7 +133,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      * @param blockNumber The block number to get the vote balance at
      * @return The number of votes the account had as of the given block
      */
-    function getPriorVotes(address account, uint blockNumber) public view returns (uint256) {
+    function getPriorVotes(address account, uint256 blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "Arch::getPriorVotes: not yet determined");
         
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
@@ -222,7 +222,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
       emit VotingPowerChanged(voter, oldVotes, newVotes);
     }
 
-    function _safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
+    function _safe32(uint256 n, string memory errorMessage) internal pure returns (uint32) {
         require(n < 2**32, errorMessage);
         return uint32(n);
     }
