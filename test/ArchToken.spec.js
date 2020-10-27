@@ -36,6 +36,49 @@ describe('ArchToken', () => {
       bob = gov.bob
       carlos = gov.carlos
     })
+
+    context('transfer', async () => {
+      it('allows a valid transfer', async () => {
+        const amount = 100
+        const balanceBefore = await archToken.balanceOf(alice.address)
+        await archToken.connect(admin).transfer(alice.address, amount)
+        expect(await archToken.balanceOf(alice.address)).to.eq(balanceBefore.add(amount))
+      })
+
+      it('does not allow a transfer to the zero address', async () => {
+        const amount = 100
+        await expect(archToken.connect(admin).transfer(ZERO_ADDRESS, amount)).to.revertedWith("Arch::_transferTokens: cannot transfer to the zero address")
+      })
+    })
+
+    context('transferFrom', async () => {
+      it('allows a valid transferFrom', async () => {
+        const amount = 100
+        const senderBalanceBefore = await archToken.balanceOf(admin.address)
+        const receiverBalanceBefore = await archToken.balanceOf(bob.address)
+        await archToken.connect(admin).approve(alice.address, amount)
+        expect(await archToken.allowance(admin.address, alice.address)).to.eq(amount)
+        await archToken.connect(alice).transferFrom(admin.address, bob.address, amount)
+        expect(await archToken.balanceOf(admin.address)).to.eq(senderBalanceBefore.sub(amount))
+        expect(await archToken.balanceOf(bob.address)).to.eq(receiverBalanceBefore.add(amount))
+        expect(await archToken.allowance(admin.address, alice.address)).to.eq(0)
+      })
+
+      it('allows for infinite approvals', async () => {
+        const amount = 100
+        const maxAmount = ethers.constants.MaxUint256
+        await archToken.connect(admin).approve(alice.address, maxAmount)
+        expect(await archToken.allowance(admin.address, alice.address)).to.eq(maxAmount)
+        await archToken.connect(alice).transferFrom(admin.address, bob.address, amount)
+        expect(await archToken.allowance(admin.address, alice.address)).to.eq(maxAmount)
+      })
+
+      it('cannot transfer in excess of the spender allowance', async () => {
+        await archToken.connect(admin).transfer(alice.address, 100)
+        const balance = await archToken.balanceOf(alice.address)
+        await expect(archToken.transferFrom(alice.address, bob.address, balance)).to.revertedWith("revert SafeMath: subtraction underflow")
+      })
+    })
   
     context('transferWithAuthorization', async () => {
       it('allows a valid transfer with auth', async () => {
@@ -275,15 +318,17 @@ describe('ArchToken', () => {
 
     context("mint", async () => {
       it('can perform a valid mint', async () => {
-        const totalSupply = await archToken.totalSupply()
+        const totalSupplyBefore = await archToken.totalSupply()
         const mintCap = await archToken.mintCap()
-        const maxAmount = totalSupply.mul(mintCap).div(1000000)
+        const maxAmount = totalSupplyBefore.mul(mintCap).div(1000000)
         const supplyChangeAllowed = await archToken.supplyChangeAllowedAfter()
         await ethers.provider.send("evm_setNextBlockTimestamp", [parseInt(supplyChangeAllowed.toString())])
         const balanceBefore = await archToken.balanceOf(alice.address)
         await archToken.mint(alice.address, maxAmount)
         expect(await archToken.balanceOf(alice.address)).to.equal(balanceBefore.add(maxAmount))
+        expect(await archToken.totalSupply()).to.equal(totalSupplyBefore.add(maxAmount))
       })
+
       it('only supply manager can mint', async () => {
         await expect(archToken.connect(alice).mint(bob.address, 1)).to.revertedWith("revert Arch::mint: only the supplyManager can mint")
       })
@@ -314,11 +359,12 @@ describe('ArchToken', () => {
         const allowanceBefore = await archToken.allowance(alice.address, deployer.address)
         const supplyChangeAllowed = await archToken.supplyChangeAllowedAfter()
         await ethers.provider.send("evm_setNextBlockTimestamp", [parseInt(supplyChangeAllowed.toString())])
-        await archToken.connect(deployer).burn(alice.address, amount)
+        await archToken.burn(alice.address, amount)
         expect(await archToken.balanceOf(alice.address)).to.equal(balanceBefore.sub(amount))
         expect(await archToken.allowance(alice.address, deployer.address)).to.equal(allowanceBefore.sub(amount))
         expect(await archToken.totalSupply()).to.equal(totalSupplyBefore.sub(amount))
       })
+
       it('only supply manager can burn', async () => {
         await expect(archToken.connect(alice).burn(admin.address, 1)).to.revertedWith("revert Arch::burn: only the supplyManager can burn")
       })
@@ -326,13 +372,16 @@ describe('ArchToken', () => {
       it('cannot burn from the zero address', async () => {
         await expect(archToken.burn(ZERO_ADDRESS, 1)).to.revertedWith("revert Arch::burn: cannot transfer from the zero address")
       })
+
       it('cannot burn before supply change allowed', async () => {
         await expect(archToken.burn(admin.address, 1)).to.revertedWith("revert Arch::burn: burning not allowed yet")
       })
+
       it('cannot burn in excess of the spender balance', async () => {
         const supplyChangeAllowed = await archToken.supplyChangeAllowedAfter()
         await ethers.provider.send("evm_setNextBlockTimestamp", [parseInt(supplyChangeAllowed.toString())])
         const balance = await archToken.balanceOf(alice.address)
+        await archToken.connect(alice).approve(deployer.address, balance)
         await expect(archToken.burn(alice.address, balance.add(1))).to.revertedWith("revert SafeMath: subtraction underflow")
       })
 
@@ -342,6 +391,68 @@ describe('ArchToken', () => {
         await archToken.connect(admin).transfer(alice.address, 100)
         const balance = await archToken.balanceOf(alice.address)
         await expect(archToken.burn(alice.address, balance)).to.revertedWith("revert SafeMath: subtraction underflow")
+      })
+    })
+
+    context("setSupplyManager", async () => {
+      it('can set a new valid supply manager', async () => {
+        await archToken.setSupplyManager(bob.address)
+        expect(await archToken.supplyManager()).to.equal(bob.address)
+      })
+
+      it('only supply manager can set a new supply manager', async () => {
+        await expect(archToken.connect(alice).setSupplyManager(bob.address)).to.revertedWith("revert Arch::setSupplyManager: only SM can change SM")
+      })
+    })
+
+    context("setMetadataManager", async () => {
+      it('can set a new valid metadata manager', async () => {
+        await archToken.connect(admin).setMetadataManager(bob.address)
+        expect(await archToken.metadataManager()).to.equal(bob.address)
+      })
+
+      it('only metadata manager can set a new metadata manager', async () => {
+        await expect(archToken.connect(alice).setMetadataManager(bob.address)).to.revertedWith("revert Arch::setMetadataManager: only MM can change MM")
+      })
+    })
+
+    context("setMintCap", async () => {
+      it('can set a new valid mint cap', async () => {
+        await archToken.setMintCap(0)
+        expect(await archToken.mintCap()).to.equal(0)
+      })
+
+      it('only supply manager can set a new mint cap', async () => {
+        await expect(archToken.connect(alice).setMintCap(0)).to.revertedWith("revert Arch::setMintCap: only SM can change mint cap")
+      })
+    })
+
+    context("setSupplyChangeWaitingPeriod", async () => {
+      it('can set a new valid supply change waiting period', async () => {
+        const waitingPeriodMinimum = await archToken.supplyChangeWaitingPeriodMinimum()
+        await archToken.setSupplyChangeWaitingPeriod(waitingPeriodMinimum)
+        expect(await archToken.supplyChangeWaitingPeriod()).to.equal(waitingPeriodMinimum)
+      })
+
+      it('only supply manager can set a new supply change waiting period', async () => {
+        const waitingPeriodMinimum = await archToken.supplyChangeWaitingPeriodMinimum()
+        await expect(archToken.connect(alice).setSupplyChangeWaitingPeriod(waitingPeriodMinimum)).to.revertedWith("revert Arch::setSupplyChangeWaitingPeriod: only SM can change waiting period")
+      })
+
+      it('waiting period must be > minimum', async () => {
+        await expect(archToken.setSupplyChangeWaitingPeriod(0)).to.revertedWith("revert Arch::setSupplyChangeWaitingPeriod: waiting period must be > minimum")
+      })
+    })
+
+    context("updateTokenMetadata", async () => {
+      it('metadata manager can update token metadata', async () => {
+        await archToken.connect(admin).updateTokenMetadata("New Token", "NEW")
+        expect(await archToken.name()).to.equal("New Token")
+        expect(await archToken.symbol()).to.equal("NEW")
+      })
+
+      it('only metadata manager can update token metadata', async () => {
+        await expect(archToken.connect(alice).updateTokenMetadata("New Token", "NEW")).to.revertedWith("revert Arch::updateTokenMeta: only MM can update token metadata")
       })
     })
   })

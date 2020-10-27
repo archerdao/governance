@@ -116,7 +116,7 @@ contract ArchToken {
      * @return true if successful
      */
     function setSupplyManager(address newSupplyManager) external returns (bool) {
-        require(msg.sender == supplyManager, "Arch::setSupplyManager: only the current supplyManager can change the supplyManager address");
+        require(msg.sender == supplyManager, "Arch::setSupplyManager: only SM can change SM");
         emit SupplyManagerChanged(supplyManager, newSupplyManager);
         supplyManager = newSupplyManager;
         return true;
@@ -128,7 +128,7 @@ contract ArchToken {
      * @return true if successful
      */
     function setMetadataManager(address newMetadataManager) external returns (bool) {
-        require(msg.sender == metadataManager, "Arch::setMetadataManager: only the current metadataManager can change the metadataManager address");
+        require(msg.sender == metadataManager, "Arch::setMetadataManager: only MM can change MM");
         emit MetadataManagerChanged(metadataManager, newMetadataManager);
         metadataManager = newMetadataManager;
         return true;
@@ -189,7 +189,7 @@ contract ArchToken {
      * @return true if successful
      */
     function setMintCap(uint16 newCap) external returns (bool) {
-        require(msg.sender == supplyManager, "Arch::setMintCap: only the supplyManager can change the mint cap");
+        require(msg.sender == supplyManager, "Arch::setMintCap: only SM can change mint cap");
         emit MintCapChanged(mintCap, newCap);
         mintCap = newCap;
         return true;
@@ -201,8 +201,8 @@ contract ArchToken {
      * @return true if succssful
      */
     function setSupplyChangeWaitingPeriod(uint32 period) external returns (bool) {
-        require(msg.sender == supplyManager, "Arch::setSupplyChangeWaitingPeriod: only the supplyManager can change the waiting period");
-        require(period >= supplyChangeWaitingPeriodMinimum, "Arch::setSupplyChangeWaitingPeriod: waiting period must be greater than minimum");
+        require(msg.sender == supplyManager, "Arch::setSupplyChangeWaitingPeriod: only SM can change waiting period");
+        require(period >= supplyChangeWaitingPeriodMinimum, "Arch::setSupplyChangeWaitingPeriod: waiting period must be > minimum");
         emit SupplyChangeWaitingPeriodChanged(supplyChangeWaitingPeriod, period);
         supplyChangeWaitingPeriod = period;
         return true;
@@ -215,7 +215,7 @@ contract ArchToken {
      * @return true if successful
      */
     function updateTokenMetadata(string memory tokenName, string memory tokenSymbol) external returns (bool) {
-        require(msg.sender == metadataManager, "Arch::updateTokenMeta: only the metadataManager can update token metadata");
+        require(msg.sender == metadataManager, "Arch::updateTokenMeta: only MM can update token metadata");
         name = tokenName;
         symbol = tokenSymbol;
         emit TokenMetaUpdated(name, symbol);
@@ -407,12 +407,22 @@ contract ArchToken {
         emit Transfer(from, to, value);
     }
 
+    /**
+     * @notice Mint implementation
+     * @param to The address of the account which is receiving tokens
+     * @param value The number of tokens that are being minted
+     */
     function _mint(address to, uint256 value) internal {
         totalSupply = totalSupply.add(value);
         balances[to] = balances[to].add(value);
         emit Transfer(address(0), to, value);
     }
 
+    /**
+     * @notice Burn implementation
+     * @param from The address of the account which owns tokens
+     * @param value The number of tokens that are being burned
+     */
     function _burn(address from, uint256 value) internal {
         balances[from] = balances[from].sub(value);
         totalSupply = totalSupply.sub(value);
