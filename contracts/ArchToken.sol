@@ -142,9 +142,9 @@ contract ArchToken {
      */
     function mint(address dst, uint256 amount) external returns (bool) {
         require(msg.sender == supplyManager, "Arch::mint: only the supplyManager can mint");
-        require(block.timestamp >= supplyChangeAllowedAfter, "Arch::mint: minting not allowed yet");
         require(dst != address(0), "Arch::mint: cannot transfer to the zero address");
         require(amount <= totalSupply.mul(mintCap).div(1000000), "Arch::mint: exceeded mint cap");
+        require(block.timestamp >= supplyChangeAllowedAfter, "Arch::mint: minting not allowed yet");
 
         // update the next supply change allowed timestamp
         supplyChangeAllowedAfter = block.timestamp.add(supplyChangeWaitingPeriod);
@@ -162,11 +162,11 @@ contract ArchToken {
      */
     function burn(address src, uint256 amount) external returns (bool) {
         address spender = msg.sender;
-        uint256 spenderAllowance = allowances[src][spender];
-        require(src != address(0), "Arch::burn: cannot transfer from the zero address");
         require(spender == supplyManager, "Arch::burn: only the supplyManager can burn");
+        require(src != address(0), "Arch::burn: cannot transfer from the zero address");
         require(block.timestamp >= supplyChangeAllowedAfter, "Arch::burn: burning not allowed yet");
         
+        uint256 spenderAllowance = allowances[src][spender];
         // check allowance and reduce by amount
         if (spender != src && spenderAllowance != uint256(-1)) {
             uint256 newAllowance = spenderAllowance.sub(amount);

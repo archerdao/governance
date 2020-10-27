@@ -1,11 +1,17 @@
 build/
 bin/
+artifacts/
+cache/
 flattened/
 node_modules/
+deployments/hardhat/
+deployments/localhost/
 .env*
 !.env.sample
 yarn.lock
+yarn-error.log
 package.lock
 package-lock.json
+npm-debug.log
 *.DS_Store
 .vscode

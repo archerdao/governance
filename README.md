@@ -27,7 +27,7 @@ Supply changes must be initiated by a **supplyManager** address (see _Supply Man
 - Time between supply changes (mints/burns): `365 days` (min. 90 days)
 - Maximum inflation per mint: `2%` (min. 0%; max 6.5%)
 
-Token metadata changes (name and symbol) must be initiated by a metadataManager address.
+Token metadata changes (name and symbol) must be initiated by a **metadataManager** address.
 - Manager: `Team Multisig`
 
 
