@@ -4,22 +4,19 @@ module.exports = async ({
   }) => {
   const { deploy, log } = deployments;
   const { deployer, admin } = await getNamedAccounts();
-  const currentTime = Date.now();
-  const SIX_MONTHS_IN_SECS = 6 * 30 * 24 * 60 * 60;
-  const firstSupplyChangeAllowed = currentTime + SIX_MONTHS_IN_SECS;
 
-  const deployResult = await deploy("ArchToken", {
+  const deployResult = await deploy("VotingPowerPrism", {
     from: deployer,
-    contract: "ArchToken",
+    contract: "VotingPowerPrism",
     gas: 4000000,
-    args: [admin, deployer, firstSupplyChangeAllowed],
   });
 
-  log(`1) Arch Token`)
+  log(`5) Voting Power Prism`)
   if (deployResult.newlyDeployed) {
     log(`- ${deployResult.contractName} deployed at ${deployResult.address} using ${deployResult.receipt.gasUsed} gas`);
   } else {
     log(`- ${deployResult.contractName} deployment skipped, using previous deployment at: ${deployResult.address}`)
   }
 };
-module.exports.tags = ["1", "ArchToken"]
+module.exports.tags = ["5", "VotingPowerPrism"]
+module.exports.dependencies = ["Vesting"]

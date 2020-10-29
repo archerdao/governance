@@ -91,16 +91,15 @@ contract ArchToken {
 
     /**
      * @notice Construct a new Arch token
-     * @param _account The initial account to grant all the tokens
      * @param _metadataManager The account with the ability to change token metadata
      * @param _supplyManager The address with minting ability
      * @param _firstSupplyChangeAllowed The timestamp after which the first supply change may occur
      */
-    constructor(address _account, address _metadataManager, address _supplyManager, uint256 _firstSupplyChangeAllowed) {
+    constructor(address _metadataManager, address _supplyManager, uint256 _firstSupplyChangeAllowed) {
         require(_firstSupplyChangeAllowed >= block.timestamp, "Arch::constructor: minting can only begin after deployment");
 
-        balances[_account] = uint256(totalSupply);
-        emit Transfer(address(0), _account, totalSupply);
+        balances[msg.sender] = totalSupply;
+        emit Transfer(address(0), msg.sender, totalSupply);
 
         supplyChangeAllowedAfter = _firstSupplyChangeAllowed;
         supplyManager = _supplyManager;

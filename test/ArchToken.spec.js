@@ -1,8 +1,8 @@
 const { expect } = require("chai")
 const { ethers } = require("hardhat");
-const { governanceFixture } = require("./fixtures")
+const { tokenFixture } = require("./fixtures")
 const { ecsign } = require("ethereumjs-util")
-const ADMIN_PRIVATE_KEY = process.env.ADMIN_PRIVATE_KEY
+const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY
 
 const DOMAIN_TYPEHASH = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')
@@ -28,53 +28,53 @@ describe('ArchToken', () => {
     let carlos
 
     beforeEach(async () => {
-      const gov = await governanceFixture()
-      archToken = gov.archToken
-      deployer = gov.deployer
-      admin = gov.admin
-      alice = gov.alice
-      bob = gov.bob
-      carlos = gov.carlos
+      const fix = await tokenFixture()
+      archToken = fix.archToken
+      deployer = fix.deployer
+      admin = fix.admin
+      alice = fix.alice
+      bob = fix.bob
+      carlos = fix.carlos
     })
 
     context('transfer', async () => {
       it('allows a valid transfer', async () => {
         const amount = 100
         const balanceBefore = await archToken.balanceOf(alice.address)
-        await archToken.connect(admin).transfer(alice.address, amount)
+        await archToken.transfer(alice.address, amount)
         expect(await archToken.balanceOf(alice.address)).to.eq(balanceBefore.add(amount))
       })
 
       it('does not allow a transfer to the zero address', async () => {
         const amount = 100
-        await expect(archToken.connect(admin).transfer(ZERO_ADDRESS, amount)).to.revertedWith("Arch::_transferTokens: cannot transfer to the zero address")
+        await expect(archToken.transfer(ZERO_ADDRESS, amount)).to.revertedWith("Arch::_transferTokens: cannot transfer to the zero address")
       })
     })
 
     context('transferFrom', async () => {
       it('allows a valid transferFrom', async () => {
         const amount = 100
-        const senderBalanceBefore = await archToken.balanceOf(admin.address)
+        const senderBalanceBefore = await archToken.balanceOf(deployer.address)
         const receiverBalanceBefore = await archToken.balanceOf(bob.address)
-        await archToken.connect(admin).approve(alice.address, amount)
-        expect(await archToken.allowance(admin.address, alice.address)).to.eq(amount)
-        await archToken.connect(alice).transferFrom(admin.address, bob.address, amount)
-        expect(await archToken.balanceOf(admin.address)).to.eq(senderBalanceBefore.sub(amount))
+        await archToken.approve(alice.address, amount)
+        expect(await archToken.allowance(deployer.address, alice.address)).to.eq(amount)
+        await archToken.connect(alice).transferFrom(deployer.address, bob.address, amount)
+        expect(await archToken.balanceOf(deployer.address)).to.eq(senderBalanceBefore.sub(amount))
         expect(await archToken.balanceOf(bob.address)).to.eq(receiverBalanceBefore.add(amount))
-        expect(await archToken.allowance(admin.address, alice.address)).to.eq(0)
+        expect(await archToken.allowance(deployer.address, alice.address)).to.eq(0)
       })
 
       it('allows for infinite approvals', async () => {
         const amount = 100
         const maxAmount = ethers.constants.MaxUint256
-        await archToken.connect(admin).approve(alice.address, maxAmount)
-        expect(await archToken.allowance(admin.address, alice.address)).to.eq(maxAmount)
-        await archToken.connect(alice).transferFrom(admin.address, bob.address, amount)
-        expect(await archToken.allowance(admin.address, alice.address)).to.eq(maxAmount)
+        await archToken.approve(alice.address, maxAmount)
+        expect(await archToken.allowance(deployer.address, alice.address)).to.eq(maxAmount)
+        await archToken.connect(alice).transferFrom(deployer.address, bob.address, amount)
+        expect(await archToken.allowance(deployer.address, alice.address)).to.eq(maxAmount)
       })
 
       it('cannot transfer in excess of the spender allowance', async () => {
-        await archToken.connect(admin).transfer(alice.address, 100)
+        await archToken.transfer(alice.address, 100)
         const balance = await archToken.balanceOf(alice.address)
         await expect(archToken.transferFrom(alice.address, bob.address, balance)).to.revertedWith("revert SafeMath: subtraction underflow")
       })
@@ -103,17 +103,17 @@ describe('ArchToken', () => {
               ethers.utils.keccak256(
                 ethers.utils.defaultAbiCoder.encode(
                   ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
-                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, admin.address, alice.address, value, validAfter, validBefore, nonce]
+                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
                 )
               ),
             ]
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ADMIN_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
         
         const balanceBefore = await archToken.balanceOf(alice.address)
-        await archToken.transferWithAuthorization(admin.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
+        await archToken.transferWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
         expect(await archToken.balanceOf(alice.address)).to.eq(balanceBefore.add(value))
       })
 
@@ -140,16 +140,16 @@ describe('ArchToken', () => {
               ethers.utils.keccak256(
                 ethers.utils.defaultAbiCoder.encode(
                   ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
-                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, admin.address, alice.address, value, validAfter, validBefore, nonce]
+                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
                 )
               ),
             ]
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ADMIN_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
         
-        await expect(archToken.transferWithAuthorization(admin.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::transferWithAuth: auth not yet valid")
+        await expect(archToken.transferWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::transferWithAuth: auth not yet valid")
       })
 
       it('does not allow a transfer after auth expiration', async () => {
@@ -174,16 +174,16 @@ describe('ArchToken', () => {
               ethers.utils.keccak256(
                 ethers.utils.defaultAbiCoder.encode(
                   ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
-                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, admin.address, alice.address, value, validAfter, validBefore, nonce]
+                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
                 )
               ),
             ]
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ADMIN_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
         
-        await expect(archToken.transferWithAuthorization(admin.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::transferWithAuth: auth expired")
+        await expect(archToken.transferWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::transferWithAuth: auth expired")
       })
 
       it('does not allow a reuse of nonce', async () => {
@@ -208,17 +208,17 @@ describe('ArchToken', () => {
               ethers.utils.keccak256(
                 ethers.utils.defaultAbiCoder.encode(
                   ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
-                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, admin.address, alice.address, value, validAfter, validBefore, nonce]
+                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
                 )
               ),
             ]
           )
         )
     
-        let { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ADMIN_PRIVATE_KEY.slice(2), 'hex'))
+        let { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
         
         const balanceBefore = await archToken.balanceOf(alice.address)
-        await archToken.transferWithAuthorization(admin.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
+        await archToken.transferWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
         expect(await archToken.balanceOf(alice.address)).to.eq(balanceBefore.add(value))
 
         digest = ethers.utils.keccak256(
@@ -231,16 +231,16 @@ describe('ArchToken', () => {
               ethers.utils.keccak256(
                 ethers.utils.defaultAbiCoder.encode(
                   ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
-                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, admin.address, bob.address, value, validAfter, validBefore, nonce]
+                  [TRANSFER_WITH_AUTHORIZATION_TYPEHASH, deployer.address, bob.address, value, validAfter, validBefore, nonce]
                 )
               ),
             ]
           )
         )
     
-        let sig = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ADMIN_PRIVATE_KEY.slice(2), 'hex'))
+        let sig = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
 
-        await expect(archToken.transferWithAuthorization(admin.address, bob.address, value, validAfter, validBefore, nonce, sig.v, ethers.utils.hexlify(sig.r), ethers.utils.hexlify(sig.s))).to.revertedWith("revert Arch::transferWithAuth: auth already used")
+        await expect(archToken.transferWithAuthorization(deployer.address, bob.address, value, validAfter, validBefore, nonce, sig.v, ethers.utils.hexlify(sig.r), ethers.utils.hexlify(sig.s))).to.revertedWith("revert Arch::transferWithAuth: auth already used")
       })
     })
     
@@ -254,7 +254,7 @@ describe('ArchToken', () => {
         )
 
         const value = 123
-        const nonce = await archToken.nonces(admin.address)
+        const nonce = await archToken.nonces(deployer.address)
         const deadline = ethers.constants.MaxUint256
         const digest = ethers.utils.keccak256(
           ethers.utils.solidityPack(
@@ -266,20 +266,20 @@ describe('ArchToken', () => {
               ethers.utils.keccak256(
                 ethers.utils.defaultAbiCoder.encode(
                   ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'],
-                  [PERMIT_TYPEHASH, admin.address, alice.address, value, nonce, deadline]
+                  [PERMIT_TYPEHASH, deployer.address, alice.address, value, nonce, deadline]
                 )
               ),
             ]
           )
         )
 
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ADMIN_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
         
-        await archToken.permit(admin.address, alice.address, value, deadline, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
-        expect(await archToken.allowance(admin.address, alice.address)).to.eq(value)
-        expect(await archToken.nonces(admin.address)).to.eq(1)
+        await archToken.permit(deployer.address, alice.address, value, deadline, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
+        expect(await archToken.allowance(deployer.address, alice.address)).to.eq(value)
+        expect(await archToken.nonces(deployer.address)).to.eq(1)
 
-        await archToken.connect(alice).transferFrom(admin.address, bob.address, value)
+        await archToken.connect(alice).transferFrom(deployer.address, bob.address, value)
       })
 
       it('does not allow a permit after deadline', async () => {
@@ -291,7 +291,7 @@ describe('ArchToken', () => {
         )
 
         const value = 123
-        const nonce = await archToken.nonces(admin.address)
+        const nonce = await archToken.nonces(deployer.address)
         const deadline = 0
         const digest = ethers.utils.keccak256(
           ethers.utils.solidityPack(
@@ -303,16 +303,16 @@ describe('ArchToken', () => {
               ethers.utils.keccak256(
                 ethers.utils.defaultAbiCoder.encode(
                   ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'],
-                  [PERMIT_TYPEHASH, admin.address, alice.address, value, nonce, deadline]
+                  [PERMIT_TYPEHASH, deployer.address, alice.address, value, nonce, deadline]
                 )
               ),
             ]
           )
         )
 
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(ADMIN_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
         
-        await expect(archToken.permit(admin.address, alice.address, value, deadline, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::permit: signature expired")
+        await expect(archToken.permit(deployer.address, alice.address, value, deadline, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::permit: signature expired")
       })
     })
 
@@ -353,7 +353,7 @@ describe('ArchToken', () => {
       it('can perform a valid burn', async () => {
         const amount = 100
         const totalSupplyBefore = await archToken.totalSupply()
-        await archToken.connect(admin).transfer(alice.address, amount)
+        await archToken.transfer(alice.address, amount)
         const balanceBefore = await archToken.balanceOf(alice.address)
         await archToken.connect(alice).approve(deployer.address, amount)
         const allowanceBefore = await archToken.allowance(alice.address, deployer.address)
@@ -366,7 +366,7 @@ describe('ArchToken', () => {
       })
 
       it('only supply manager can burn', async () => {
-        await expect(archToken.connect(alice).burn(admin.address, 1)).to.revertedWith("revert Arch::burn: only the supplyManager can burn")
+        await expect(archToken.connect(alice).burn(deployer.address, 1)).to.revertedWith("revert Arch::burn: only the supplyManager can burn")
       })
 
       it('cannot burn from the zero address', async () => {
@@ -374,7 +374,7 @@ describe('ArchToken', () => {
       })
 
       it('cannot burn before supply change allowed', async () => {
-        await expect(archToken.burn(admin.address, 1)).to.revertedWith("revert Arch::burn: burning not allowed yet")
+        await expect(archToken.burn(deployer.address, 1)).to.revertedWith("revert Arch::burn: burning not allowed yet")
       })
 
       it('cannot burn in excess of the spender balance', async () => {
@@ -388,7 +388,7 @@ describe('ArchToken', () => {
       it('cannot burn in excess of the spender allowance', async () => {
         const supplyChangeAllowed = await archToken.supplyChangeAllowedAfter()
         await ethers.provider.send("evm_setNextBlockTimestamp", [parseInt(supplyChangeAllowed.toString())])
-        await archToken.connect(admin).transfer(alice.address, 100)
+        await archToken.transfer(alice.address, 100)
         const balance = await archToken.balanceOf(alice.address)
         await expect(archToken.burn(alice.address, balance)).to.revertedWith("revert SafeMath: subtraction underflow")
       })

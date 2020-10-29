@@ -4,8 +4,9 @@ artifacts/
 cache/
 flattened/
 node_modules/
-deployments/hardhat/
 deployments/localhost/
+deployments/hardhat/
+deployments/*/solcInputs/
 .env*
 !.env.sample
 yarn.lock
