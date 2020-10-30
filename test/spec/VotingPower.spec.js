@@ -63,9 +63,14 @@ describe("VotingPower", function() {
                 
             })
 
-            it("does allow a zero stake amount", async function() {
+            it("does not allow a zero stake amount", async function() {
                 await expect(votingPower.stake(0)).to.revertedWith("revert VP::stake: cannot stake 0")
             })
+
+            it("does not allow a user to stake before approval", async function() {
+                await expect(votingPower.stake(0)).to.revertedWith("revert VP::stake: cannot stake 0")
+            })
+
         })
 
         context("stakeWithPermit", async () => {

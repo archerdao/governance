@@ -14,12 +14,12 @@ async function addGrants(grants) {
         console.log("Creating grant for " + grant.recipient + ": " + grant.amount)
         const grantAmount = ethers.BigNumber.from(grant.amount).mul(ethers.BigNumber.from(10).pow(decimals));
         await deployments.execute('Vesting', {from: owner, gasLimit: 6000000 }, 'addTokenGrant', grant.recipient, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS);
-        const { newGrantStartTime, newGrantAmount, newGrantDuration, newGrantCliff } = await deployments.read('Vesting', 'getTokenGrant', grant.recipient)
+        const newGrant = await deployments.read('Vesting', 'getTokenGrant', grant.recipient)
         console.log(`New grant created for ${grant.recipient}:`)
-        console.log(`- Start Time: ${newGrantStartTime}`)
-        console.log(`- Amount: ${newGrantAmount}`)
-        console.log(`- Duration: ${newGrantDuration}`)
-        console.log(`- Cliff: ${newGrantCliff}`)
+        console.log(`- Start Time: ${newGrant[0]}`)
+        console.log(`- Amount: ${newGrant[1]}`)
+        console.log(`- Duration: ${newGrant[2]}`)
+        console.log(`- Cliff: ${newGrant[3]}`)
     }
 }
 

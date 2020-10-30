@@ -24,6 +24,12 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     /// @notice An event that's emitted when an account's vote balance changes
     event VotingPowerChanged(address indexed voter, uint256 previousBalance, uint256 newBalance);
 
+    /**
+     * @notice Initialize VotingPower contract
+     * @dev Should be called via VotingPowerPrism before calling anything else
+     * @param _archToken address of ARCH token
+     * @param _vestingContract address of Vesting contract
+     */
     function initialize(
         address _archToken,
         address _vestingContract
@@ -119,6 +125,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
 
     /**
      * @notice Get total amount of ARCH tokens staked in contract
+     * @return total ARCH staked
      */
     function totalARCHStaked() public view returns (uint256) {
         AppStorage storage app = VotingPowerStorage.appStorage();
@@ -128,6 +135,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     /**
      * @notice Get total amount of tokens staked in contract
      * @param stakedToken The staked token
+     * @return total staked
      */
     function totalStaked(address stakedToken) public view returns (uint256) {
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
@@ -187,6 +195,12 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         return cs.checkpoints[account][lower].votes;
     }
 
+    /**
+     * @notice Internal implementation of stake
+     * @param token The token to stake
+     * @param tokenAmount The amount of token to stake
+     * @param votingPower The amount of voting power stake translates into
+     */
     function _stake(address token, uint256 tokenAmount, uint256 votingPower) internal {
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
         ss.totalStaked[token].add(tokenAmount);
@@ -199,6 +213,12 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         _increaseVotingPower(msg.sender, votingPower);
     }
 
+    /**
+     * @notice Internal implementation of withdraw
+     * @param token The token that is staked
+     * @param tokenAmount The amount of token to withdraw
+     * @param votingPower The amount of voting power stake translates into
+     */
     function _withdraw(address token, uint256 tokenAmount, uint256 votingPower) internal {
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
         ss.totalStaked[token].sub(tokenAmount);
@@ -211,6 +231,11 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         _decreaseVotingPower(msg.sender, votingPower);
     }
 
+    /**
+     * @notice Increase voting power of voter
+     * @param voter The voter whose voting power is increasing 
+     * @param amount The amount of voting power to increase by
+     */
     function _increaseVotingPower(address voter, uint256 amount) internal {
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 checkpointNum = cs.numCheckpoints[voter];
@@ -219,6 +244,11 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         _writeCheckpoint(voter, checkpointNum, votingPowerOld, votingPowerNew);
     }
 
+    /**
+     * @notice Decrease voting power of voter
+     * @param voter The voter whose voting power is decreasing 
+     * @param amount The amount of voting power to decrease by
+     */
     function _decreaseVotingPower(address voter, uint256 amount) internal {
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 checkpointNum = cs.numCheckpoints[voter];
@@ -227,6 +257,13 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
         _writeCheckpoint(voter, checkpointNum, votingPowerOld, votingPowerNew);
     }
 
+    /**
+     * @notice Create checkpoint of voting power for voter at current block number
+     * @param voter The voter whose voting power is changing
+     * @param nCheckpoints The current checkpoint number for voter
+     * @param oldVotes The previous voting power of this voter
+     * @param newVotes The new voting power of this voter
+     */
     function _writeCheckpoint(address voter, uint32 nCheckpoints, uint256 oldVotes, uint256 newVotes) internal {
       uint32 blockNumber = _safe32(block.number, "VP::_writeCheckpoint: block number exceeds 32 bits");
 
@@ -241,11 +278,21 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
       emit VotingPowerChanged(voter, oldVotes, newVotes);
     }
 
+    /**
+     * @notice Converts uint256 to uint32 safely
+     * @param n Number
+     * @param errorMessage Error message to use if number cannot be converted
+     * @return uint32 number
+     */
     function _safe32(uint256 n, string memory errorMessage) internal pure returns (uint32) {
         require(n < 2**32, errorMessage);
         return uint32(n);
     }
 
+    /**
+     * @notice Accept invitation to be new voting power implementation
+     * @param prism VotingPowerPrism contract
+     */
     function become(VotingPowerPrism prism) public {
         require(msg.sender == prism.proxyAdmin(), "VP::become: only proxy admin can change implementation");
         require(prism.acceptImplementation() == true, "VP::become: change not authorized");

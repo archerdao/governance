@@ -7,6 +7,7 @@ node_modules/
 deployments/localhost/
 deployments/hardhat/
 deployments/*/solcInputs/
+*.pendingTransactions
 tenderly.yaml
 .env*
 !.env.sample
