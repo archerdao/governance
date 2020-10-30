@@ -32,11 +32,12 @@ contract Vesting {
     address public owner;
 
     constructor(address _token) {
-        require(_token != address(0), "ArchVest::constructor: must be valid token address");
+        require(_token != address(0), " Vest::constructor: must be valid token address");
         token = IArchToken(_token);
         owner = msg.sender;
     }
     
+    /// @notice Add a new token grant
     function addTokenGrant(
         address recipient,
         uint256 startTime,
@@ -46,19 +47,19 @@ contract Vesting {
     ) 
         external
     {
-        require(msg.sender == owner, "ArchVest::addTokenGrant: not owner");
-        require(address(votingPower) != address(0), "ArchVest::addTokenGrant: Set Voting Power contract first");
-        require(vestingCliffInDays <= 10*365, "ArchVest::addTokenGrant: cliff more than 10 years");
-        require(vestingDurationInDays > 0, "ArchVest::addTokenGrant: duration must be > 0");
-        require(vestingDurationInDays <= 25*365, "ArchVest::addTokenGrant: duration more than 25 years");
-        require(vestingDurationInDays >= vestingCliffInDays, "ArchVest::addTokenGrant: Duration < Cliff");
-        require(tokenGrants[recipient].amount == 0, "ArchVest::addTokenGrant: grant already exists for account");
+        require(msg.sender == owner, " Vest::addTokenGrant: not owner");
+        require(address(votingPower) != address(0), " Vest::addTokenGrant: Set Voting Power contract first");
+        require(vestingCliffInDays <= 10*365, " Vest::addTokenGrant: cliff more than 10 years");
+        require(vestingDurationInDays > 0, " Vest::addTokenGrant: duration must be > 0");
+        require(vestingDurationInDays <= 25*365, " Vest::addTokenGrant: duration more than 25 years");
+        require(vestingDurationInDays >= vestingCliffInDays, " Vest::addTokenGrant: Duration < Cliff");
+        require(tokenGrants[recipient].amount == 0, " Vest::addTokenGrant: grant already exists for account");
         
         uint256 amountVestedPerDay = amount.div(vestingDurationInDays);
-        require(amountVestedPerDay > 0, "ArchVest::addTokenGrant: amountVestedPerDay > 0");
+        require(amountVestedPerDay > 0, " Vest::addTokenGrant: amountVestedPerDay > 0");
 
         // Transfer the grant tokens under the control of the vesting contract
-        require(token.transferFrom(owner, address(this), amount), "ArchVest::addTokenGrant: transfer failed");
+        require(token.transferFrom(owner, address(this), amount), " Vest::addTokenGrant: transfer failed");
 
         uint256 grantStartTime = startTime == 0 ? block.timestamp : startTime;
 
@@ -74,6 +75,7 @@ contract Vesting {
         votingPower.addVotingPowerForVestingTokens(recipient, amount);
     }
 
+    /// @notice Get token grant for recipient
     function getTokenGrant(address recipient) public view returns(Grant memory){
         return tokenGrants[recipient];
     }
@@ -147,36 +149,39 @@ contract Vesting {
     /// It is advised recipients check they are entitled to claim via `calculateGrantClaim` before calling this
     function claimVestedTokens(address recipient) external {
         uint256 amountVested = calculateGrantClaim(recipient);
-        require(amountVested > 0, "amountVested is 0");
+        require(amountVested > 0, " Vest::claimVested: amountVested is 0");
         votingPower.removeVotingPowerForClaimedTokens(recipient, amountVested);
 
         Grant storage tokenGrant = tokenGrants[recipient];
         tokenGrant.totalClaimed = uint256(tokenGrant.totalClaimed.add(amountVested));
         
-        require(token.transfer(recipient, amountVested), "no tokens");
+        require(token.transfer(recipient, amountVested), " Vest::claimVested: no tokens");
         emit GrantTokensClaimed(recipient, amountVested);
     }
 
+    /// @notice Calculate the number of tokens that will vest per day for the given recipient
     function tokensVestedPerDay(address recipient) public view returns(uint256) {
         Grant storage tokenGrant = tokenGrants[recipient];
         return tokenGrant.amount.div(uint256(tokenGrant.vestingDuration));
     }
 
+    /// @notice Set voting power contract address
     function setVotingPowerContract(address newContract) 
         external 
     {
-        require(msg.sender == owner, "ArchVest::setVotingPowerContract: not owner");
-        require(newContract != address(0) && newContract != address(this) && newContract != address(token), "ArchVest::setVotingPowerContract: not valid contract address");
+        require(msg.sender == owner, " Vest::setVotingPowerContract: not owner");
+        require(newContract != address(0) && newContract != address(this) && newContract != address(token), " Vest::setVotingPowerContract: not valid contract address");
         address oldContract = address(votingPower);
         votingPower = IVotingPower(newContract);
         emit ChangedVotingPower(newContract, oldContract);
     }
 
+    /// @notice Change owner of vesting contract
     function changeOwner(address newOwner) 
         external
     {
-        require(msg.sender == owner, "ArchVest::changeOwner: not owner");
-        require(newOwner != address(0) && newOwner != address(this) && newOwner != address(token), "ArchVest::changeOwner: not valid address");
+        require(msg.sender == owner, " Vest::changeOwner: not owner");
+        require(newOwner != address(0) && newOwner != address(this) && newOwner != address(token), " Vest::changeOwner: not valid address");
 
         address oldOwner = owner;
         owner = newOwner;

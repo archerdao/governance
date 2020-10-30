@@ -35,6 +35,25 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     }
 
     /**
+     * @notice Address of ARCH token
+     * @return Address of ARCH token
+     */
+    function archToken() public view returns (address) {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        return address(app.archToken);
+    }
+
+    /**
+     * @notice Address of vesting contract
+     * @return Address of vesting contract
+     */
+    function vestingContract() public view returns (address) {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        return address(app.vesting);
+    }
+
+
+    /**
      * @notice Stake ARCH tokens using offchain approvals to unlock voting power
      * @param amount The amount to stake
      * @param deadline The time at which to expire the signature
@@ -43,7 +62,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      * @param s Half of the ECDSA signature pair
      */
     function stakeWithPermit(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
-        require(amount > 0, "Cannot stake 0");
+        require(amount > 0, "VP::stakeWithPermit: cannot stake 0");
         AppStorage storage app = VotingPowerStorage.appStorage();
         app.archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
 
@@ -56,7 +75,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      */
     function stake(uint256 amount) external nonReentrant {
         AppStorage storage app = VotingPowerStorage.appStorage();
-        require(amount > 0, "Cannot stake 0");
+        require(amount > 0, "VP::stake: cannot stake 0");
         require(app.archToken.allowance(msg.sender, address(this)) >= amount, "Must approve tokens before staking");
 
         _stake(address(app.archToken), amount, amount);
@@ -69,8 +88,8 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      */
     function addVotingPowerForVestingTokens(address account, uint256 amount) external nonReentrant {
         AppStorage storage app = VotingPowerStorage.appStorage();
-        require(amount > 0, "Cannot add 0 voting power");
-        require(msg.sender == address(app.vesting), "Only vesting contract");
+        require(amount > 0, "VP::addVPforVT: cannot add 0 voting power");
+        require(msg.sender == address(app.vesting), "VP::addVPforVT: only vesting contract");
 
         _increaseVotingPower(account, amount);
     }
@@ -82,8 +101,8 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      */
     function removeVotingPowerForClaimedTokens(address account, uint256 amount) external nonReentrant {
         AppStorage storage app = VotingPowerStorage.appStorage();
-        require(amount > 0, "Cannot remove 0 voting power");
-        require(msg.sender == address(app.vesting), "Only vesting contract");
+        require(amount > 0, "VP::removeVPforVT: cannot remove 0 voting power");
+        require(msg.sender == address(app.vesting), "VP::removeVPforVT: only vesting contract");
 
         _decreaseVotingPower(account, amount);
     }
@@ -93,7 +112,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      * @param amount The amount to withdraw
      */
     function withdraw(uint256 amount) external nonReentrant {
-        require(amount > 0, "Cannot withdraw 0");
+        require(amount > 0, "VP::withdraw: cannot withdraw 0");
         AppStorage storage app = VotingPowerStorage.appStorage();
         _withdraw(address(app.archToken), amount, amount);
     }
@@ -134,7 +153,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
      * @return The number of votes the account had as of the given block
      */
     function getPriorVotes(address account, uint256 blockNumber) public view returns (uint256) {
-        require(blockNumber < block.number, "Arch::getPriorVotes: not yet determined");
+        require(blockNumber < block.number, "VP::getPriorVotes: not yet determined");
         
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 nCheckpoints = cs.numCheckpoints[account];
@@ -209,7 +228,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     }
 
     function _writeCheckpoint(address voter, uint32 nCheckpoints, uint256 oldVotes, uint256 newVotes) internal {
-      uint32 blockNumber = _safe32(block.number, "Arch::_writeCheckpoint: block number exceeds 32 bits");
+      uint32 blockNumber = _safe32(block.number, "VP::_writeCheckpoint: block number exceeds 32 bits");
 
       CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
       if (nCheckpoints > 0 && cs.checkpoints[voter][nCheckpoints - 1].fromBlock == blockNumber) {
@@ -228,7 +247,7 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     }
 
     function become(VotingPowerPrism prism) public {
-        require(msg.sender == prism.proxyAdmin(), "only proxy admin can change implementation");
-        require(prism.acceptImplementation() == true, "change not authorized");
+        require(msg.sender == prism.proxyAdmin(), "VP::become: only proxy admin can change implementation");
+        require(prism.acceptImplementation() == true, "VP::become: change not authorized");
     }
 }

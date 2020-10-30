@@ -7,6 +7,7 @@ node_modules/
 deployments/localhost/
 deployments/hardhat/
 deployments/*/solcInputs/
+tenderly.yaml
 .env*
 !.env.sample
 yarn.lock

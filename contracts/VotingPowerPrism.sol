@@ -45,7 +45,7 @@ contract VotingPowerPrism {
     */
     function setPendingImplementation(address newPendingImplementation) public returns (bool) {
         AdminStorage storage s = VotingPowerStorage.adminStorage();
-        require(msg.sender == s.admin, "Caller must be admin");
+        require(msg.sender == s.admin, "VP::setPendingImp: caller must be admin");
 
         address oldPendingImplementation = s.pendingVotingPowerImplementation;
 
@@ -64,7 +64,7 @@ contract VotingPowerPrism {
     function acceptImplementation() public returns (bool) {
         AdminStorage storage s = VotingPowerStorage.adminStorage();
         // Check caller is pendingImplementation and pendingImplementation ≠ address(0)
-        require(msg.sender == s.pendingVotingPowerImplementation && s.pendingVotingPowerImplementation != address(0), "Caller must be pending implementation");
+        require(msg.sender == s.pendingVotingPowerImplementation && s.pendingVotingPowerImplementation != address(0), "VP::acceptImp: caller must be pending implementation");
  
         // Save current values for inclusion in log
         address oldImplementation = s.votingPowerImplementation;
@@ -91,7 +91,7 @@ contract VotingPowerPrism {
     function setPendingAdmin(address newPendingAdmin) public returns (bool) {
         AdminStorage storage s = VotingPowerStorage.adminStorage();
         // Check caller = admin
-        require(msg.sender == s.admin, "Caller must be admin");
+        require(msg.sender == s.admin, "VP::setPendingAdmin: caller must be admin");
 
         // Save current value, if any, for inclusion in log
         address oldPendingAdmin = s.pendingAdmin;
@@ -113,7 +113,7 @@ contract VotingPowerPrism {
     function acceptAdmin() public returns (bool) {
         AdminStorage storage s = VotingPowerStorage.adminStorage();
         // Check caller is pendingAdmin and pendingAdmin ≠ address(0)
-        require(msg.sender == s.pendingAdmin && msg.sender != address(0), "Caller must be pending admin");
+        require(msg.sender == s.pendingAdmin && msg.sender != address(0), "VP::acceptAdmin: caller must be pending admin");
 
         // Save current values for inclusion in log
         address oldAdmin = s.admin;
@@ -157,11 +157,25 @@ contract VotingPowerPrism {
     }
 
     /**
-     * @dev Delegates execution to an implementation contract.
+     * @notice Forwards to internal _fallback function
+     */
+    fallback() external payable {
+        _fallback();
+    }
+
+    /**
+     * @notice Forwards to internal _fallback function
+     */
+    receive() external payable {
+        _fallback();
+    }
+
+    /**
+     * @notice Delegates execution to an implementation contract.
      * It returns to the external caller whatever the implementation returns
      * or forwards reverts.
      */
-    fallback() external payable {
+    function _fallback() internal {
         AdminStorage storage s = VotingPowerStorage.adminStorage();
         // delegate all other functions to current implementation
         (bool success, ) = s.votingPowerImplementation.delegatecall(msg.data);
@@ -174,12 +188,5 @@ contract VotingPowerPrism {
               case 0 { revert(free_mem_ptr, returndatasize()) }
               default { return(free_mem_ptr, returndatasize()) }
         }
-    }
-
-    /**
-     * @dev Disallow sending ETH to proxy contract directly
-     */
-    receive() external payable {
-        revert("Cannot send ETH directly");
     }
 }

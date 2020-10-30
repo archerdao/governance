@@ -6,6 +6,8 @@ module.exports = async ({
   const { deployer, admin } = await getNamedAccounts();
   const token = await deployments.get("ArchToken");
 
+  log(`3) Supply Manager`)
+  // Deploy SupplyManager contract
   const deployResult = await deploy("SupplyManager", {
     from: deployer,
     contract: "SupplyManager",
@@ -13,7 +15,6 @@ module.exports = async ({
     args: [token.address, admin]
   });
 
-  log(`3) Supply Manager`)
   if (deployResult.newlyDeployed) {
     log(`- ${deployResult.contractName} deployed at ${deployResult.address} using ${deployResult.receipt.gasUsed} gas`);
   } else {

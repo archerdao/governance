@@ -1,5 +1,7 @@
 const { ethers, deployments, getNamedAccounts, getUnnamedAccounts } = require("hardhat");
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
+
 const tokenFixture = deployments.createFixture(async ({deployments, getNamedAccounts, getUnnamedAccounts, ethers}, options) => {
     const accounts = await ethers.getSigners();
     const deployer = accounts[0]
@@ -18,7 +20,8 @@ const tokenFixture = deployments.createFixture(async ({deployments, getNamedAcco
         admin: admin,
         alice: alice,
         bob: bob,
-        carlos: carlos
+        carlos: carlos,
+        ZERO_ADDRESS: ZERO_ADDRESS
     };
 })
 
@@ -37,20 +40,23 @@ const governanceFixture = deployments.createFixture(async ({deployments, getName
     const VestingFactory = await ethers.getContractFactory("Vesting");
     const Vesting = await VestingFactory.deploy(ArchToken.address);
     const VotingPowerFactory = await ethers.getContractFactory("VotingPower");
-    const VotingPower = await VotingPowerFactory.deploy();
+    const VotingPowerImp = await VotingPowerFactory.deploy();
     const VotingPowerPrismFactory = await ethers.getContractFactory("VotingPowerPrism");
     const VotingPowerPrism = await VotingPowerPrismFactory.deploy();
-    
+    const VotingPower = new ethers.Contract(VotingPowerPrism.address, VotingPowerImp.interface, deployer)
+
     return {
         archToken: ArchToken,
         vesting: Vesting,
-        votingPowerImp: VotingPower,
+        votingPower: VotingPower,
+        votingPowerImplementation: VotingPowerImp,
         votingPowerPrism: VotingPowerPrism,
         deployer: deployer,
         admin: admin,
         alice: alice,
         bob: bob,
-        carlos: carlos
+        carlos: carlos,
+        ZERO_ADDRESS: ZERO_ADDRESS
     };
 })
 

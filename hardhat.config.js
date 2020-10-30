@@ -112,7 +112,8 @@ module.exports = {
   },
   abiExporter: {
     path: './abis',
-    clear: true
+    clear: true,
+    flat: true
   },
   tenderly: {
 		username: "archerdao",

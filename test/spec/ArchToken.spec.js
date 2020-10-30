@@ -1,6 +1,6 @@
 const { expect } = require("chai")
 const { ethers } = require("hardhat");
-const { tokenFixture } = require("./fixtures")
+const { tokenFixture } = require("../fixtures")
 const { ecsign } = require("ethereumjs-util")
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY
 
@@ -15,9 +15,6 @@ const PERMIT_TYPEHASH = ethers.utils.keccak256(
 const TRANSFER_WITH_AUTHORIZATION_TYPEHASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes('TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)')
 )
-
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
-
 describe('ArchToken', () => {
     let archToken
     let tokenName = "Archer"
@@ -26,6 +23,7 @@ describe('ArchToken', () => {
     let alice
     let bob
     let carlos
+    let ZERO_ADDRESS
 
     beforeEach(async () => {
       const fix = await tokenFixture()
@@ -35,6 +33,7 @@ describe('ArchToken', () => {
       alice = fix.alice
       bob = fix.bob
       carlos = fix.carlos
+      ZERO_ADDRESS = fix.ZERO_ADDRESS
     })
 
     context('transfer', async () => {
