@@ -22,26 +22,19 @@ contract PrismProxy {
         uint8 version;
     }
 
+    /// @dev Position in contract storage where prism ProxyStorage struct will be stored
     bytes32 constant PRISM_PROXY_STORAGE_POSITION = keccak256("prism.proxy.storage");
 
-    /**
-      * @notice Emitted when pendingImplementation is changed
-      */
+    /// @notice Emitted when pendingImplementation is changed
     event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
 
-    /**
-      * @notice Emitted when pendingImplementation is accepted, which means implementation is updated
-      */
+    /// @notice Emitted when pendingImplementation is accepted, which means implementation is updated
     event NewImplementation(address oldImplementation, address newImplementation);
 
-    /**
-      * @notice Emitted when pendingAdmin is changed
-      */
+    /// @notice Emitted when pendingAdmin is changed
     event NewPendingAdmin(address oldPendingAdmin, address newPendingAdmin);
 
-    /**
-      * @notice Emitted when pendingAdmin is accepted, which means admin is updated
-      */
+    /// @notice Emitted when pendingAdmin is accepted, which means admin is updated
     event NewAdmin(address oldAdmin, address newAdmin);
 
     /**
@@ -76,10 +69,10 @@ contract PrismProxy {
     }
 
     /**
-    * @notice Accepts new implementation for prism. msg.sender must be pendingImplementation
-    * @dev Admin function for new implementation to accept it's role as implementation
-    * @return boolean indicating success of operation
-    */
+     * @notice Accepts new implementation for prism. msg.sender must be pendingImplementation
+     * @dev Admin function for new implementation to accept it's role as implementation
+     * @return boolean indicating success of operation
+     */
     function acceptProxyImplementation() public returns (bool) {
         ProxyStorage storage s = proxyStorage();
         // Check caller is pendingImplementation and pendingImplementation ≠ address(0)
@@ -101,11 +94,11 @@ contract PrismProxy {
     }
 
     /**
-      * @notice Begins transfer of admin rights. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.
-      * @dev Admin function to begin change of admin. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.
-      * @param newPendingAdmin New pending admin.
-      * @return boolean indicating success of operation
-      */
+     * @notice Begins transfer of admin rights. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.
+     * @dev Admin function to begin change of admin. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.
+     * @param newPendingAdmin New pending admin.
+     * @return boolean indicating success of operation
+     */
     function setPendingProxyAdmin(address newPendingAdmin) public returns (bool) {
         ProxyStorage storage s = proxyStorage();
         // Check caller = admin
@@ -124,10 +117,10 @@ contract PrismProxy {
     }
 
     /**
-      * @notice Accepts transfer of admin rights. msg.sender must be pendingAdmin
-      * @dev Admin function for pending admin to accept role and update admin
-      * @return boolean indicating success of operation
-      */
+     * @notice Accepts transfer of admin rights. msg.sender must be pendingAdmin
+     * @dev Admin function for pending admin to accept role and update admin
+     * @return boolean indicating success of operation
+     */
     function acceptProxyAdmin() public returns (bool) {
         ProxyStorage storage s = proxyStorage();
         // Check caller is pendingAdmin and pendingAdmin ≠ address(0)
