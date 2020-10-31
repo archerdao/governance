@@ -5,13 +5,19 @@ pragma experimental ABIEncoderV2;
 import "./lib/SafeMath.sol";
 import "./lib/Initializable.sol";
 import "./lib/ReentrancyGuardUpgradeSafe.sol";
+import "./lib/PrismProxyImplementation.sol";
 import "./lib/VotingPowerStorage.sol";
 import "./lib/SafeERC20.sol";
 import "./interfaces/IERC20.sol";
-import "./VotingPowerPrism.sol";
 
-
-contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
+/**
+ * @title VotingPower
+ * @dev Implementation contract for voting power prism proxy
+ * Call should not be made directly to this contract, instead make calls to the VotingPowerPrism proxy contract
+ * The exception to this is the `become` function specified in PrismProxyImplementation 
+ * This function is used by this contract to accept its role as the implementation for the prism proxy
+ */
+contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe, PrismProxyImplementation {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -287,14 +293,5 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe {
     function _safe32(uint256 n, string memory errorMessage) internal pure returns (uint32) {
         require(n < 2**32, errorMessage);
         return uint32(n);
-    }
-
-    /**
-     * @notice Accept invitation to be new voting power implementation
-     * @param prism VotingPowerPrism contract
-     */
-    function become(VotingPowerPrism prism) public {
-        require(msg.sender == prism.proxyAdmin(), "VP::become: only proxy admin can change implementation");
-        require(prism.acceptImplementation() == true, "VP::become: change not authorized");
     }
 }

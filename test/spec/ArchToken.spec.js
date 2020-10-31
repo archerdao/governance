@@ -2,6 +2,7 @@ const { expect } = require("chai")
 const { ethers } = require("hardhat");
 const { tokenFixture } = require("../fixtures")
 const { ecsign } = require("ethereumjs-util")
+
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY
 
 const DOMAIN_TYPEHASH = ethers.utils.keccak256(
@@ -15,6 +16,7 @@ const PERMIT_TYPEHASH = ethers.utils.keccak256(
 const TRANSFER_WITH_AUTHORIZATION_TYPEHASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes('TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)')
 )
+
 describe('ArchToken', () => {
     let archToken
     let tokenName = "Archer"

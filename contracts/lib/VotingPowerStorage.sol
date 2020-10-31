@@ -5,24 +5,6 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/IArchToken.sol";
 import "../interfaces/IVesting.sol";
 
-/// @notice Proxy admin storage variables
-struct AdminStorage {
-    // Administrator for this contract
-    address admin;
-
-    // Pending administrator for this contract
-    address pendingAdmin;
-
-    // Active implementation of Voting Power contract
-    address votingPowerImplementation;
-
-    // Pending implementation of Voting Power contract
-    address pendingVotingPowerImplementation;
-
-    // Voting Power implementation version
-    uint8 version;
-}
-
 /// @notice App metadata storage
 struct AppStorage {
     // A record of states for signing / validating signatures
@@ -60,18 +42,14 @@ struct StakeStorage {
 }
 
 library VotingPowerStorage {
-    bytes32 constant VOTING_POWER_ADMIN_STORAGE_POSITION = keccak256("voting.power.admin.storage");
     bytes32 constant VOTING_POWER_APP_STORAGE_POSITION = keccak256("voting.power.app.storage");
     bytes32 constant VOTING_POWER_CHECKPOINT_STORAGE_POSITION = keccak256("voting.power.checkpoint.storage");
     bytes32 constant VOTING_POWER_STAKE_STORAGE_POSITION = keccak256("voting.power.stake.storage");
-
-    function adminStorage() internal pure returns (AdminStorage storage adm) {        
-        bytes32 position = VOTING_POWER_ADMIN_STORAGE_POSITION;
-        assembly {
-            adm.slot := position
-        }
-    }
     
+    /**
+     * @notice Load app storage struct from specified VOTING_POWER_APP_STORAGE_POSITION
+     * @return app AppStorage struct
+     */
     function appStorage() internal pure returns (AppStorage storage app) {        
         bytes32 position = VOTING_POWER_APP_STORAGE_POSITION;
         assembly {
@@ -79,6 +57,10 @@ library VotingPowerStorage {
         }
     }
 
+    /**
+     * @notice Load checkpoint storage struct from specified VOTING_POWER_CHECKPOINT_STORAGE_POSITION
+     * @return cs CheckpointStorage struct
+     */
     function checkpointStorage() internal pure returns (CheckpointStorage storage cs) {        
         bytes32 position = VOTING_POWER_CHECKPOINT_STORAGE_POSITION;
         assembly {
@@ -86,6 +68,10 @@ library VotingPowerStorage {
         }
     }
 
+    /**
+     * @notice Load stake storage struct from specified VOTING_POWER_STAKE_STORAGE_POSITION
+     * @return ss StakeStorage struct
+     */
     function stakeStorage() internal pure returns (StakeStorage storage ss) {        
         bytes32 position = VOTING_POWER_STAKE_STORAGE_POSITION;
         assembly {
