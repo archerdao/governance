@@ -19,7 +19,6 @@ const TRANSFER_WITH_AUTHORIZATION_TYPEHASH = ethers.utils.keccak256(
 
 describe('ArchToken', () => {
     let archToken
-    let tokenName = "Archer"
     let deployer
     let admin
     let alice
@@ -86,7 +85,7 @@ describe('ArchToken', () => {
         const domainSeparator = ethers.utils.keccak256(
           ethers.utils.defaultAbiCoder.encode(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
-            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(tokenName)), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
           )
         )
     
@@ -122,7 +121,7 @@ describe('ArchToken', () => {
         const domainSeparator = ethers.utils.keccak256(
           ethers.utils.defaultAbiCoder.encode(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
-            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(tokenName)), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
           )
         )
     
@@ -157,7 +156,7 @@ describe('ArchToken', () => {
         const domainSeparator = ethers.utils.keccak256(
           ethers.utils.defaultAbiCoder.encode(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
-            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(tokenName)), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
           )
         )
     
@@ -191,7 +190,7 @@ describe('ArchToken', () => {
         const domainSeparator = ethers.utils.keccak256(
           ethers.utils.defaultAbiCoder.encode(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
-            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(tokenName)), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
           )
         )
     
@@ -250,7 +249,7 @@ describe('ArchToken', () => {
         const domainSeparator = ethers.utils.keccak256(
           ethers.utils.defaultAbiCoder.encode(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
-            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(tokenName)), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
           )
         )
 
@@ -287,7 +286,7 @@ describe('ArchToken', () => {
         const domainSeparator = ethers.utils.keccak256(
           ethers.utils.defaultAbiCoder.encode(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
-            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(tokenName)), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
           )
         )
 

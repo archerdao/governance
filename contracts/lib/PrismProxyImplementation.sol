@@ -2,9 +2,10 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
+import "./Initializable.sol";
 import "./PrismProxy.sol";
 
-contract PrismProxyImplementation {
+contract PrismProxyImplementation is Initializable {
     /**
      * @notice Accept invitation to be implementation contract for proxy
      * @param prism Prism Proxy contract

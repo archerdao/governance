@@ -27,7 +27,7 @@ describe("Vesting", function() {
         alice = fix.alice
         bob = fix.bob
         carlos = fix.carlos
-        await votingPowerPrism.setPendingImplementation(votingPowerImplementation.address)
+        await votingPowerPrism.setPendingProxyImplementation(votingPowerImplementation.address)
         await votingPowerImplementation.become(votingPowerPrism.address)
         await votingPower.initialize(archToken.address, vesting.address)
     })

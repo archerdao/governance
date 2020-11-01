@@ -3,7 +3,6 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./lib/SafeMath.sol";
-import "./lib/Initializable.sol";
 import "./lib/ReentrancyGuardUpgradeSafe.sol";
 import "./lib/PrismProxyImplementation.sol";
 import "./lib/VotingPowerStorage.sol";
@@ -13,11 +12,11 @@ import "./interfaces/IERC20.sol";
 /**
  * @title VotingPower
  * @dev Implementation contract for voting power prism proxy
- * Call should not be made directly to this contract, instead make calls to the VotingPowerPrism proxy contract
+ * Calls should not be made directly to this contract, instead make calls to the VotingPowerPrism proxy contract
  * The exception to this is the `become` function specified in PrismProxyImplementation 
- * This function is used by this contract to accept its role as the implementation for the prism proxy
+ * This function is called once and is used by this contract to accept its role as the implementation for the prism proxy
  */
-contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe, PrismProxyImplementation {
+contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -76,6 +75,8 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe, PrismProxyImp
     function stakeWithPermit(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external nonReentrant {
         require(amount > 0, "VP::stakeWithPermit: cannot stake 0");
         AppStorage storage app = VotingPowerStorage.appStorage();
+        require(app.archToken.balanceOf(msg.sender) >= amount, "VP::stakeWithPermit: not enough tokens");
+
         app.archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
 
         _stake(address(app.archToken), amount, amount);
@@ -88,7 +89,8 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe, PrismProxyImp
     function stake(uint256 amount) external nonReentrant {
         AppStorage storage app = VotingPowerStorage.appStorage();
         require(amount > 0, "VP::stake: cannot stake 0");
-        require(app.archToken.allowance(msg.sender, address(this)) >= amount, "Must approve tokens before staking");
+        require(app.archToken.balanceOf(msg.sender) >= amount, "VP::stake: not enough tokens");
+        require(app.archToken.allowance(msg.sender, address(this)) >= amount, "VP::stake: must approve tokens before staking");
 
         _stake(address(app.archToken), amount, amount);
     }
@@ -208,11 +210,11 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe, PrismProxyImp
      * @param votingPower The amount of voting power stake translates into
      */
     function _stake(address token, uint256 tokenAmount, uint256 votingPower) internal {
-        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        ss.totalStaked[token].add(tokenAmount);
-        ss.stakes[msg.sender][token].add(tokenAmount);
-
         IERC20(token).safeTransferFrom(msg.sender, address(this), tokenAmount);
+
+        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
+        ss.totalStaked[token] = ss.totalStaked[token].add(tokenAmount);
+        ss.stakes[msg.sender][token] = ss.stakes[msg.sender][token].add(tokenAmount);
 
         emit Staked(msg.sender, token, tokenAmount);
 
@@ -227,8 +229,8 @@ contract VotingPower is Initializable, ReentrancyGuardUpgradeSafe, PrismProxyImp
      */
     function _withdraw(address token, uint256 tokenAmount, uint256 votingPower) internal {
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        ss.totalStaked[token].sub(tokenAmount);
-        ss.stakes[msg.sender][token].sub(tokenAmount);
+        ss.totalStaked[token] = ss.totalStaked[token].sub(tokenAmount);
+        ss.stakes[msg.sender][token] = ss.stakes[msg.sender][token].sub(tokenAmount);
         
         IERC20(token).safeTransfer(msg.sender, tokenAmount);
 

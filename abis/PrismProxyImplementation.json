@@ -1,0 +1,15 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "contract PrismProxy",
+        "name": "prism",
+        "type": "address"
+      }
+    ],
+    "name": "become",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

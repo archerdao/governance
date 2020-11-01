@@ -25,4 +25,12 @@ interface IArchToken {
     function setMetadataManager(address newMetadataManager) external returns (bool);
     function setSupplyChangeWaitingPeriod(uint32 period) external returns (bool);
     function setMintCap(uint16 newCap) external returns (bool);
+    event MintCapChanged(uint16 indexed oldMintCap, uint16 indexed newMintCap);
+    event SupplyManagerChanged(address indexed oldManager, address indexed newManager);
+    event SupplyChangeWaitingPeriodChanged(uint32 indexed oldWaitingPeriod, uint32 indexed newWaitingPeriod);
+    event MetadataManagerChanged(address indexed oldManager, address indexed newManager);
+    event TokenMetaUpdated(string name, string symbol);
+    event Transfer(address indexed from, address indexed to, uint256 amount);
+    event Approval(address indexed owner, address indexed spender, uint256 amount);
+    event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
 }

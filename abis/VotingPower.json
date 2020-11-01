@@ -108,7 +108,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract VotingPowerPrism",
+        "internalType": "contract PrismProxy",
         "name": "prism",
         "type": "address"
       }

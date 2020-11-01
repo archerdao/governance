@@ -77,7 +77,7 @@
   },
   {
     "inputs": [],
-    "name": "acceptAdmin",
+    "name": "acceptProxyAdmin",
     "outputs": [
       {
         "internalType": "bool",
@@ -90,7 +90,7 @@
   },
   {
     "inputs": [],
-    "name": "acceptImplementation",
+    "name": "acceptProxyImplementation",
     "outputs": [
       {
         "internalType": "bool",
@@ -174,7 +174,7 @@
         "type": "address"
       }
     ],
-    "name": "setPendingAdmin",
+    "name": "setPendingProxyAdmin",
     "outputs": [
       {
         "internalType": "bool",
@@ -193,7 +193,7 @@
         "type": "address"
       }
     ],
-    "name": "setPendingImplementation",
+    "name": "setPendingProxyImplementation",
     "outputs": [
       {
         "internalType": "bool",
