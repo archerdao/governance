@@ -1,4 +1,8 @@
-👋 Thank you for reviewing the ARCH token and initial governance contracts. Send feedback to @calebsheridan
+👋 Thank you for reviewing the ARCH token and initial governance contracts. 
+
+If you have feedback or run into any issues, please submit a new issue on GitHub.  
+
+For general questions and discussion, please join the [Archer DAO Discord](https://discord.gg/EUy73ezy) or [Telegram](https://t.me/archerdao) and stay tuned for announcements in the coming weeks.
 
 # Contract Overview
 
