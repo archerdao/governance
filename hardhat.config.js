@@ -5,6 +5,7 @@ require("hardhat-deploy-ethers");
 require('hardhat-abi-exporter');
 require('hardhat-log-remover');
 require("@tenderly/hardhat-tenderly");
+require("hardhat-gas-reporter");
 
 const INFURA_KEY = process.env.INFURA_KEY
 const FORK_URL = process.env.FORK_URL
@@ -16,6 +17,7 @@ const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const ADMIN_PRIVATE_KEY = process.env.ADMIN_PRIVATE_KEY
 const TENDERLY_USERNAME = process.env.TENDERLY_USERNAME
 const TENDERLY_PROJECT_NAME = process.env.TENDERLY_PROJECT_NAME
+const REPORT_GAS = process.env.REPORT_GAS
 const CMC_API_KEY = process.env.CMC_API_KEY
 
 // Default Hardhat network config
@@ -120,7 +122,13 @@ module.exports = {
   tenderly: {
     username: TENDERLY_USERNAME,
     project: TENDERLY_PROJECT_NAME
-	},
+  },
+  gasReporter: {
+    enabled: REPORT_GAS && REPORT_GAS == "true" ? true : false,
+    coinmarketcap: CMC_API_KEY,
+    currency: 'USD',
+    showTimeSpent: true
+  },
   solidity: "0.7.4",
   settings: {
     optimizer: {
