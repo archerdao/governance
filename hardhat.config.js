@@ -14,6 +14,8 @@ const DEPLOYER_ADDRESS = process.env.DEPLOYER_ADDRESS
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY
 const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const ADMIN_PRIVATE_KEY = process.env.ADMIN_PRIVATE_KEY
+const TENDERLY_USERNAME = process.env.TENDERLY_USERNAME
+const TENDERLY_PROJECT_NAME = process.env.TENDERLY_PROJECT_NAME
 const CMC_API_KEY = process.env.CMC_API_KEY
 
 // Default Hardhat network config
@@ -116,8 +118,8 @@ module.exports = {
     flat: true
   },
   tenderly: {
-		username: "archerdao",
-		project: "governance"
+    username: TENDERLY_USERNAME,
+    project: TENDERLY_PROJECT_NAME
 	},
   solidity: "0.7.4",
   settings: {
