@@ -63,7 +63,6 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
         return address(app.vesting);
     }
 
-
     /**
      * @notice Stake ARCH tokens using offchain approvals to unlock voting power
      * @param amount The amount to stake
@@ -79,7 +78,7 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
 
         app.archToken.permit(msg.sender, address(this), amount, deadline, v, r, s);
 
-        _stake(address(app.archToken), amount, amount);
+        _stake(msg.sender, address(app.archToken), amount, amount);
     }
 
     /**
@@ -92,7 +91,7 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
         require(app.archToken.balanceOf(msg.sender) >= amount, "VP::stake: not enough tokens");
         require(app.archToken.allowance(msg.sender, address(this)) >= amount, "VP::stake: must approve tokens before staking");
 
-        _stake(address(app.archToken), amount, amount);
+        _stake(msg.sender, address(app.archToken), amount, amount);
     }
 
     /**
@@ -128,7 +127,7 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     function withdraw(uint256 amount) external nonReentrant {
         require(amount > 0, "VP::withdraw: cannot withdraw 0");
         AppStorage storage app = VotingPowerStorage.appStorage();
-        _withdraw(address(app.archToken), amount, amount);
+        _withdraw(msg.sender, address(app.archToken), amount, amount);
     }
 
     /**
@@ -205,38 +204,42 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
 
     /**
      * @notice Internal implementation of stake
+     * @param voter The user that is staking tokens
      * @param token The token to stake
      * @param tokenAmount The amount of token to stake
      * @param votingPower The amount of voting power stake translates into
      */
-    function _stake(address token, uint256 tokenAmount, uint256 votingPower) internal {
-        IERC20(token).safeTransferFrom(msg.sender, address(this), tokenAmount);
+    function _stake(address voter, address token, uint256 tokenAmount, uint256 votingPower) internal {
+        IERC20(token).safeTransferFrom(voter, address(this), tokenAmount);
 
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
         ss.totalStaked[token] = ss.totalStaked[token].add(tokenAmount);
-        ss.stakes[msg.sender][token] = ss.stakes[msg.sender][token].add(tokenAmount);
+        ss.stakes[voter][token] = ss.stakes[voter][token].add(tokenAmount);
 
-        emit Staked(msg.sender, token, tokenAmount);
+        emit Staked(voter, token, tokenAmount);
 
-        _increaseVotingPower(msg.sender, votingPower);
+        _increaseVotingPower(voter, votingPower);
     }
 
     /**
      * @notice Internal implementation of withdraw
+     * @param voter The user with tokens staked
      * @param token The token that is staked
      * @param tokenAmount The amount of token to withdraw
      * @param votingPower The amount of voting power stake translates into
      */
-    function _withdraw(address token, uint256 tokenAmount, uint256 votingPower) internal {
+    function _withdraw(address voter, address token, uint256 tokenAmount, uint256 votingPower) internal {
+        require(getCurrentVotes(voter) >= votingPower, "VP::_withdraw: not enough voting power");
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
+        require(ss.stakes[voter][token] >= tokenAmount, "VP::_withdraw: not enough tokens staked");
         ss.totalStaked[token] = ss.totalStaked[token].sub(tokenAmount);
-        ss.stakes[msg.sender][token] = ss.stakes[msg.sender][token].sub(tokenAmount);
+        ss.stakes[voter][token] = ss.stakes[voter][token].sub(tokenAmount);
         
-        IERC20(token).safeTransfer(msg.sender, tokenAmount);
+        IERC20(token).safeTransfer(voter, tokenAmount);
 
-        emit Withdrawn(msg.sender, token, tokenAmount);
+        emit Withdrawn(voter, token, tokenAmount);
         
-        _decreaseVotingPower(msg.sender, votingPower);
+        _decreaseVotingPower(voter, votingPower);
     }
 
     /**
