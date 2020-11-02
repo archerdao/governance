@@ -59,7 +59,7 @@ contract Vesting {
         require(vestingCliffInDays <= 10*365, "Vest::addTokenGrant: cliff more than 10 years");
         require(vestingDurationInDays > 0, "Vest::addTokenGrant: duration must be > 0");
         require(vestingDurationInDays <= 25*365, "Vest::addTokenGrant: duration more than 25 years");
-        require(vestingDurationInDays >= vestingCliffInDays, "Vest::addTokenGrant: Duration < Cliff");
+        require(vestingDurationInDays >= vestingCliffInDays, "Vest::addTokenGrant: duration < cliff");
         require(tokenGrants[recipient].amount == 0, "Vest::addTokenGrant: grant already exists for account");
         
         uint256 amountVestedPerDay = amount.div(vestingDurationInDays);
@@ -184,7 +184,7 @@ contract Vesting {
         Grant storage tokenGrant = tokenGrants[recipient];
         tokenGrant.totalClaimed = uint256(tokenGrant.totalClaimed.add(amountVested));
         
-        require(token.transfer(recipient, amountVested), "Vest::claimVested: no tokens");
+        require(token.transfer(recipient, amountVested), "Vest::claimVested: transfer failed");
         emit GrantTokensClaimed(recipient, amountVested);
     }
 
@@ -206,7 +206,8 @@ contract Vesting {
         external 
     {
         require(msg.sender == owner, "Vest::setVotingPowerContract: not owner");
-        require(newContract != address(0) && newContract != address(this) && newContract != address(token), "Vest::setVotingPowerContract: not valid contract address");
+        require(newContract != address(0) && newContract != address(this) && newContract != address(token), "Vest::setVotingPowerContract: not valid contract");
+        require(IVotingPower(newContract).archToken() == address(token), "Vest::setVotingPowerContract: voting power not initialized");
         address oldContract = address(votingPower);
         votingPower = IVotingPower(newContract);
         emit ChangedVotingPower(newContract, oldContract);

@@ -173,6 +173,39 @@ describe("VotingPower", function() {
                 await expect(votingPower.stakeWithPermit(value, deadline, v, r, s)).to.revertedWith("revert VP::stakeWithPermit: cannot stake 0")
             })
 
+            it("does not allow a user to stake using a permit signed by someone else", async function() {
+                const value = 1000
+                const domainSeparator = ethers.utils.keccak256(
+                    ethers.utils.defaultAbiCoder.encode(
+                        ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
+                        [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+                    )
+                )
+          
+                  
+                const nonce = await archToken.nonces(alice.address)
+                const deadline = ethers.constants.MaxUint256
+                const digest = ethers.utils.keccak256(
+                    ethers.utils.solidityPack(
+                        ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+                        [
+                        '0x19',
+                        '0x01',
+                        domainSeparator,
+                        ethers.utils.keccak256(
+                            ethers.utils.defaultAbiCoder.encode(
+                            ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'],
+                            [PERMIT_TYPEHASH, alice.address, votingPower.address, value, nonce, deadline]
+                            )
+                        ),
+                        ]
+                    )
+                )
+        
+                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+                await expect(votingPower.stakeWithPermit(value, deadline, v, r, s)).to.revertedWith("revert Arch::validateSig: invalid signature")
+            })
+
             it("does not allow a user to stake more tokens than they have", async function() {
                 const value = 1000
                 const domainSeparator = ethers.utils.keccak256(
@@ -204,6 +237,26 @@ describe("VotingPower", function() {
         
                 const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
                 await expect(votingPower.connect(alice).stakeWithPermit(value, deadline, v, r, s)).to.revertedWith("revert VP::stakeWithPermit: not enough tokens")
+            })
+        })
+
+        context("addVotingPowerForVestingTokens", async () => {
+            it("does not allow user to add 0 voting power", async function() {
+                await expect(votingPower.addVotingPowerForVestingTokens(alice.address, 0)).to.revertedWith("revert VP::addVPforVT: cannot add 0 voting power")
+            })
+
+            it("does not allow addresses other than the vesting contract to add voting power", async function() {
+                await expect(votingPower.addVotingPowerForVestingTokens(alice.address, 1000)).to.revertedWith("revert VP::addVPforVT: only vesting contract")
+            })
+        })
+
+        context("removeVotingPowerForClaimedTokens", async () => {
+            it("does not allow user to remove 0 voting power", async function() {
+                await expect(votingPower.removeVotingPowerForClaimedTokens(alice.address, 0)).to.revertedWith("revert VP::removeVPforVT: cannot remove 0 voting power")
+            })
+
+            it("does not allow addresses other than the vesting contract to remove voting power", async function() {
+                await expect(votingPower.removeVotingPowerForClaimedTokens(alice.address, 1000)).to.revertedWith("revert VP::removeVPforVT: only vesting contract")
             })
         })
     })
