@@ -19,6 +19,12 @@ pragma experimental ABIEncoderV2;
 
 import "./lib/SafeMath.sol";
 
+/**
+ * @title ArchToken
+ * @dev The governance token for Archer DAO
+ * ERC-20 with supply controls + add-ons to allow for offchain signing
+ * See EIP-712, EIP-2612, and EIP-3009 for details
+ */
 contract ArchToken {
     using SafeMath for uint256;
 
@@ -413,7 +419,6 @@ contract ArchToken {
      * @param value The number of tokens that are being transferred
      */
     function _transferTokens(address from, address to, uint256 value) internal {
-        require(from != address(0), "Arch::_transferTokens: cannot transfer from the zero address");
         require(to != address(0), "Arch::_transferTokens: cannot transfer to the zero address");
 
         balances[from] = balances[from].sub(value);

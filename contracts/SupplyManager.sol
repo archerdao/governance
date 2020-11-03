@@ -5,6 +5,12 @@ pragma experimental ABIEncoderV2;
 import "./lib/SafeMath.sol";
 import "./interfaces/IArchToken.sol";
 
+/**
+ * @title SupplyManager
+ * @dev Responsible for enacting decisions related to ARCH token supply
+ * Decisions are made via a timelocked propose/accept scheme
+ * Initial proposal length (timelock) is 30 days
+ */
 contract SupplyManager {
     using SafeMath for uint256;
 

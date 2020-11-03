@@ -6,6 +6,10 @@ import "./lib/SafeMath.sol";
 import "./interfaces/IArchToken.sol";
 import "./interfaces/IVotingPower.sol";
 
+/**
+ * @title Vesting
+ * @dev The vesting vault contract for the initial token sale
+ */
 contract Vesting {
     using SafeMath for uint256;
 
