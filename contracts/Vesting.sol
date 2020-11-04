@@ -23,11 +23,10 @@ contract Vesting {
         uint256 totalClaimed;
     }
 
-    event GrantAdded(address indexed recipient, uint256 amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays);
-    event GrantTokensClaimed(address indexed recipient, uint256 amountClaimed);
-    event GrantRemoved(address recipient, uint256 amountVested, uint256 amountNotVested);
-    event ChangedOwner(address indexed newOwner, address oldOwner);
-    event ChangedVotingPower(address indexed newContract, address oldContract);
+    event GrantAdded(address indexed recipient, uint256 indexed amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays);
+    event GrantTokensClaimed(address indexed recipient, uint256 indexed amountClaimed);
+    event ChangedOwner(address indexed oldOwner, address indexed newOwner);
+    event ChangedVotingPower(address indexed oldContract, address indexed newContract);
 
     IArchToken public token;
     IVotingPower public votingPower;
@@ -214,7 +213,7 @@ contract Vesting {
         require(IVotingPower(newContract).archToken() == address(token), "Vest::setVotingPowerContract: voting power not initialized");
         address oldContract = address(votingPower);
         votingPower = IVotingPower(newContract);
-        emit ChangedVotingPower(newContract, oldContract);
+        emit ChangedVotingPower(oldContract, newContract);
     }
 
     /**
@@ -229,6 +228,6 @@ contract Vesting {
 
         address oldOwner = owner;
         owner = newOwner;
-        emit ChangedOwner(newOwner, oldOwner);
+        emit ChangedOwner(oldOwner, newOwner);
     }
 }

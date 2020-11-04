@@ -40,9 +40,6 @@ struct Stake {
 
 /// @notice All storage variables related to staking
 struct StakeStorage {
-    // Total stake balances in the VotingPower contract for each token > stake
-    mapping (address => Stake) totalStaked;
-
     // Official record of staked balances for each account > token > stake
     mapping (address => mapping (address => Stake)) stakes;
 }

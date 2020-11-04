@@ -27,10 +27,9 @@ interface IVesting {
     function tokensVestedPerDay(address recipient) external view returns(uint256);
     function setVotingPowerContract(address newContract) external;
     function changeOwner(address newOwner) external;
-    event GrantAdded(address indexed recipient, uint256 amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays);
-    event GrantTokensClaimed(address indexed recipient, uint256 amountClaimed);
-    event GrantRemoved(address recipient, uint256 amountVested, uint256 amountNotVested);
-    event ChangedOwner(address indexed newOwner, address oldOwner);
-    event ChangedVotingPower(address indexed newContract, address oldContract);
+    event GrantAdded(address indexed recipient, uint256 indexed amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays);
+    event GrantTokensClaimed(address indexed recipient, uint256 indexed amountClaimed);
+    event ChangedOwner(address indexed oldOwner, address indexed newOwner);
+    event ChangedVotingPower(address indexed oldContract, address indexed newContract);
 
 } 

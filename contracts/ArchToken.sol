@@ -99,13 +99,13 @@ contract ArchToken {
     event MetadataManagerChanged(address indexed oldManager, address indexed newManager);
 
     /// @notice An event that's emitted when the token name and symbol are changed
-    event TokenMetaUpdated(string name, string symbol);
+    event TokenMetaUpdated(string indexed name, string indexed symbol);
 
     /// @notice The standard EIP-20 transfer event
-    event Transfer(address indexed from, address indexed to, uint256 amount);
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
     /// @notice The standard EIP-20 approval event
-    event Approval(address indexed owner, address indexed spender, uint256 amount);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 
     /// @notice An event that's emitted whenever an authorized transfer occurs
     event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);

@@ -38,7 +38,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "value",
         "type": "uint256"
       }
     ],
@@ -144,13 +144,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "string",
         "name": "name",
         "type": "string"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "string",
         "name": "symbol",
         "type": "string"
@@ -177,7 +177,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "value",
         "type": "uint256"
       }
     ],

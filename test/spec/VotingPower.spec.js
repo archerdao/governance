@@ -73,13 +73,13 @@ describe("VotingPower", function() {
             it("allows a valid stake", async function() {
                 const userBalanceBefore = await archToken.balanceOf(deployer.address)
                 const contractBalanceBefore = await archToken.balanceOf(votingPower.address)
-                const totalArchStakedBefore = await votingPower.getTotalARCHAmountStaked()
+                const totalArchStakedBefore = await votingPower.getARCHAmountStaked(deployer.address)
                 const userVotesBefore = await votingPower.getCurrentVotes(deployer.address)
                 await archToken.approve(votingPower.address, 1000)
                 await votingPower.stake(1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(1000))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(1000))
-                expect(await votingPower.getTotalARCHAmountStaked()).to.eq(totalArchStakedBefore.add(1000))
+                expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore.add(1000))
                 expect(await votingPower.getCurrentVotes(deployer.address)).to.eq(userVotesBefore.add(1000))
             })
 
@@ -102,7 +102,7 @@ describe("VotingPower", function() {
                 const value = 1000
                 const userBalanceBefore = await archToken.balanceOf(deployer.address)
                 const contractBalanceBefore = await archToken.balanceOf(votingPower.address)
-                const totalArchStakedBefore = await votingPower.getTotalARCHAmountStaked()
+                const totalArchStakedBefore = await votingPower.getARCHAmountStaked(deployer.address)
                 const userVotesBefore = await votingPower.getCurrentVotes(deployer.address)
                 
                 const domainSeparator = ethers.utils.keccak256(
@@ -136,7 +136,7 @@ describe("VotingPower", function() {
                 await votingPower.stakeWithPermit(value, deadline, v, r, s)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(value))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(value))
-                expect(await votingPower.getTotalARCHAmountStaked()).to.eq(totalArchStakedBefore.add(value))
+                expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore.add(value))
                 expect(await votingPower.getCurrentVotes(deployer.address)).to.eq(userVotesBefore.add(value))
             })
 
@@ -264,19 +264,19 @@ describe("VotingPower", function() {
             it("allows a valid withdrawal", async function() {
                 const userBalanceBefore = await archToken.balanceOf(deployer.address)
                 const contractBalanceBefore = await archToken.balanceOf(votingPower.address)
-                const totalArchStakedBefore = await votingPower.getTotalARCHAmountStaked()
+                const totalArchStakedBefore = await votingPower.getARCHAmountStaked(deployer.address)
                 const userVotesBefore = await votingPower.getCurrentVotes(deployer.address)
                 await archToken.approve(votingPower.address, 1000)
                 await votingPower.stake(1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(1000))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(1000))
-                expect(await votingPower.getTotalARCHAmountStaked()).to.eq(totalArchStakedBefore.add(1000))
+                expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore.add(1000))
                 const userVotesAfter = await votingPower.getCurrentVotes(deployer.address)
                 expect(userVotesAfter).to.eq(userVotesBefore.add(1000))
                 await votingPower.withdraw(1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore)
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore)
-                expect(await votingPower.getTotalARCHAmountStaked()).to.eq(totalArchStakedBefore)
+                expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore)
                 expect(await votingPower.getCurrentVotes(deployer.address)).to.eq(0)
             })
 

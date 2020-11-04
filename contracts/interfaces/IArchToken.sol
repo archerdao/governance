@@ -29,8 +29,8 @@ interface IArchToken {
     event SupplyManagerChanged(address indexed oldManager, address indexed newManager);
     event SupplyChangeWaitingPeriodChanged(uint32 indexed oldWaitingPeriod, uint32 indexed newWaitingPeriod);
     event MetadataManagerChanged(address indexed oldManager, address indexed newManager);
-    event TokenMetaUpdated(string name, string symbol);
-    event Transfer(address indexed from, address indexed to, uint256 amount);
-    event Approval(address indexed owner, address indexed spender, uint256 amount);
+    event TokenMetaUpdated(string indexed name, string indexed symbol);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
     event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
 }

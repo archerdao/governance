@@ -29,21 +29,17 @@ interface IVotingPower {
     function withdraw(uint256 amount) external;
     function addVotingPowerForVestingTokens(address account, uint256 amount) external;
     function removeVotingPowerForClaimedTokens(address account, uint256 amount) external;
-    function getTotalARCHAmountStaked() external view returns (uint256);
-    function getTotalAmountStaked(address stakedToken) external view returns (uint256);
-    function getTotalARCHStake() external view returns (Stake memory);
-    function getTotalStake(address stakedToken) external view returns (Stake memory);
     function getARCHAmountStaked(address staker) external view returns (uint256);
     function getAmountStaked(address staker, address stakedToken) external view returns (uint256);
     function getARCHStake(address staker) external view returns (Stake memory);
     function getStake(address staker, address stakedToken) external view returns (Stake memory);
     function getCurrentVotes(address account) external view returns (uint256);
     function getPriorVotes(address account, uint256 blockNumber) external view returns (uint256);
-    event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
-    event NewImplementation(address oldImplementation, address newImplementation);
-    event NewPendingAdmin(address oldPendingAdmin, address newPendingAdmin);
-    event NewAdmin(address oldAdmin, address newAdmin);
-    event Staked(address indexed user, address token, uint256 amount, uint256 votingPower);
-    event Withdrawn(address indexed user, address token, uint256 amount, uint256 votingPower);
-    event VotingPowerChanged(address indexed voter, uint256 previousBalance, uint256 newBalance);
+    event NewPendingImplementation(address indexed oldPendingImplementation, address indexed newPendingImplementation);
+    event NewImplementation(address indexed oldImplementation, address indexed newImplementation);
+    event NewPendingAdmin(address indexed oldPendingAdmin, address indexed newPendingAdmin);
+    event NewAdmin(address indexed oldAdmin, address indexed newAdmin);
+    event Staked(address indexed user, address indexed token, uint256 indexed amount, uint256 votingPower);
+    event Withdrawn(address indexed user, address indexed token, uint256 indexed amount, uint256 votingPower);
+    event VotingPowerChanged(address indexed voter, uint256 indexed previousBalance, uint256 indexed newBalance);
 }

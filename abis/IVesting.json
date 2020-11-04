@@ -5,13 +5,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "newOwner",
+        "name": "oldOwner",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "oldOwner",
+        "name": "newOwner",
         "type": "address"
       }
     ],
@@ -24,13 +24,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "newContract",
+        "name": "oldContract",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "oldContract",
+        "name": "newContract",
         "type": "address"
       }
     ],
@@ -47,7 +47,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -78,38 +78,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountVested",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountNotVested",
-        "type": "uint256"
-      }
-    ],
-    "name": "GrantRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "address",
         "name": "recipient",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "amountClaimed",
         "type": "uint256"

@@ -26,16 +26,16 @@ contract PrismProxy {
     bytes32 constant PRISM_PROXY_STORAGE_POSITION = keccak256("prism.proxy.storage");
 
     /// @notice Emitted when pendingImplementation is changed
-    event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
+    event NewPendingImplementation(address indexed oldPendingImplementation, address indexed newPendingImplementation);
 
     /// @notice Emitted when pendingImplementation is accepted, which means implementation is updated
-    event NewImplementation(address oldImplementation, address newImplementation);
+    event NewImplementation(address indexed oldImplementation, address indexed newImplementation);
 
     /// @notice Emitted when pendingAdmin is changed
-    event NewPendingAdmin(address oldPendingAdmin, address newPendingAdmin);
+    event NewPendingAdmin(address indexed oldPendingAdmin, address indexed newPendingAdmin);
 
     /// @notice Emitted when pendingAdmin is accepted, which means admin is updated
-    event NewAdmin(address oldAdmin, address newAdmin);
+    event NewAdmin(address indexed oldAdmin, address indexed newAdmin);
 
     /**
      * @notice Load proxy storage struct from specified PRISM_PROXY_STORAGE_POSITION

@@ -21,13 +21,13 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     using SafeERC20 for IERC20;
 
     /// @notice An event that's emitted when a user's staked balance increases
-    event Staked(address indexed user, address token, uint256 amount, uint256 votingPower);
+    event Staked(address indexed user, address indexed token, uint256 indexed amount, uint256 votingPower);
 
     /// @notice An event that's emitted when a user's staked balance decreases
-    event Withdrawn(address indexed user, address token, uint256 amount, uint256 votingPower);
+    event Withdrawn(address indexed user, address indexed token, uint256 indexed amount, uint256 votingPower);
 
     /// @notice An event that's emitted when an account's vote balance changes
-    event VotingPowerChanged(address indexed voter, uint256 previousBalance, uint256 newBalance);
+    event VotingPowerChanged(address indexed voter, uint256 indexed previousBalance, uint256 indexed newBalance);
 
     /**
      * @notice Initialize VotingPower contract
@@ -130,43 +130,6 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
         _withdraw(msg.sender, address(app.archToken), amount, amount);
     }
 
-    /**
-     * @notice Get total amount of ARCH tokens staked in contract
-     * @return total ARCH amount staked
-     */
-    function getTotalARCHAmountStaked() public view returns (uint256) {
-        return getTotalARCHStake().amount;
-    }
-
-    /**
-     * @notice Get total amount of tokens staked in contract
-     * @param stakedToken The staked token
-     * @return total amount staked
-     */
-    function getTotalAmountStaked(address stakedToken) public view returns (uint256) {
-        return getTotalStake(stakedToken).amount;
-    }
-
-    /**
-     * @notice Get total staked amount and voting power from ARCH tokens staked in contract
-     * @return total ARCH stake
-     */
-    function getTotalARCHStake() public view returns (Stake memory) {
-        AppStorage storage app = VotingPowerStorage.appStorage();
-        return getTotalStake(address(app.archToken));
-    }
-
-    /**
-     * @notice Get total staked amount and voting power from `stakedToken` staked in contract
-     * @param stakedToken The staked token
-     * @return total stake
-     */
-    function getTotalStake(address stakedToken) public view returns (Stake memory) {
-        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        return ss.totalStaked[stakedToken];
-    }
-
-    // HERE
     /**
      * @notice Get total amount of ARCH tokens staked in contract by `staker`
      * @param staker The user with staked ARCH
@@ -271,8 +234,6 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
         IERC20(token).safeTransferFrom(voter, address(this), tokenAmount);
 
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        ss.totalStaked[token].amount = ss.totalStaked[token].amount.add(tokenAmount);
-        ss.totalStaked[token].votingPower = ss.totalStaked[token].votingPower.add(votingPower);
         ss.stakes[voter][token].amount = ss.stakes[voter][token].amount.add(tokenAmount);
         ss.stakes[voter][token].votingPower = ss.stakes[voter][token].votingPower.add(votingPower);
 
@@ -292,8 +253,6 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
         require(ss.stakes[voter][token].amount >= tokenAmount, "VP::_withdraw: not enough tokens staked");
         require(ss.stakes[voter][token].votingPower >= votingPower, "VP::_withdraw: not enough voting power");
-        ss.totalStaked[token].amount = ss.totalStaked[token].amount.sub(tokenAmount);
-        ss.totalStaked[token].votingPower = ss.totalStaked[token].votingPower.sub(votingPower);
         ss.stakes[voter][token].amount = ss.stakes[voter][token].amount.sub(tokenAmount);
         ss.stakes[voter][token].votingPower = ss.stakes[voter][token].votingPower.sub(votingPower);
         

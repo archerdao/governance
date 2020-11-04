@@ -95,13 +95,13 @@ contract SupplyManager {
     ProposalLengthProposal public pendingProposalLength;
 
     /// @notice An event that's emitted when a new admin is proposed
-    event AdminProposed(address indexed olAdmin, address indexed newAdmin, uint256 eta);
+    event AdminProposed(address indexed oldAdmin, address indexed newAdmin, uint256 eta);
 
     /// @notice An event that's emitted when an admin proposal is canceled
     event AdminCanceled(address indexed proposedAdmin);
 
     /// @notice An event that's emitted when a new admin is accepted
-    event AdminAccepted(address indexed olAdmin, address indexed newAdmin);
+    event AdminAccepted(address indexed oldAdmin, address indexed newAdmin);
 
     /// @notice An event that's emitted when a new mint is proposed
     event MintProposed(uint256 indexed amount, address indexed recipient, uint256 oldSupply, uint256 newSupply, uint256 eta);
