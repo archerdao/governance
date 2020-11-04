@@ -32,13 +32,19 @@ struct CheckpointStorage {
     mapping (address => uint32) numCheckpoints;
 }
 
+/// @notice The amount of a given token that has been staked, and the resulting voting power
+struct Stake {
+    uint256 amount;
+    uint256 votingPower;
+}
+
 /// @notice All storage variables related to staking
 struct StakeStorage {
-    // Total amount staked in the VotingPower contract for each token > amount
-    mapping (address => uint256) totalStaked;
+    // Total stake balances in the VotingPower contract for each token > stake
+    mapping (address => Stake) totalStaked;
 
-    // Official record of staked balances for each account > token > amount
-    mapping (address => mapping (address => uint256)) stakes;
+    // Official record of staked balances for each account > token > stake
+    mapping (address => mapping (address => Stake)) stakes;
 }
 
 library VotingPowerStorage {

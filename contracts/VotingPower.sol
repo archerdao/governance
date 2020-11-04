@@ -21,10 +21,10 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     using SafeERC20 for IERC20;
 
     /// @notice An event that's emitted when a user's staked balance increases
-    event Staked(address indexed user, address token, uint256 amount);
+    event Staked(address indexed user, address token, uint256 amount, uint256 votingPower);
 
     /// @notice An event that's emitted when a user's staked balance decreases
-    event Withdrawn(address indexed user, address token, uint256 amount);
+    event Withdrawn(address indexed user, address token, uint256 amount, uint256 votingPower);
 
     /// @notice An event that's emitted when an account's vote balance changes
     event VotingPowerChanged(address indexed voter, uint256 previousBalance, uint256 newBalance);
@@ -132,21 +132,79 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
 
     /**
      * @notice Get total amount of ARCH tokens staked in contract
-     * @return total ARCH staked
+     * @return total ARCH amount staked
      */
-    function totalARCHStaked() public view returns (uint256) {
-        AppStorage storage app = VotingPowerStorage.appStorage();
-        return totalStaked(address(app.archToken));
+    function getTotalARCHAmountStaked() public view returns (uint256) {
+        return getTotalARCHStake().amount;
     }
 
     /**
      * @notice Get total amount of tokens staked in contract
      * @param stakedToken The staked token
-     * @return total staked
+     * @return total amount staked
      */
-    function totalStaked(address stakedToken) public view returns (uint256) {
+    function getTotalAmountStaked(address stakedToken) public view returns (uint256) {
+        return getTotalStake(stakedToken).amount;
+    }
+
+    /**
+     * @notice Get total staked amount and voting power from ARCH tokens staked in contract
+     * @return total ARCH stake
+     */
+    function getTotalARCHStake() public view returns (Stake memory) {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        return getTotalStake(address(app.archToken));
+    }
+
+    /**
+     * @notice Get total staked amount and voting power from `stakedToken` staked in contract
+     * @param stakedToken The staked token
+     * @return total stake
+     */
+    function getTotalStake(address stakedToken) public view returns (Stake memory) {
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
         return ss.totalStaked[stakedToken];
+    }
+
+    // HERE
+    /**
+     * @notice Get total amount of ARCH tokens staked in contract by `staker`
+     * @param staker The user with staked ARCH
+     * @return total ARCH amount staked
+     */
+    function getARCHAmountStaked(address staker) public view returns (uint256) {
+        return getARCHStake(staker).amount;
+    }
+
+    /**
+     * @notice Get total amount of tokens staked in contract by `staker`
+     * @param staker The user with staked tokens
+     * @param stakedToken The staked token
+     * @return total amount staked
+     */
+    function getAmountStaked(address staker, address stakedToken) public view returns (uint256) {
+        return getStake(staker, stakedToken).amount;
+    }
+
+    /**
+     * @notice Get staked amount and voting power from ARCH tokens staked in contract by `staker`
+     * @param staker The user with staked ARCH
+     * @return total ARCH staked
+     */
+    function getARCHStake(address staker) public view returns (Stake memory) {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        return getStake(staker, address(app.archToken));
+    }
+
+    /**
+     * @notice Get total staked amount and voting power from `stakedToken` staked in contract by `staker`
+     * @param staker The user with staked tokens
+     * @param stakedToken The staked token
+     * @return total staked
+     */
+    function getStake(address staker, address stakedToken) public view returns (Stake memory) {
+        StakeStorage storage ss = VotingPowerStorage.stakeStorage();
+        return ss.stakes[staker][stakedToken];
     }
 
     /**
@@ -213,10 +271,12 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
         IERC20(token).safeTransferFrom(voter, address(this), tokenAmount);
 
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        ss.totalStaked[token] = ss.totalStaked[token].add(tokenAmount);
-        ss.stakes[voter][token] = ss.stakes[voter][token].add(tokenAmount);
+        ss.totalStaked[token].amount = ss.totalStaked[token].amount.add(tokenAmount);
+        ss.totalStaked[token].votingPower = ss.totalStaked[token].votingPower.add(votingPower);
+        ss.stakes[voter][token].amount = ss.stakes[voter][token].amount.add(tokenAmount);
+        ss.stakes[voter][token].votingPower = ss.stakes[voter][token].votingPower.add(votingPower);
 
-        emit Staked(voter, token, tokenAmount);
+        emit Staked(voter, token, tokenAmount, votingPower);
 
         _increaseVotingPower(voter, votingPower);
     }
@@ -229,15 +289,17 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
      * @param votingPower The amount of voting power stake translates into
      */
     function _withdraw(address voter, address token, uint256 tokenAmount, uint256 votingPower) internal {
-        require(getCurrentVotes(voter) >= votingPower, "VP::_withdraw: not enough voting power");
         StakeStorage storage ss = VotingPowerStorage.stakeStorage();
-        require(ss.stakes[voter][token] >= tokenAmount, "VP::_withdraw: not enough tokens staked");
-        ss.totalStaked[token] = ss.totalStaked[token].sub(tokenAmount);
-        ss.stakes[voter][token] = ss.stakes[voter][token].sub(tokenAmount);
+        require(ss.stakes[voter][token].amount >= tokenAmount, "VP::_withdraw: not enough tokens staked");
+        require(ss.stakes[voter][token].votingPower >= votingPower, "VP::_withdraw: not enough voting power");
+        ss.totalStaked[token].amount = ss.totalStaked[token].amount.sub(tokenAmount);
+        ss.totalStaked[token].votingPower = ss.totalStaked[token].votingPower.sub(votingPower);
+        ss.stakes[voter][token].amount = ss.stakes[voter][token].amount.sub(tokenAmount);
+        ss.stakes[voter][token].votingPower = ss.stakes[voter][token].votingPower.sub(votingPower);
         
         IERC20(token).safeTransfer(voter, tokenAmount);
 
-        emit Withdrawn(voter, token, tokenAmount);
+        emit Withdrawn(voter, token, tokenAmount, votingPower);
         
         _decreaseVotingPower(voter, votingPower);
     }

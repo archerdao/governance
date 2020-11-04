@@ -5,15 +5,16 @@ pragma experimental ABIEncoderV2;
 import "./IArchToken.sol";
 import "./IVotingPower.sol";
 
-struct Grant {
-    uint256 startTime;
-    uint256 amount;
-    uint16 vestingDuration;
-    uint16 vestingCliff;
-    uint256 totalClaimed;
-}
-
 interface IVesting {
+    
+    struct Grant {
+        uint256 startTime;
+        uint256 amount;
+        uint16 vestingDuration;
+        uint16 vestingCliff;
+        uint256 totalClaimed;
+    }
+
     function owner() external view returns (address);
     function token() external view returns (IArchToken);
     function votingPower() external view returns (IVotingPower);

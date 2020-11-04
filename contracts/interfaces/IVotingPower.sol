@@ -5,6 +5,12 @@ pragma experimental ABIEncoderV2;
 import "../lib/PrismProxy.sol";
 
 interface IVotingPower {
+
+    struct Stake {
+        uint256 amount;
+        uint256 votingPower;
+    }
+
     function setPendingProxyImplementation(address newPendingImplementation) external returns (bool);
     function acceptProxyImplementation() external returns (bool);
     function setPendingProxyAdmin(address newPendingAdmin) external returns (bool);
@@ -23,15 +29,21 @@ interface IVotingPower {
     function withdraw(uint256 amount) external;
     function addVotingPowerForVestingTokens(address account, uint256 amount) external;
     function removeVotingPowerForClaimedTokens(address account, uint256 amount) external;
-    function totalARCHStaked() external view returns (uint256);
-    function totalStaked(address stakedToken) external view returns (uint256);
+    function getTotalARCHAmountStaked() external view returns (uint256);
+    function getTotalAmountStaked(address stakedToken) external view returns (uint256);
+    function getTotalARCHStake() external view returns (Stake memory);
+    function getTotalStake(address stakedToken) external view returns (Stake memory);
+    function getARCHAmountStaked(address staker) external view returns (uint256);
+    function getAmountStaked(address staker, address stakedToken) external view returns (uint256);
+    function getARCHStake(address staker) external view returns (Stake memory);
+    function getStake(address staker, address stakedToken) external view returns (Stake memory);
     function getCurrentVotes(address account) external view returns (uint256);
     function getPriorVotes(address account, uint256 blockNumber) external view returns (uint256);
     event NewPendingImplementation(address oldPendingImplementation, address newPendingImplementation);
     event NewImplementation(address oldImplementation, address newImplementation);
     event NewPendingAdmin(address oldPendingAdmin, address newPendingAdmin);
     event NewAdmin(address oldAdmin, address newAdmin);
-    event Staked(address indexed user, address token, uint256 amount);
-    event Withdrawn(address indexed user, address token, uint256 amount);
+    event Staked(address indexed user, address token, uint256 amount, uint256 votingPower);
+    event Withdrawn(address indexed user, address token, uint256 amount, uint256 votingPower);
     event VotingPowerChanged(address indexed voter, uint256 previousBalance, uint256 newBalance);
 }
