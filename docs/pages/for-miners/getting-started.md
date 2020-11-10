@@ -1,8 +1,10 @@
-Getting started with Archer DAO as a miner is easy.  The entire process will likely take less than 5 minutes and should have no impact on your mining operation outside of now allowing Archer transactions to be mined in your future blocks.
+Mine smarter with Archer. Archer boosts mining revenue and integration takes less than five minutes. For more information, read our [introductory post](https://medium.com/archer-dao/introducing-archer-66f20d2cc425).
 
-# Instructions for Geth 
+# Geth Client Instructions
 
-If you use Geth to produce blocks, you simply need to restart your nodes with the following additional [command-line flag](https://geth.ethereum.org/docs/interface/command-line-options) value:
+## Step 1 of 2
+
+Restart your node(s) with the following additional [command-line flag](https://geth.ethereum.org/docs/interface/command-line-options) value:
 
 ```
 
@@ -10,10 +12,15 @@ If you use Geth to produce blocks, you simply need to restart your nodes with th
 
 ```
 
-Then, for each of your block-producing Geth nodes obtain your node's peer ID (enode ID).  You can obtain this value by calling "admin_nodeInfo" [as outlined in the Geth documentation](https://geth.ethereum.org/docs/rpc/ns-admin#admin_nodeinfo) and copying the "enode" value in the returned JSON object.  
+## Step 2 of 2
 
-Please, then send your "enode" ID to the Archer team:
+Email the peer ID (enode ID) of your node(s) to office@archerdao.io
 
-Email: office@archerdao.io
+You can obtain your node's peer ID by calling the `admin_nodeInfo` [as outlined in the Geth documentation](https://geth.ethereum.org/docs/rpc/ns-admin#admin_nodeinfo) and copying the "enode" value in the returned JSON object.  
 
-If you use a client other than Geth to produce your blocks, please reach out to the team directly.
+# Support
+
+For any questions or concerns, please reach out to our team:
+* Email: office@archerdao.io
+* [Telegram](https://t.me/archerdao)
+* [Discord](https://discord.gg/98GV73f)
