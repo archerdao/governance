@@ -10,10 +10,10 @@ If you use Geth to produce blocks, you simply need to restart your nodes with th
 
 ```
 
-Then, for each of your block-producing Geth nodes obtain your node's peer ID (enode ID).  You can obtain this value by calling the "admin_nodeInfo" [as outlined in the Geth documentation](https://geth.ethereum.org/docs/rpc/ns-admin#admin_nodeinfo) and copying the "enode" value in the returned JSON object.  
+Then, for each of your block-producing Geth nodes obtain your node's peer ID (enode ID).  You can obtain this value by calling "admin_nodeInfo" [as outlined in the Geth documentation](https://geth.ethereum.org/docs/rpc/ns-admin#admin_nodeinfo) and copying the "enode" value in the returned JSON object.  
 
 Please, then send your "enode" ID to the Archer team:
 
-Email: caleb@blocklytics.org
+Email: office@archerdao.io
 
 If you use a client other than Geth to produce your blocks, please reach out to the team directly.
