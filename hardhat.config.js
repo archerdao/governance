@@ -14,7 +14,6 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 const DEPLOYER_ADDRESS = process.env.DEPLOYER_ADDRESS
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY
 const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
-const ADMIN_PRIVATE_KEY = process.env.ADMIN_PRIVATE_KEY
 const TENDERLY_USERNAME = process.env.TENDERLY_USERNAME
 const TENDERLY_PROJECT_NAME = process.env.TENDERLY_PROJECT_NAME
 const REPORT_GAS = process.env.REPORT_GAS
@@ -67,11 +66,6 @@ let mainnetConfig = {
 if (DEPLOYER_PRIVATE_KEY && DEPLOYER_PRIVATE_KEY.length > 0) {
   rinkebyConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   mainnetConfig.accounts = [DEPLOYER_PRIVATE_KEY]
-  
-  if (ADMIN_PRIVATE_KEY && ADMIN_PRIVATE_KEY.length > 0) {
-    rinkebyConfig.accounts.push(ADMIN_PRIVATE_KEY)
-    mainnetConfig.accounts.push(ADMIN_PRIVATE_KEY)
-  }
 }
 
 

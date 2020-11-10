@@ -2,8 +2,8 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./lib/SafeMath.sol";
 import "./interfaces/IArchToken.sol";
+import "./lib/SafeMath.sol";
 
 /**
  * @title SupplyManager

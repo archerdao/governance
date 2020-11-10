@@ -1,14 +1,14 @@
-const hre = require("hardhat");
+const { ethers } = require("hardhat");
 const { noSelectorClashes } = require("./utils/prism");
 
-async function validate() {
-    let votingPowerPrism = await hre.ethers.getContractFactory("VotingPowerPrism");
-    let votingPowerImplementation = await hre.ethers.getContractFactory("VotingPower");
+async function validatePrism() {
+    let votingPowerPrism = await ethers.getContractFactory("VotingPowerPrism");
+    let votingPowerImplementation = await ethers.getContractFactory("VotingPower");
 
     return noSelectorClashes(votingPowerPrism, votingPowerImplementation)
 }
 
-validate()
+validatePrism()
   .then((valid) => {
       if(valid) {
         console.log("No issues detected")
@@ -19,3 +19,5 @@ validate()
     console.error(error);
     process.exit(1);
   });
+
+module.exports.validatePrism = validatePrism

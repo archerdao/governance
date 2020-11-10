@@ -2,12 +2,12 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
+import "./interfaces/IERC20.sol";
 import "./lib/SafeMath.sol";
 import "./lib/ReentrancyGuardUpgradeSafe.sol";
 import "./lib/PrismProxyImplementation.sol";
 import "./lib/VotingPowerStorage.sol";
 import "./lib/SafeERC20.sol";
-import "./interfaces/IERC20.sol";
 
 /**
  * @title VotingPower
@@ -175,7 +175,7 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
      * @param account The address to get votes balance
      * @return The number of current votes for `account`
      */
-    function getCurrentVotes(address account) public view returns (uint256) {
+    function balanceOf(address account) public view returns (uint256) {
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 nCheckpoints = cs.numCheckpoints[account];
         return nCheckpoints > 0 ? cs.checkpoints[account][nCheckpoints - 1].votes : 0;
@@ -188,8 +188,8 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
      * @param blockNumber The block number to get the vote balance at
      * @return The number of votes the account had as of the given block
      */
-    function getPriorVotes(address account, uint256 blockNumber) public view returns (uint256) {
-        require(blockNumber < block.number, "VP::getPriorVotes: not yet determined");
+    function balanceOfAt(address account, uint256 blockNumber) public view returns (uint256) {
+        require(blockNumber < block.number, "VP::balanceOfAt: not yet determined");
         
         CheckpointStorage storage cs = VotingPowerStorage.checkpointStorage();
         uint32 nCheckpoints = cs.numCheckpoints[account];

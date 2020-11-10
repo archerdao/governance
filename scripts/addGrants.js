@@ -1,26 +1,40 @@
-const fs = require('fs')
-const { ethers, deployments, network } = require("hardhat");
+const { readGrantsFromFile } = require('readGrantsFromFile')
+const { ethers, deployments } = require("hardhat");
 
-const tokenGrants = JSON.parse(fs.readFileSync(`./grants/${network.name}.json`, 'utf-8'))
+const { log } = deployments
+let startTime = Date.now() + 21600
+let vestingDurationInDays = 180
+let vestingCliffInDays = 180
+let vestingPercentage = .75
 
-const START_TIME = Date.now() + 21600
-const VESTING_DURATION_IN_DAYS = 4
-const VESTING_CLIFF_IN_DAYS = 1
-
-async function addGrants(grants) {
+async function addGrants() {
+    const grants = readGrantsFromFile()
     const owner = await deployments.read('Vesting', 'owner');
     let decimals = await deployments.read('ArchToken', 'decimals')
     for(const grant of grants) {
-        console.log("Creating grant for " + grant.recipient + ": " + grant.amount)
-        const grantAmount = ethers.BigNumber.from(grant.amount).mul(ethers.BigNumber.from(10).pow(decimals));
-        await deployments.execute('Vesting', {from: owner, gasLimit: 6000000 }, 'addTokenGrant', grant.recipient, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS);
+        log(`Creating grant for ${grant.recipient}: ${grant.amount} - ${grant.class}`)
+        if(grant.class == "vesting") {
+            vestingDurationInDays = 180
+            vestingCliffInDays = 0
+            vestingPercentage = .75
+        } else if (grant.class == "team") {
+            vestingDurationInDays = 540
+            vestingCliffInDays = 180
+            vestingPercentage = 1
+        } else {
+            log(`- No grant created for ${grant.recipient} - ${grant.class}`);
+            continue
+        }
+        const grantAmount = ethers.BigNumber.from(grant.amount).mul(ethers.BigNumber.from(10).pow(decimals)).mul(ethers.BigNumber.from(vestingPercentage));
+        await deployments.execute('Vesting', {from: owner, gasLimit: 6000000 }, 'addTokenGrant', grant.recipient, startTime, grantAmount, vestingDurationInDays, vestingCliffInDays);
         const newGrant = await deployments.read('Vesting', 'getTokenGrant', grant.recipient)
-        console.log(`New grant created for ${grant.recipient}:`)
-        console.log(`- Start Time: ${newGrant[0]}`)
-        console.log(`- Amount: ${newGrant[1]}`)
-        console.log(`- Duration: ${newGrant[2]}`)
-        console.log(`- Cliff: ${newGrant[3]}`)
+        log(`- New grant created for ${grant.recipient}:`)
+        log(`- Start Time: ${newGrant[0]}`)
+        log(`- Amount: ${newGrant[1]}`)
+        log(`- Duration: ${newGrant[2]}`)
+        log(`- Cliff: ${newGrant[3]}`)
     }
 }
 
 addGrants(tokenGrants)
+module.exports.addGrants = addGrants

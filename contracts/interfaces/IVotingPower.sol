@@ -33,8 +33,8 @@ interface IVotingPower {
     function getAmountStaked(address staker, address stakedToken) external view returns (uint256);
     function getARCHStake(address staker) external view returns (Stake memory);
     function getStake(address staker, address stakedToken) external view returns (Stake memory);
-    function getCurrentVotes(address account) external view returns (uint256);
-    function getPriorVotes(address account, uint256 blockNumber) external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function balanceOfAt(address account, uint256 blockNumber) external view returns (uint256);
     event NewPendingImplementation(address indexed oldPendingImplementation, address indexed newPendingImplementation);
     event NewImplementation(address indexed oldImplementation, address indexed newImplementation);
     event NewPendingAdmin(address indexed oldPendingAdmin, address indexed newPendingAdmin);

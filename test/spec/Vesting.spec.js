@@ -55,7 +55,7 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)
         const newGrant = await vesting.getTokenGrant(alice.address)
@@ -64,7 +64,7 @@ describe("Vesting", function() {
         expect(newGrant[2]).to.eq(VESTING_DURATION_IN_DAYS)
         expect(newGrant[3]).to.eq(VESTING_CLIFF_IN_DAYS)
         expect(newGrant[4]).to.eq(0)
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore.add(grantAmount))
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore.add(grantAmount))
         totalVested = totalVested.add(grantAmount)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
       })
@@ -80,7 +80,7 @@ describe("Vesting", function() {
         let totalVested = await archToken.balanceOf(vesting.address)
 
         for(const grant of tokenGrants) {
-            let userVotesBefore = await votingPower.getCurrentVotes(grant.recipient) 
+            let userVotesBefore = await votingPower.balanceOf(grant.recipient) 
             let grantAmount = ethers.BigNumber.from(grant.amount).mul(ethers.BigNumber.from(10).pow(decimals))
             await vesting.addTokenGrant(grant.recipient, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)
             const newGrant = await vesting.getTokenGrant(grant.recipient)
@@ -89,7 +89,7 @@ describe("Vesting", function() {
             expect(newGrant[2]).to.eq(VESTING_DURATION_IN_DAYS)
             expect(newGrant[3]).to.eq(VESTING_CLIFF_IN_DAYS)
             expect(newGrant[4]).to.eq(0)
-            expect(await votingPower.getCurrentVotes(grant.recipient)).to.eq(userVotesBefore.add(grantAmount))
+            expect(await votingPower.balanceOf(grant.recipient)).to.eq(userVotesBefore.add(grantAmount))
             totalVested = totalVested.add(grantAmount)
         }
         
@@ -103,10 +103,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await expect(vesting.connect(bob).addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: not owner")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -123,10 +123,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: Set Voting Power contract first")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -144,10 +144,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 12 * 365
         const VESTING_CLIFF_IN_DAYS = 11 * 365
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: cliff more than 10 years")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -165,10 +165,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 0
         const VESTING_CLIFF_IN_DAYS = 0
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: duration must be > 0")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -186,10 +186,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 26 * 365
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: duration more than 25 years")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -207,10 +207,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 5
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: duration < cliff")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -228,7 +228,7 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)
         const newGrant = await vesting.getTokenGrant(alice.address)
@@ -238,11 +238,11 @@ describe("Vesting", function() {
         expect(newGrant[3]).to.eq(VESTING_CLIFF_IN_DAYS)
         expect(newGrant[4]).to.eq(0)
         let userVotesAfter = userVotesBefore.add(grantAmount)
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesAfter)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesAfter)
         totalVested = totalVested.add(grantAmount)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: grant already exists for account")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesAfter)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesAfter)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const existingGrant = await vesting.getTokenGrant(alice.address)
         expect(existingGrant[0]).to.eq(START_TIME)
@@ -260,10 +260,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(0).mul(ethers.BigNumber.from(10).pow(decimals))
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: amountVestedPerDay > 0")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -281,10 +281,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(3)
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Vest::addTokenGrant: amountVestedPerDay > 0")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -303,10 +303,10 @@ describe("Vesting", function() {
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
-        let userVotesBefore = await votingPower.getCurrentVotes(alice.address) 
+        let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert SafeMath: subtraction underflow")
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotesBefore)
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
         expect(emptyGrant[0]).to.eq(0)
@@ -575,7 +575,7 @@ describe("Vesting", function() {
         const VESTING_CLIFF_IN_SECS = VESTING_CLIFF_IN_DAYS * 24 * 60 * 60
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)
-        const userVotingPowerBefore = await votingPower.getCurrentVotes(alice.address)
+        const userVotingPowerBefore = await votingPower.balanceOf(alice.address)
         expect(userVotingPowerBefore).to.eq(grantAmount)
         let newTime = timestamp + 21600 + VESTING_CLIFF_IN_SECS + 60
         let elapsedTime = newTime - START_TIME
@@ -585,7 +585,7 @@ describe("Vesting", function() {
         await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
         await vesting.claimVestedTokens(alice.address)
         expect(await vesting.claimedBalance(alice.address)).to.eq(claimAmount)
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotingPowerBefore.sub(claimAmount))
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotingPowerBefore.sub(claimAmount))
         expect(await archToken.balanceOf(alice.address)).to.eq(userTokenBalanceBefore.add(claimAmount))
         expect(await archToken.balanceOf(vesting.address)).to.eq(contractTokenBalanceBefore.sub(claimAmount))
       })
@@ -602,7 +602,7 @@ describe("Vesting", function() {
         const VESTING_CLIFF_IN_SECS = VESTING_CLIFF_IN_DAYS * 24 * 60 * 60
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
         await vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)
-        const userVotingPowerBefore = await votingPower.getCurrentVotes(alice.address)
+        const userVotingPowerBefore = await votingPower.balanceOf(alice.address)
         expect(userVotingPowerBefore).to.eq(grantAmount)
         let newTime = timestamp + 21600 + VESTING_CLIFF_IN_SECS + 60
         let elapsedTime = newTime - START_TIME
@@ -612,7 +612,7 @@ describe("Vesting", function() {
         await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
         await vesting.claimVestedTokens(alice.address)
         expect(await vesting.claimedBalance(alice.address)).to.eq(claimAmount)
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotingPowerBefore.sub(claimAmount))
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotingPowerBefore.sub(claimAmount))
         expect(await archToken.balanceOf(alice.address)).to.eq(userTokenBalanceBefore.add(claimAmount))
         expect(await archToken.balanceOf(vesting.address)).to.eq(contractTokenBalanceBefore.sub(claimAmount))
 
@@ -624,7 +624,7 @@ describe("Vesting", function() {
         await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
         await vesting.claimVestedTokens(alice.address)
         expect(await vesting.claimedBalance(alice.address)).to.eq(claimAmount.add(newClaimAmount))
-        expect(await votingPower.getCurrentVotes(alice.address)).to.eq(userVotingPowerBefore.sub(claimAmount).sub(newClaimAmount))
+        expect(await votingPower.balanceOf(alice.address)).to.eq(userVotingPowerBefore.sub(claimAmount).sub(newClaimAmount))
         expect(await archToken.balanceOf(alice.address)).to.eq(userTokenBalanceBefore.add(newClaimAmount))
         expect(await archToken.balanceOf(vesting.address)).to.eq(contractTokenBalanceBefore.sub(newClaimAmount))
       })

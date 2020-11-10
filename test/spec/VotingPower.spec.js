@@ -74,13 +74,13 @@ describe("VotingPower", function() {
                 const userBalanceBefore = await archToken.balanceOf(deployer.address)
                 const contractBalanceBefore = await archToken.balanceOf(votingPower.address)
                 const totalArchStakedBefore = await votingPower.getARCHAmountStaked(deployer.address)
-                const userVotesBefore = await votingPower.getCurrentVotes(deployer.address)
+                const userVotesBefore = await votingPower.balanceOf(deployer.address)
                 await archToken.approve(votingPower.address, 1000)
                 await votingPower.stake(1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(1000))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(1000))
                 expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore.add(1000))
-                expect(await votingPower.getCurrentVotes(deployer.address)).to.eq(userVotesBefore.add(1000))
+                expect(await votingPower.balanceOf(deployer.address)).to.eq(userVotesBefore.add(1000))
             })
 
             it("does not allow a zero stake amount", async function() {
@@ -103,7 +103,7 @@ describe("VotingPower", function() {
                 const userBalanceBefore = await archToken.balanceOf(deployer.address)
                 const contractBalanceBefore = await archToken.balanceOf(votingPower.address)
                 const totalArchStakedBefore = await votingPower.getARCHAmountStaked(deployer.address)
-                const userVotesBefore = await votingPower.getCurrentVotes(deployer.address)
+                const userVotesBefore = await votingPower.balanceOf(deployer.address)
                 
                 const domainSeparator = ethers.utils.keccak256(
                     ethers.utils.defaultAbiCoder.encode(
@@ -137,7 +137,7 @@ describe("VotingPower", function() {
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(value))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(value))
                 expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore.add(value))
-                expect(await votingPower.getCurrentVotes(deployer.address)).to.eq(userVotesBefore.add(value))
+                expect(await votingPower.balanceOf(deployer.address)).to.eq(userVotesBefore.add(value))
             })
 
             it("does not allow a zero stake amount", async function() {
@@ -265,19 +265,19 @@ describe("VotingPower", function() {
                 const userBalanceBefore = await archToken.balanceOf(deployer.address)
                 const contractBalanceBefore = await archToken.balanceOf(votingPower.address)
                 const totalArchStakedBefore = await votingPower.getARCHAmountStaked(deployer.address)
-                const userVotesBefore = await votingPower.getCurrentVotes(deployer.address)
+                const userVotesBefore = await votingPower.balanceOf(deployer.address)
                 await archToken.approve(votingPower.address, 1000)
                 await votingPower.stake(1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(1000))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(1000))
                 expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore.add(1000))
-                const userVotesAfter = await votingPower.getCurrentVotes(deployer.address)
+                const userVotesAfter = await votingPower.balanceOf(deployer.address)
                 expect(userVotesAfter).to.eq(userVotesBefore.add(1000))
                 await votingPower.withdraw(1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore)
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore)
                 expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore)
-                expect(await votingPower.getCurrentVotes(deployer.address)).to.eq(0)
+                expect(await votingPower.balanceOf(deployer.address)).to.eq(0)
             })
 
             it("does not allow a zero withdrawal amount", async function() {

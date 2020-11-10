@@ -2,9 +2,9 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./lib/SafeMath.sol";
 import "./interfaces/IArchToken.sol";
 import "./interfaces/IVotingPower.sol";
+import "./lib/SafeMath.sol";
 
 /**
  * @title Vesting
@@ -13,8 +13,7 @@ import "./interfaces/IVotingPower.sol";
 contract Vesting {
     using SafeMath for uint256;
 
-    uint256 constant internal SECONDS_PER_DAY = 86400;
-
+    /// @notice Grant definition
     struct Grant {
         uint256 startTime;
         uint256 amount;
@@ -23,17 +22,37 @@ contract Vesting {
         uint256 totalClaimed;
     }
 
-    event GrantAdded(address indexed recipient, uint256 indexed amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays);
-    event GrantTokensClaimed(address indexed recipient, uint256 indexed amountClaimed);
-    event ChangedOwner(address indexed oldOwner, address indexed newOwner);
-    event ChangedVotingPower(address indexed oldContract, address indexed newContract);
+    /// @dev Used to translate vesting periods specified in days to seconds
+    uint256 constant internal SECONDS_PER_DAY = 86400;
 
+    /// @notice ARCH token
     IArchToken public token;
+
+    /// @notice Voting power contract
     IVotingPower public votingPower;
     
+    /// @notice Mapping of recipient address > token grant
     mapping (address => Grant) public tokenGrants;
+
+    /// @notice Current owner of this contract
     address public owner;
 
+    /// @notice Event emitted when a new grant is created
+    event GrantAdded(address indexed recipient, uint256 indexed amount, uint256 startTime, uint16 vestingDurationInDays, uint16 vestingCliffInDays);
+    
+    /// @notice Event emitted when tokens are claimed by a recipient from a grant
+    event GrantTokensClaimed(address indexed recipient, uint256 indexed amountClaimed);
+    
+    /// @notice Event emitted when the owner of the vesting contract is updated
+    event ChangedOwner(address indexed oldOwner, address indexed newOwner);
+
+    /// @notice Event emitted when the voting power contract referenced by the vesting contract is updated
+    event ChangedVotingPower(address indexed oldContract, address indexed newContract);
+
+    /**
+     * @notice Construct a new Vesting contract
+     * @param _token Address of ARCH token
+     */
     constructor(address _token) {
         require(_token != address(0), "Vest::constructor: must be valid token address");
         token = IArchToken(_token);

@@ -11,6 +11,10 @@ import "./lib/PrismProxy.sol";
  */
 contract VotingPowerPrism is PrismProxy {
 
+    /**
+     * @notice Construct a new Voting Power Prism Proxy
+     * @dev Sets initial proxy admin to msg.sender
+     */
     constructor() {
         // Initialize storage
         ProxyStorage storage s = proxyStorage();
@@ -21,14 +25,14 @@ contract VotingPowerPrism is PrismProxy {
     /**
      * @notice Forwards call to implementation contract
      */
-    fallback() external payable {
+    receive() external payable {
         _forwardToImplementation();
     }
 
     /**
      * @notice Forwards call to implementation contract
      */
-    receive() external payable {
+    fallback() external payable {
         _forwardToImplementation();
     }
 }
