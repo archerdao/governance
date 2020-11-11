@@ -31,7 +31,7 @@
     "deploy:rinkeby": "npx hardhat deploy --network rinkeby",
     "deploy:rinkeby:reset": "npx hardhat deploy --network rinkeby --reset",
     "deploy:rinkeby:tag": "sh -c 'npx hardhat deploy --network rinkeby --tags ${0}'",
-    "deploy:rinekby:tag:reset": "sh -c 'npx hardhat deploy --network rinkeby --tags ${0} --reset'",
+    "deploy:rinkeby:tag:reset": "sh -c 'npx hardhat deploy --network rinkeby --tags ${0} --reset'",
     "deploy:prod": "npx hardhat deploy --network mainnet",
     "deploy:prod:reset": "npx hardhat deploy --network mainnet --reset",
     "deploy:prod:tag": "sh -c 'npx hardhat deploy --network mainnet --tags ${0}'",

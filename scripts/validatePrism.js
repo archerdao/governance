@@ -8,16 +8,18 @@ async function validatePrism() {
     return noSelectorClashes(votingPowerPrism, votingPowerImplementation)
 }
 
-validatePrism()
-  .then((valid) => {
-      if(valid) {
-        console.log("No issues detected")
-      }      
-      process.exit(0)
-  })
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+if (require.main === module) {
+  validatePrism()
+    .then((valid) => {
+        if(valid) {
+          console.log("No issues detected")
+        }      
+        process.exit(0)
+    })
+    .catch(error => {
+      console.error(error);
+      process.exit(1);
+    });
+}
 
 module.exports.validatePrism = validatePrism

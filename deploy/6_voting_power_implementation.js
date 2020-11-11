@@ -1,9 +1,6 @@
-module.exports = async ({
-    getNamedAccounts,
-    deployments,
-  }) => {
+module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
-  const { deployer, admin } = await getNamedAccounts();
+  const { deployer } = await getNamedAccounts();
 
   log(`6) Voting Power Implementation`)
   // Deploy VotingPower implementation contract
@@ -11,14 +8,15 @@ module.exports = async ({
     from: deployer,
     contract: "VotingPower",
     gas: 4000000,
+    skipIfAlreadyDeployed: true
   });
 
   if (deployResult.newlyDeployed) {
     log(`- ${deployResult.contractName} deployed at ${deployResult.address} using ${deployResult.receipt.gasUsed} gas`);
   } else {
-    log(`- ${deployResult.contractName} deployment skipped, using previous deployment at: ${deployResult.address}`)
+    log(`- Deployment skipped, using previous deployment at: ${deployResult.address}`)
   }
 };
 
 module.exports.tags = ["6", "VotingPower"]
-module.exports.dependencies = ["VotingPowerPrism", "Vesting", "ArchToken"]
+module.exports.dependencies = ["5"]

@@ -1,7 +1,4 @@
-module.exports = async ({
-    getNamedAccounts,
-    deployments,
-  }) => {
+module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { deployer, admin } = await getNamedAccounts();
   const currentTime = Date.now();
@@ -15,12 +12,13 @@ module.exports = async ({
     contract: "ArchToken",
     gas: 4000000,
     args: [admin, deployer, firstSupplyChangeAllowed],
+    skipIfAlreadyDeployed: true
   });
 
   if (deployResult.newlyDeployed) {
     log(`- ${deployResult.contractName} deployed at ${deployResult.address} using ${deployResult.receipt.gasUsed} gas`);
   } else {
-    log(`- ${deployResult.contractName} deployment skipped, using previous deployment at: ${deployResult.address}`)
+    log(`- Deployment skipped, using previous deployment at: ${deployResult.address}`)
   }
 };
 

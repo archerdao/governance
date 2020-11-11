@@ -1,3 +1,5 @@
+[![MythXBadge](https://badgen.net/https/api.mythx.io/v1/projects/d39258a9-1656-4b0f-867d-d67d0632c976/badge/data?cache=300&icon=https://raw.githubusercontent.com/ConsenSys/mythx-github-badge/main/logo_white.svg)](https://docs.mythx.io/dashboard/github-badges)
+
 👋 Thank you for reviewing the ARCH token and initial governance contracts. 
 
 If you have feedback or run into any issues, please submit a new issue on GitHub.  

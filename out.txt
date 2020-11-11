@@ -1,0 +1,382 @@
+yarn run v1.22.4
+$ sh -c 'npx hardhat deploy --network rinkeby --tags ${0} --reset' 8
+Compiling 13 files with 0.7.4
+Compilation finished successfully
+1) Arch Token
+- ArchToken deployed at 0xdAedF4FaFBa7F5A0C7495B9AAeD615B18971fFac using 3517579 gas
+2) Vesting
+- Vesting deployed at 0x34BE96ebDcd9cb7a706f151412FA38cbb1e7fE60 using 2228461 gas
+- Set max approval for vesting contract at 0x34BE96ebDcd9cb7a706f151412FA38cbb1e7fE60 for deployer: 0xa52422BB8c29E4d55243d310fB6BAe793162452e
+3) Supply Manager
+- SupplyManager deployed at 0x4877fB2e47D4d8053f339Ac50F2600a0B712Cb98 using 5391539 gas
+4) Set Supply Manager
+- Set supply manager for ArchToken to contract at 0x4877fB2e47D4d8053f339Ac50F2600a0B712Cb98
+5) Voting Power Prism
+- VotingPowerPrism deployed at 0xE067d97D4E7A1994B9f009E40A9B711Fd1A67a8F using 1019206 gas
+6) Voting Power Implementation
+- VotingPower deployed at 0xD763Ca95625932eEE1EBb61B21D46f025542aEDe using 3258287 gas
+7) Initialize Voting Power
+- Set pending voting power implementation for prism at 0xE067d97D4E7A1994B9f009E40A9B711Fd1A67a8F to contract at 0xD763Ca95625932eEE1EBb61B21D46f025542aEDe
+- Accepted pending voting power implementation of contract at 0xD763Ca95625932eEE1EBb61B21D46f025542aEDe
+Contract {
+  interface: Interface {
+    fragments: [
+      [EventFragment],    [EventFragment],
+      [EventFragment],    [FunctionFragment],
+      [FunctionFragment], [FunctionFragment],
+      [FunctionFragment], [FunctionFragment],
+      [FunctionFragment], [FunctionFragment],
+      [FunctionFragment], [FunctionFragment],
+      [FunctionFragment], [FunctionFragment],
+      [FunctionFragment], [FunctionFragment],
+      [FunctionFragment], [FunctionFragment]
+    ],
+    _abiCoder: AbiCoder { coerceFunc: null },
+    functions: {
+      'addVotingPowerForVestingTokens(address,uint256)': [FunctionFragment],
+      'archToken()': [FunctionFragment],
+      'balanceOf(address)': [FunctionFragment],
+      'balanceOfAt(address,uint256)': [FunctionFragment],
+      'become(address)': [FunctionFragment],
+      'getARCHAmountStaked(address)': [FunctionFragment],
+      'getARCHStake(address)': [FunctionFragment],
+      'getAmountStaked(address,address)': [FunctionFragment],
+      'getStake(address,address)': [FunctionFragment],
+      'initialize(address,address)': [FunctionFragment],
+      'removeVotingPowerForClaimedTokens(address,uint256)': [FunctionFragment],
+      'stake(uint256)': [FunctionFragment],
+      'stakeWithPermit(uint256,uint256,uint8,bytes32,bytes32)': [FunctionFragment],
+      'vestingContract()': [FunctionFragment],
+      'withdraw(uint256)': [FunctionFragment]
+    },
+    errors: {},
+    events: {
+      'Staked(address,address,uint256,uint256)': [EventFragment],
+      'VotingPowerChanged(address,uint256,uint256)': [EventFragment],
+      'Withdrawn(address,address,uint256,uint256)': [EventFragment]
+    },
+    structs: {},
+    deploy: ConstructorFragment {
+      name: null,
+      type: 'constructor',
+      inputs: [],
+      payable: false,
+      stateMutability: 'nonpayable',
+      gas: null,
+      _isFragment: true
+    },
+    _isInterface: true
+  },
+  provider: EthersProviderWrapper {
+    _isProvider: true,
+    _events: [],
+    _emitted: { block: -2 },
+    formatter: Formatter { formats: [Object] },
+    anyNetwork: false,
+    _networkPromise: Promise { [Object] },
+    _maxInternalBlockNumber: -1024,
+    _lastBlockNumber: -2,
+    _pollingInterval: 4000,
+    _fastQueryDate: 0,
+    connection: { url: 'http://localhost:8545' },
+    _nextId: 42,
+    _hardhatProvider: BackwardsCompatibilityProviderAdapter {
+      _wrapped: ChainIdValidatorProvider {
+        _wrapped: AutomaticGasPriceProvider {
+          _wrapped: [AutomaticGasProvider],
+          _wrappedProvider: [AutomaticGasProvider],
+          _gasPrice: '0x3b9aca00'
+        },
+        _wrappedProvider: AutomaticGasPriceProvider {
+          _wrapped: [AutomaticGasProvider],
+          _wrappedProvider: [AutomaticGasProvider],
+          _gasPrice: '0x3b9aca00'
+        },
+        _expectedChainId: 4,
+        _alreadyValidated: true,
+        _chainId: 4
+      },
+      _provider: ChainIdValidatorProvider {
+        _wrapped: AutomaticGasPriceProvider {
+          _wrapped: [AutomaticGasProvider],
+          _wrappedProvider: [AutomaticGasProvider],
+          _gasPrice: '0x3b9aca00'
+        },
+        _wrappedProvider: AutomaticGasPriceProvider {
+          _wrapped: [AutomaticGasProvider],
+          _wrappedProvider: [AutomaticGasProvider],
+          _gasPrice: '0x3b9aca00'
+        },
+        _expectedChainId: 4,
+        _alreadyValidated: true,
+        _chainId: 4
+      },
+      sendAsync: [Function: bound sendAsync],
+      send: [Function: bound send],
+      _sendJsonRpcRequest: [Function: bound _sendJsonRpcRequest] AsyncFunction
+    },
+    _network: {
+      name: 'rinkeby',
+      chainId: 4,
+      ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
+      _defaultProvider: [Function]
+    }
+  },
+  signer: SignerWithAddress {
+    _isSigner: true,
+    address: '0xa52422BB8c29E4d55243d310fB6BAe793162452e',
+    _signer: JsonRpcSigner {
+      _isSigner: true,
+      provider: [EthersProviderWrapper],
+      _address: '0xa52422BB8c29E4d55243d310fB6BAe793162452e',
+      _index: null
+    },
+    provider: EthersProviderWrapper {
+      _isProvider: true,
+      _events: [],
+      _emitted: [Object],
+      formatter: [Formatter],
+      anyNetwork: false,
+      _networkPromise: [Promise],
+      _maxInternalBlockNumber: -1024,
+      _lastBlockNumber: -2,
+      _pollingInterval: 4000,
+      _fastQueryDate: 0,
+      connection: [Object],
+      _nextId: 42,
+      _hardhatProvider: BackwardsCompatibilityProviderAdapter {
+        _wrapped: ChainIdValidatorProvider {
+          _wrapped: AutomaticGasPriceProvider {
+            _wrapped: [AutomaticGasProvider],
+            _wrappedProvider: [AutomaticGasProvider],
+            _gasPrice: '0x3b9aca00'
+          },
+          _wrappedProvider: AutomaticGasPriceProvider {
+            _wrapped: [AutomaticGasProvider],
+            _wrappedProvider: [AutomaticGasProvider],
+            _gasPrice: '0x3b9aca00'
+          },
+          _expectedChainId: 4,
+          _alreadyValidated: true,
+          _chainId: 4
+        },
+        _provider: ChainIdValidatorProvider {
+          _wrapped: AutomaticGasPriceProvider {
+            _wrapped: [AutomaticGasProvider],
+            _wrappedProvider: [AutomaticGasProvider],
+            _gasPrice: '0x3b9aca00'
+          },
+          _wrappedProvider: AutomaticGasPriceProvider {
+            _wrapped: [AutomaticGasProvider],
+            _wrappedProvider: [AutomaticGasProvider],
+            _gasPrice: '0x3b9aca00'
+          },
+          _expectedChainId: 4,
+          _alreadyValidated: true,
+          _chainId: 4
+        },
+        sendAsync: [Function: bound sendAsync],
+        send: [Function: bound send],
+        _sendJsonRpcRequest: [Function: bound _sendJsonRpcRequest] AsyncFunction
+      },
+      _network: [Object]
+    }
+  },
+  callStatic: {
+    'addVotingPowerForVestingTokens(address,uint256)': [Function (anonymous)],
+    'archToken()': [Function (anonymous)],
+    'balanceOf(address)': [Function (anonymous)],
+    'balanceOfAt(address,uint256)': [Function (anonymous)],
+    'become(address)': [Function (anonymous)],
+    'getARCHAmountStaked(address)': [Function (anonymous)],
+    'getARCHStake(address)': [Function (anonymous)],
+    'getAmountStaked(address,address)': [Function (anonymous)],
+    'getStake(address,address)': [Function (anonymous)],
+    'initialize(address,address)': [Function (anonymous)],
+    'removeVotingPowerForClaimedTokens(address,uint256)': [Function (anonymous)],
+    'stake(uint256)': [Function (anonymous)],
+    'stakeWithPermit(uint256,uint256,uint8,bytes32,bytes32)': [Function (anonymous)],
+    'vestingContract()': [Function (anonymous)],
+    'withdraw(uint256)': [Function (anonymous)],
+    addVotingPowerForVestingTokens: [Function (anonymous)],
+    archToken: [Function (anonymous)],
+    balanceOf: [Function (anonymous)],
+    balanceOfAt: [Function (anonymous)],
+    become: [Function (anonymous)],
+    getARCHAmountStaked: [Function (anonymous)],
+    getARCHStake: [Function (anonymous)],
+    getAmountStaked: [Function (anonymous)],
+    getStake: [Function (anonymous)],
+    initialize: [Function (anonymous)],
+    removeVotingPowerForClaimedTokens: [Function (anonymous)],
+    stake: [Function (anonymous)],
+    stakeWithPermit: [Function (anonymous)],
+    vestingContract: [Function (anonymous)],
+    withdraw: [Function (anonymous)]
+  },
+  estimateGas: {
+    'addVotingPowerForVestingTokens(address,uint256)': [Function (anonymous)],
+    'archToken()': [Function (anonymous)],
+    'balanceOf(address)': [Function (anonymous)],
+    'balanceOfAt(address,uint256)': [Function (anonymous)],
+    'become(address)': [Function (anonymous)],
+    'getARCHAmountStaked(address)': [Function (anonymous)],
+    'getARCHStake(address)': [Function (anonymous)],
+    'getAmountStaked(address,address)': [Function (anonymous)],
+    'getStake(address,address)': [Function (anonymous)],
+    'initialize(address,address)': [Function (anonymous)],
+    'removeVotingPowerForClaimedTokens(address,uint256)': [Function (anonymous)],
+    'stake(uint256)': [Function (anonymous)],
+    'stakeWithPermit(uint256,uint256,uint8,bytes32,bytes32)': [Function (anonymous)],
+    'vestingContract()': [Function (anonymous)],
+    'withdraw(uint256)': [Function (anonymous)],
+    addVotingPowerForVestingTokens: [Function (anonymous)],
+    archToken: [Function (anonymous)],
+    balanceOf: [Function (anonymous)],
+    balanceOfAt: [Function (anonymous)],
+    become: [Function (anonymous)],
+    getARCHAmountStaked: [Function (anonymous)],
+    getARCHStake: [Function (anonymous)],
+    getAmountStaked: [Function (anonymous)],
+    getStake: [Function (anonymous)],
+    initialize: [Function (anonymous)],
+    removeVotingPowerForClaimedTokens: [Function (anonymous)],
+    stake: [Function (anonymous)],
+    stakeWithPermit: [Function (anonymous)],
+    vestingContract: [Function (anonymous)],
+    withdraw: [Function (anonymous)]
+  },
+  functions: {
+    'addVotingPowerForVestingTokens(address,uint256)': [Function (anonymous)],
+    'archToken()': [Function (anonymous)],
+    'balanceOf(address)': [Function (anonymous)],
+    'balanceOfAt(address,uint256)': [Function (anonymous)],
+    'become(address)': [Function (anonymous)],
+    'getARCHAmountStaked(address)': [Function (anonymous)],
+    'getARCHStake(address)': [Function (anonymous)],
+    'getAmountStaked(address,address)': [Function (anonymous)],
+    'getStake(address,address)': [Function (anonymous)],
+    'initialize(address,address)': [Function (anonymous)],
+    'removeVotingPowerForClaimedTokens(address,uint256)': [Function (anonymous)],
+    'stake(uint256)': [Function (anonymous)],
+    'stakeWithPermit(uint256,uint256,uint8,bytes32,bytes32)': [Function (anonymous)],
+    'vestingContract()': [Function (anonymous)],
+    'withdraw(uint256)': [Function (anonymous)],
+    addVotingPowerForVestingTokens: [Function (anonymous)],
+    archToken: [Function (anonymous)],
+    balanceOf: [Function (anonymous)],
+    balanceOfAt: [Function (anonymous)],
+    become: [Function (anonymous)],
+    getARCHAmountStaked: [Function (anonymous)],
+    getARCHStake: [Function (anonymous)],
+    getAmountStaked: [Function (anonymous)],
+    getStake: [Function (anonymous)],
+    initialize: [Function (anonymous)],
+    removeVotingPowerForClaimedTokens: [Function (anonymous)],
+    stake: [Function (anonymous)],
+    stakeWithPermit: [Function (anonymous)],
+    vestingContract: [Function (anonymous)],
+    withdraw: [Function (anonymous)]
+  },
+  populateTransaction: {
+    'addVotingPowerForVestingTokens(address,uint256)': [Function (anonymous)],
+    'archToken()': [Function (anonymous)],
+    'balanceOf(address)': [Function (anonymous)],
+    'balanceOfAt(address,uint256)': [Function (anonymous)],
+    'become(address)': [Function (anonymous)],
+    'getARCHAmountStaked(address)': [Function (anonymous)],
+    'getARCHStake(address)': [Function (anonymous)],
+    'getAmountStaked(address,address)': [Function (anonymous)],
+    'getStake(address,address)': [Function (anonymous)],
+    'initialize(address,address)': [Function (anonymous)],
+    'removeVotingPowerForClaimedTokens(address,uint256)': [Function (anonymous)],
+    'stake(uint256)': [Function (anonymous)],
+    'stakeWithPermit(uint256,uint256,uint8,bytes32,bytes32)': [Function (anonymous)],
+    'vestingContract()': [Function (anonymous)],
+    'withdraw(uint256)': [Function (anonymous)],
+    addVotingPowerForVestingTokens: [Function (anonymous)],
+    archToken: [Function (anonymous)],
+    balanceOf: [Function (anonymous)],
+    balanceOfAt: [Function (anonymous)],
+    become: [Function (anonymous)],
+    getARCHAmountStaked: [Function (anonymous)],
+    getARCHStake: [Function (anonymous)],
+    getAmountStaked: [Function (anonymous)],
+    getStake: [Function (anonymous)],
+    initialize: [Function (anonymous)],
+    removeVotingPowerForClaimedTokens: [Function (anonymous)],
+    stake: [Function (anonymous)],
+    stakeWithPermit: [Function (anonymous)],
+    vestingContract: [Function (anonymous)],
+    withdraw: [Function (anonymous)]
+  },
+  filters: {
+    'Staked(address,address,uint256,uint256)': [Function (anonymous)],
+    'VotingPowerChanged(address,uint256,uint256)': [Function (anonymous)],
+    'Withdrawn(address,address,uint256,uint256)': [Function (anonymous)],
+    Staked: [Function (anonymous)],
+    VotingPowerChanged: [Function (anonymous)],
+    Withdrawn: [Function (anonymous)]
+  },
+  _runningEvents: {},
+  _wrappedEmits: {},
+  address: '0xE067d97D4E7A1994B9f009E40A9B711Fd1A67a8F',
+  resolvedAddress: Promise { '0xE067d97D4E7A1994B9f009E40A9B711Fd1A67a8F' },
+  'addVotingPowerForVestingTokens(address,uint256)': [Function (anonymous)],
+  'archToken()': [Function (anonymous)],
+  'balanceOf(address)': [Function (anonymous)],
+  'balanceOfAt(address,uint256)': [Function (anonymous)],
+  'become(address)': [Function (anonymous)],
+  'getARCHAmountStaked(address)': [Function (anonymous)],
+  'getARCHStake(address)': [Function (anonymous)],
+  'getAmountStaked(address,address)': [Function (anonymous)],
+  'getStake(address,address)': [Function (anonymous)],
+  'initialize(address,address)': [Function (anonymous)],
+  'removeVotingPowerForClaimedTokens(address,uint256)': [Function (anonymous)],
+  'stake(uint256)': [Function (anonymous)],
+  'stakeWithPermit(uint256,uint256,uint8,bytes32,bytes32)': [Function (anonymous)],
+  'vestingContract()': [Function (anonymous)],
+  'withdraw(uint256)': [Function (anonymous)],
+  addVotingPowerForVestingTokens: [Function (anonymous)],
+  archToken: [Function (anonymous)],
+  balanceOf: [Function (anonymous)],
+  balanceOfAt: [Function (anonymous)],
+  become: [Function (anonymous)],
+  getARCHAmountStaked: [Function (anonymous)],
+  getARCHStake: [Function (anonymous)],
+  getAmountStaked: [Function (anonymous)],
+  getStake: [Function (anonymous)],
+  initialize: [Function (anonymous)],
+  removeVotingPowerForClaimedTokens: [Function (anonymous)],
+  stake: [Function (anonymous)],
+  stakeWithPermit: [Function (anonymous)],
+  vestingContract: [Function (anonymous)],
+  withdraw: [Function (anonymous)]
+}
+- Initialized voting power at 0xD763Ca95625932eEE1EBb61B21D46f025542aEDe via prism at 0xE067d97D4E7A1994B9f009E40A9B711Fd1A67a8F
+- ArchToken: 0xdAedF4FaFBa7F5A0C7495B9AAeD615B18971fFac
+- Vesting: 0x34BE96ebDcd9cb7a706f151412FA38cbb1e7fE60
+- Set pending voting power admin for prism at 0xE067d97D4E7A1994B9f009E40A9B711Fd1A67a8F to 0xFd90411B0c246743aE0000BB18c723A3BB909Dee
+- 0xFd90411B0c246743aE0000BB18c723A3BB909Dee can now call 'acceptAdmin' via the voting power prism proxy to become the admin
+- Set voting power address in vesting contract at 0x34BE96ebDcd9cb7a706f151412FA38cbb1e7fE60 to prism at 0xE067d97D4E7A1994B9f009E40A9B711Fd1A67a8F
+8) Create Grants
+- Creating grant for 0xFd90411B0c246743aE0000BB18c723A3BB909Dee (class: vesting) - Total allocation: 100000000000000000000, Grant amount: 75000000000000000000
+New grant created for 0xFd90411B0c246743aE0000BB18c723A3BB909Dee:
+- Start Time: 1605085796864
+- Amount: 75000000000000000000
+- Duration: 180
+- Cliff: 0
+- Creating grant for 0x2B7cFb1aA760d5050F5096d8fa123980Cb874EcC (class: team) - Total allocation: 5000000000000000000000, Grant amount: 5000000000000000000000
+New grant created for 0x2B7cFb1aA760d5050F5096d8fa123980Cb874EcC:
+- Start Time: 1605085796864
+- Amount: 5000000000000000000000
+- Duration: 540
+- Cliff: 180
+- Creating grant for 0x99d0cc84a9b00bbB596463a415631886b02a9a70 (class: vesting) - Total allocation: 900000000000000000000, Grant amount: 675000000000000000000
+New grant created for 0x99d0cc84a9b00bbB596463a415631886b02a9a70:
+- Start Time: 1605085796864
+- Amount: 675000000000000000000
+- Duration: 180
+- Cliff: 0
+- Done creating grants
+Done in 253.16s.

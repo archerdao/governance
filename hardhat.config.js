@@ -97,10 +97,12 @@ module.exports = {
     deployer: {
       default: 0,
       1: DEPLOYER_ADDRESS,
+      4: DEPLOYER_ADDRESS
     },
     admin: {
       default: 1,
       1: ADMIN_ADDRESS,
+      4: ADMIN_ADDRESS
     }
   },
   paths: {

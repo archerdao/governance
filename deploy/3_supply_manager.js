@@ -1,7 +1,4 @@
-module.exports = async ({
-    getNamedAccounts,
-    deployments,
-  }) => {
+module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { deployer, admin } = await getNamedAccounts();
   const token = await deployments.get("ArchToken");
@@ -12,15 +9,16 @@ module.exports = async ({
     from: deployer,
     contract: "SupplyManager",
     gas: 4000000,
-    args: [token.address, admin]
+    args: [token.address, admin],
+    skipIfAlreadyDeployed: true
   });
 
   if (deployResult.newlyDeployed) {
     log(`- ${deployResult.contractName} deployed at ${deployResult.address} using ${deployResult.receipt.gasUsed} gas`);
   } else {
-    log(`- ${deployResult.contractName} deployment skipped, using previous deployment at: ${deployResult.address}`)
+    log(`- Deployment skipped, using previous deployment at: ${deployResult.address}`)
   }
 };
 
 module.exports.tags = ["3", "SupplyManager"]
-module.exports.dependencies = ["ArchToken", "Vesting"]
+module.exports.dependencies = ["2"]

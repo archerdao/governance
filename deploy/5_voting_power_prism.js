@@ -1,25 +1,30 @@
-module.exports = async ({
-    getNamedAccounts,
-    deployments,
-  }) => {
+module.exports = async ({ getNamedAccounts, deployments }) => {
+  const { validatePrism } = require("../scripts/validatePrism")
   const { deploy, log } = deployments;
-  const { deployer, admin } = await getNamedAccounts();
+  const { deployer } = await getNamedAccounts();
 
-  // TODO: Validate prism before deployment
   log(`5) Voting Power Prism`)
-  // Deploy VotingPowerPrism contract
-  const deployResult = await deploy("VotingPowerPrism", {
-    from: deployer,
-    contract: "VotingPowerPrism",
-    gas: 4000000,
-  });
-  
-  if (deployResult.newlyDeployed) {
-    log(`- ${deployResult.contractName} deployed at ${deployResult.address} using ${deployResult.receipt.gasUsed} gas`);
+  // Check whether there are any issues with the voting power prism (selector clashes, etc.)
+  const prismValid = await validatePrism()
+  if(prismValid) {
+    // Deploy VotingPowerPrism contract
+    const deployResult = await deploy("VotingPowerPrism", {
+      from: deployer,
+      contract: "VotingPowerPrism",
+      gas: 4000000,
+      skipIfAlreadyDeployed: true
+    });
+    
+    if (deployResult.newlyDeployed) {
+      log(`- ${deployResult.contractName} deployed at ${deployResult.address} using ${deployResult.receipt.gasUsed} gas`);
+    } else {
+      log(`- Deployment skipped, using previous deployment at: ${deployResult.address}`)
+    }
   } else {
-    log(`- ${deployResult.contractName} deployment skipped, using previous deployment at: ${deployResult.address}`)
+    log(`- Prism invalid. Please address issues before trying to redeploy`)
+    process.exit(1)
   }
 };
 
 module.exports.tags = ["5", "VotingPowerPrism"]
-module.exports.dependencies = ["Vesting"]
+module.exports.dependencies = ["4"]
