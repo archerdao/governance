@@ -78,7 +78,7 @@ describe('ArchToken', () => {
       it('cannot transfer in excess of the spender allowance', async () => {
         await archToken.transfer(alice.address, 100)
         const balance = await archToken.balanceOf(alice.address)
-        await expect(archToken.transferFrom(alice.address, bob.address, balance)).to.revertedWith("revert SafeMath: subtraction underflow")
+        await expect(archToken.transferFrom(alice.address, bob.address, balance)).to.revertedWith("revert Arch::transferFrom: transfer amount exceeds allowance")
       })
     })
   
@@ -582,7 +582,7 @@ describe('ArchToken', () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [parseInt(supplyChangeAllowed.toString())])
         const balance = await archToken.balanceOf(alice.address)
         await archToken.connect(alice).approve(deployer.address, balance)
-        await expect(archToken.burn(alice.address, balance.add(1))).to.revertedWith("revert SafeMath: subtraction underflow")
+        await expect(archToken.burn(alice.address, balance.add(1))).to.revertedWith("revert Arch::burn: burn amount exceeds allowance")
       })
 
       it('cannot burn in excess of the spender allowance', async () => {
@@ -590,7 +590,7 @@ describe('ArchToken', () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [parseInt(supplyChangeAllowed.toString())])
         await archToken.transfer(alice.address, 100)
         const balance = await archToken.balanceOf(alice.address)
-        await expect(archToken.burn(alice.address, balance)).to.revertedWith("revert SafeMath: subtraction underflow")
+        await expect(archToken.burn(alice.address, balance)).to.revertedWith("revert Arch::burn: burn amount exceeds allowance")
       })
     })
 

@@ -193,7 +193,10 @@ contract ArchToken {
         uint256 spenderAllowance = allowances[src][spender];
         // check allowance and reduce by amount
         if (spender != src && spenderAllowance != uint256(-1)) {
-            uint256 newAllowance = spenderAllowance.sub(amount);
+            uint256 newAllowance = spenderAllowance.sub(
+                amount,
+                "Arch::burn: burn amount exceeds allowance"
+            );
             allowances[src][spender] = newAllowance;
 
             emit Approval(src, spender, newAllowance);
@@ -259,13 +262,42 @@ contract ArchToken {
     /**
      * @notice Approve `spender` to transfer up to `amount` from `src`
      * @dev This will overwrite the approval amount for `spender`
-     *  and is subject to issues noted [here](https://eips.ethereum.org/EIPS/eip-20#approve)
+     * and is subject to issues noted [here](https://eips.ethereum.org/EIPS/eip-20#approve)
+     * It is recommended to use increaseAllowance and decreaseAllowance instead
      * @param spender The address of the account which may transfer tokens
      * @param amount The number of tokens that are approved (2^256-1 means infinite)
      * @return Whether or not the approval succeeded
      */
     function approve(address spender, uint256 amount) external returns (bool) {
         _approve(msg.sender, spender, amount);
+        return true;
+    }
+
+    /**
+     * @notice Increase the allowance by a given amount
+     * @param spender Spender's address
+     * @param addedValue Amount of increase in allowance
+     * @return True if successful
+     */
+    function increaseAllowance(address spender, uint256 addedValue)
+        external
+        returns (bool)
+    {
+        _increaseAllowance(msg.sender, spender, addedValue);
+        return true;
+    }
+
+    /**
+     * @notice Decrease the allowance by a given amount
+     * @param spender Spender's address
+     * @param subtractedValue Amount of decrease in allowance
+     * @return True if successful
+     */
+    function decreaseAllowance(address spender, uint256 subtractedValue)
+        external
+        returns (bool)
+    {
+        _decreaseAllowance(msg.sender, spender, subtractedValue);
         return true;
     }
 
@@ -320,7 +352,10 @@ contract ArchToken {
         uint256 spenderAllowance = allowances[src][spender];
 
         if (spender != src && spenderAllowance != uint256(-1)) {
-            uint256 newAllowance = spenderAllowance.sub(amount);
+            uint256 newAllowance = spenderAllowance.sub(
+                amount,
+                "Arch::transferFrom: transfer amount exceeds allowance"
+            );
             allowances[src][spender] = newAllowance;
 
             emit Approval(src, spender, newAllowance);
@@ -372,15 +407,15 @@ contract ArchToken {
      * @notice Receive a transfer with a signed authorization from the payer
      * @dev This has an additional check to ensure that the payee's address matches
      * the caller of this function to prevent front-running attacks.
-     * @param from          Payer's address (Authorizer)
-     * @param to            Payee's address
-     * @param value         Amount to be transferred
-     * @param validAfter    The time after which this is valid (unix time)
-     * @param validBefore   The time before which this is valid (unix time)
-     * @param nonce         Unique nonce
-     * @param v             v of the signature
-     * @param r             r of the signature
-     * @param s             s of the signature
+     * @param from Payer's address (Authorizer)
+     * @param to Payee's address
+     * @param value Amount to be transferred
+     * @param validAfter The time after which this is valid (unix time)
+     * @param validBefore The time before which this is valid (unix time)
+     * @param nonce Unique nonce
+     * @param v v of the signature
+     * @param r r of the signature
+     * @param s s of the signature
      */
     function receiveWithAuthorization(
         address from,
@@ -451,8 +486,33 @@ contract ArchToken {
      * @param amount The number of tokens that are approved (2^256-1 means infinite)
      */
     function _approve(address owner, address spender, uint256 amount) internal {
+        require(owner != address(0), "Arch::_approve: approve from the zero address");
+        require(spender != address(0), "Arch::_approve: approve to the zero address");
         allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
+    }
+
+    function _increaseAllowance(
+        address owner,
+        address spender,
+        uint256 addedValue
+    ) internal {
+        _approve(owner, spender, allowances[owner][spender].add(addedValue));
+    }
+
+    function _decreaseAllowance(
+        address owner,
+        address spender,
+        uint256 subtractedValue
+    ) internal {
+        _approve(
+            owner,
+            spender,
+            allowances[owner][spender].sub(
+                subtractedValue,
+                "Arch::_decreaseAllowance: decreased allowance below zero"
+            )
+        );
     }
 
     /**
@@ -464,7 +524,10 @@ contract ArchToken {
     function _transferTokens(address from, address to, uint256 value) internal {
         require(to != address(0), "Arch::_transferTokens: cannot transfer to the zero address");
 
-        balances[from] = balances[from].sub(value);
+        balances[from] = balances[from].sub(
+            value,
+            "Arch::_transferTokens: transfer exceeds from balance"
+        );
         balances[to] = balances[to].add(value);
         emit Transfer(from, to, value);
     }
@@ -486,8 +549,14 @@ contract ArchToken {
      * @param value The number of tokens that are being burned
      */
     function _burn(address from, uint256 value) internal {
-        balances[from] = balances[from].sub(value);
-        totalSupply = totalSupply.sub(value);
+        balances[from] = balances[from].sub(
+            value,
+            "Arch::_burn: burn amount exceeds from balance"
+        );
+        totalSupply = totalSupply.sub(
+            value,
+            "Arch::_burn: burn amount exceeds total supply"
+        );
         emit Transfer(from, address(0), value);
     }
 

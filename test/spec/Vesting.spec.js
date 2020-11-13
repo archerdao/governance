@@ -303,7 +303,7 @@ describe("Vesting", function() {
         let totalVested = await archToken.balanceOf(vesting.address)
         let userVotesBefore = await votingPower.balanceOf(alice.address) 
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-        await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert SafeMath: subtraction underflow")
+        await expect(vesting.addTokenGrant(alice.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)).to.revertedWith("revert Arch::_transferTokens: transfer exceeds from balance")
         expect(await votingPower.balanceOf(alice.address)).to.eq(userVotesBefore)
         expect(await archToken.balanceOf(vesting.address)).to.eq(totalVested)
         const emptyGrant = await vesting.getTokenGrant(alice.address)
