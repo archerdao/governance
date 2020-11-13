@@ -17,13 +17,16 @@ const TRANSFER_WITH_AUTHORIZATION_TYPEHASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes('TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)')
 )
 
+const RECEIVE_WITH_AUTHORIZATION_TYPEHASH = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes('ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)')
+)
+
 describe('ArchToken', () => {
     let archToken
     let deployer
     let admin
     let alice
     let bob
-    let carlos
     let ZERO_ADDRESS
 
     beforeEach(async () => {
@@ -33,7 +36,6 @@ describe('ArchToken', () => {
       admin = fix.admin
       alice = fix.alice
       bob = fix.bob
-      carlos = fix.carlos
       ZERO_ADDRESS = fix.ZERO_ADDRESS
     })
 
@@ -241,6 +243,204 @@ describe('ArchToken', () => {
         let sig = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
 
         await expect(archToken.transferWithAuthorization(deployer.address, bob.address, value, validAfter, validBefore, nonce, sig.v, ethers.utils.hexlify(sig.r), ethers.utils.hexlify(sig.s))).to.revertedWith("revert Arch::transferWithAuth: auth already used")
+      })
+    })
+
+    context('receiveWithAuthorization', async () => {
+      it('allows a valid receive with auth', async () => {
+        const domainSeparator = ethers.utils.keccak256(
+          ethers.utils.defaultAbiCoder.encode(
+            ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+          )
+        )
+    
+        const value = 345
+        const nonce = ethers.BigNumber.from(ethers.utils.randomBytes(32))
+        const validAfter = 0
+        const validBefore = ethers.constants.MaxUint256
+        const digest = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+            [
+              '0x19',
+              '0x01',
+              domainSeparator,
+              ethers.utils.keccak256(
+                ethers.utils.defaultAbiCoder.encode(
+                  ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+                  [RECEIVE_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
+                )
+              ),
+            ]
+          )
+        )
+    
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        
+        const balanceBefore = await archToken.balanceOf(alice.address)
+        await archToken.connect(alice).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
+        expect(await archToken.balanceOf(alice.address)).to.eq(balanceBefore.add(value))
+      })
+
+      it('does not allow a user to receive a transfer intended for another user', async () => {
+        const domainSeparator = ethers.utils.keccak256(
+          ethers.utils.defaultAbiCoder.encode(
+            ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+          )
+        )
+    
+        const value = 345
+        const nonce = ethers.BigNumber.from(ethers.utils.randomBytes(32))
+        const validAfter = 0
+        const validBefore = ethers.constants.MaxUint256
+        const digest = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+            [
+              '0x19',
+              '0x01',
+              domainSeparator,
+              ethers.utils.keccak256(
+                ethers.utils.defaultAbiCoder.encode(
+                  ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+                  [RECEIVE_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
+                )
+              ),
+            ]
+          )
+        )
+    
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        
+        await expect(archToken.connect(bob).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::receiveWithAuth: caller must be the payee")
+      })
+
+      it('does not allow a receive before auth valid', async () => {
+        const domainSeparator = ethers.utils.keccak256(
+          ethers.utils.defaultAbiCoder.encode(
+            ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+          )
+        )
+    
+        const value = 345
+        const nonce = ethers.BigNumber.from(ethers.utils.randomBytes(32))
+        const { timestamp } = await ethers.provider.getBlock('latest')
+        const validAfter = timestamp + 1000
+        const validBefore = ethers.constants.MaxUint256
+        const digest = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+            [
+              '0x19',
+              '0x01',
+              domainSeparator,
+              ethers.utils.keccak256(
+                ethers.utils.defaultAbiCoder.encode(
+                  ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+                  [RECEIVE_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
+                )
+              ),
+            ]
+          )
+        )
+    
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        
+        await expect(archToken.connect(alice).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::receiveWithAuth: auth not yet valid")
+      })
+
+      it('does not allow a receive after auth expiration', async () => {
+        const domainSeparator = ethers.utils.keccak256(
+          ethers.utils.defaultAbiCoder.encode(
+            ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+          )
+        )
+    
+        const value = 345
+        const nonce = ethers.BigNumber.from(ethers.utils.randomBytes(32))
+        const validAfter = 0
+        const validBefore = 0
+        const digest = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+            [
+              '0x19',
+              '0x01',
+              domainSeparator,
+              ethers.utils.keccak256(
+                ethers.utils.defaultAbiCoder.encode(
+                  ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+                  [RECEIVE_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
+                )
+              ),
+            ]
+          )
+        )
+    
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        
+        await expect(archToken.connect(alice).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::receiveWithAuth: auth expired")
+      })
+
+      it('does not allow a reuse of nonce', async () => {
+        const domainSeparator = ethers.utils.keccak256(
+          ethers.utils.defaultAbiCoder.encode(
+            ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
+            [DOMAIN_TYPEHASH, ethers.utils.keccak256(ethers.utils.toUtf8Bytes(await archToken.name())), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")), ethers.provider.network.chainId, archToken.address]
+          )
+        )
+    
+        const value = 345
+        const nonce = ethers.BigNumber.from(ethers.utils.randomBytes(32))
+        const validAfter = 0
+        const validBefore = ethers.constants.MaxUint256
+        let digest = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+            [
+              '0x19',
+              '0x01',
+              domainSeparator,
+              ethers.utils.keccak256(
+                ethers.utils.defaultAbiCoder.encode(
+                  ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+                  [RECEIVE_WITH_AUTHORIZATION_TYPEHASH, deployer.address, alice.address, value, validAfter, validBefore, nonce]
+                )
+              ),
+            ]
+          )
+        )
+    
+        let { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        
+        const balanceBefore = await archToken.balanceOf(alice.address)
+        await archToken.connect(alice).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
+        expect(await archToken.balanceOf(alice.address)).to.eq(balanceBefore.add(value))
+
+        digest = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+            [
+              '0x19',
+              '0x01',
+              domainSeparator,
+              ethers.utils.keccak256(
+                ethers.utils.defaultAbiCoder.encode(
+                  ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+                  [RECEIVE_WITH_AUTHORIZATION_TYPEHASH, deployer.address, bob.address, value, validAfter, validBefore, nonce]
+                )
+              ),
+            ]
+          )
+        )
+    
+        let sig = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+
+        await expect(archToken.connect(bob).receiveWithAuthorization(deployer.address, bob.address, value, validAfter, validBefore, nonce, sig.v, ethers.utils.hexlify(sig.r), ethers.utils.hexlify(sig.s))).to.revertedWith("revert Arch::receiveWithAuth: auth already used")
       })
     })
     

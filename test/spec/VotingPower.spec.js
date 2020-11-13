@@ -24,7 +24,6 @@ describe("VotingPower", function() {
     let admin
     let alice
     let bob
-    let carlos
     let ZERO_ADDRESS
 
     beforeEach(async () => {
@@ -38,7 +37,6 @@ describe("VotingPower", function() {
         admin = fix.admin
         alice = fix.alice
         bob = fix.bob
-        carlos = fix.carlos
         ZERO_ADDRESS = fix.ZERO_ADDRESS
     })
 

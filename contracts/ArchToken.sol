@@ -80,6 +80,10 @@ contract ArchToken {
     /// keccak256("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)");
     bytes32 public constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH = 0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267;
 
+    /// @notice The EIP-3009 typehash for receiveWithAuthorization
+    /// keccak256("ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
+    bytes32 public constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH = 0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8;
+
     /// @notice A record of states for signing / validating signatures
     mapping (address => uint) public nonces;
 
@@ -356,6 +360,45 @@ contract ArchToken {
         require(!authorizationState[from][nonce],  "Arch::transferWithAuth: auth already used");
 
         bytes32 encodeData = keccak256(abi.encode(TRANSFER_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce));
+        _validateSignedData(from, encodeData, v, r, s);
+
+        authorizationState[from][nonce] = true;
+        emit AuthorizationUsed(from, nonce);
+
+        _transferTokens(from, to, value);
+    }
+
+    /**
+     * @notice Receive a transfer with a signed authorization from the payer
+     * @dev This has an additional check to ensure that the payee's address matches
+     * the caller of this function to prevent front-running attacks.
+     * @param from          Payer's address (Authorizer)
+     * @param to            Payee's address
+     * @param value         Amount to be transferred
+     * @param validAfter    The time after which this is valid (unix time)
+     * @param validBefore   The time before which this is valid (unix time)
+     * @param nonce         Unique nonce
+     * @param v             v of the signature
+     * @param r             r of the signature
+     * @param s             s of the signature
+     */
+    function receiveWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        require(to == msg.sender, "Arch::receiveWithAuth: caller must be the payee");
+        require(block.timestamp > validAfter, "Arch::receiveWithAuth: auth not yet valid");
+        require(block.timestamp < validBefore, "Arch::receiveWithAuth: auth expired");
+        require(!authorizationState[from][nonce],  "Arch::receiveWithAuth: auth already used");
+
+        bytes32 encodeData = keccak256(abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce));
         _validateSignedData(from, encodeData, v, r, s);
 
         authorizationState[from][nonce] = true;

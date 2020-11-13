@@ -13,7 +13,6 @@ describe("Vesting", function() {
     let admin
     let alice
     let bob
-    let carlos
     let ZERO_ADDRESS
 
     beforeEach(async () => {
@@ -27,7 +26,6 @@ describe("Vesting", function() {
         admin = fix.admin
         alice = fix.alice
         bob = fix.bob
-        carlos = fix.carlos
         ZERO_ADDRESS = fix.ZERO_ADDRESS
         await votingPowerPrism.setPendingProxyImplementation(votingPowerImplementation.address)
         await votingPowerImplementation.become(votingPowerPrism.address)

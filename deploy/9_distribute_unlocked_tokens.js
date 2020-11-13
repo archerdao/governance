@@ -12,7 +12,7 @@ module.exports.skip = async function({ deployments }) {
     const grants = readGrantsFromFile()
     if (grants.length > 0) {
         const firstGranteeTokenBalance = await read("ArchToken", "balanceOf", grants[0].recipient)
-        if (firstGranteeTokenBalance && firstGranteeTokenBalance > 0) {
+        if (firstGranteeTokenBalance && firstGranteeTokenBalance.gt(0)) {
             log(`9) Distribute Unlocked Tokens`)
             log(`- Skipping step, unlocked tokens already distributed`)
             return true

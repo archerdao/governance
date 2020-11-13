@@ -6,9 +6,9 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
     log(`8) Create Grants`)
     // Create grants from file
     await addGrants()
-    log(`- done creating grants`)
+    log(`- Done creating grants`)
     // Change vesting owner
-    log(`- changing vesting contract owner to admin address: ${admin}`)
+    log(`- Changing vesting contract owner to admin address: ${admin}`)
     await execute('Vesting', {from: deployer }, 'changeOwner', admin);
 };
 
@@ -19,7 +19,7 @@ module.exports.skip = async function({ deployments }) {
     if (grants.length > 0) {
         for (const grant of grants) {
             const activeGrant = await read("Vesting", "getTokenGrant", grant.recipient)
-            if (activeGrant && activeGrant.amount && activeGrant.amount > 0) {
+            if (activeGrant && activeGrant.amount && activeGrant.amount.gt(0)) {
                 log(`8) Create Grants`)
                 log(`- Skipping step, grants already created`)
                 return true

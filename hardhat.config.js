@@ -13,6 +13,8 @@ const FORK_BLOCK_NUMBER = process.env.FORK_BLOCK_NUMBER
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 const DEPLOYER_ADDRESS = process.env.DEPLOYER_ADDRESS
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY
+const LIQUIDITY_PROVIDER_ADDRESS = process.env.LIQUIDITY_PROVIDER_ADDRESS
+const LIQUIDITY_PROVIDER_PRIVATE_KEY = process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY
 const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const TENDERLY_USERNAME = process.env.TENDERLY_USERNAME
 const TENDERLY_PROJECT_NAME = process.env.TENDERLY_PROJECT_NAME
@@ -66,6 +68,10 @@ let mainnetConfig = {
 if (DEPLOYER_PRIVATE_KEY && DEPLOYER_PRIVATE_KEY.length > 0) {
   rinkebyConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   mainnetConfig.accounts = [DEPLOYER_PRIVATE_KEY]
+  if (LIQUIDITY_PROVIDER_PRIVATE_KEY && LIQUIDITY_PROVIDER_PRIVATE_KEY.length > 0) {
+    rinkebyConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
+    mainnetConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
+  }  
 }
 
 
@@ -99,8 +105,13 @@ module.exports = {
       1: DEPLOYER_ADDRESS,
       4: DEPLOYER_ADDRESS
     },
-    admin: {
+    liquidityProvider: {
       default: 1,
+      1: LIQUIDITY_PROVIDER_ADDRESS,
+      4: LIQUIDITY_PROVIDER_ADDRESS
+    },
+    admin: {
+      default: 2,
       1: ADMIN_ADDRESS,
       4: ADMIN_ADDRESS
     }

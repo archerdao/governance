@@ -5,10 +5,9 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 const tokenFixture = deployments.createFixture(async ({deployments, getNamedAccounts, getUnnamedAccounts, ethers}, options) => {
     const accounts = await ethers.getSigners();
     const deployer = accounts[0]
-    const admin = accounts[1]
-    const alice = accounts[2]
-    const bob = accounts[3]
-    const carlos = accounts[4]
+    const admin = accounts[2]
+    const alice = accounts[3]
+    const bob = accounts[4]
     const currentTime = Date.now();
     const SIX_MONTHS_IN_SECS = 6 * 30 * 24 * 60 * 60;
     const firstSupplyChangeAllowed = currentTime + SIX_MONTHS_IN_SECS;
@@ -20,7 +19,6 @@ const tokenFixture = deployments.createFixture(async ({deployments, getNamedAcco
         admin: admin,
         alice: alice,
         bob: bob,
-        carlos: carlos,
         ZERO_ADDRESS: ZERO_ADDRESS
     };
 })
@@ -28,10 +26,9 @@ const tokenFixture = deployments.createFixture(async ({deployments, getNamedAcco
 const governanceFixture = deployments.createFixture(async ({deployments, getNamedAccounts, getUnnamedAccounts, ethers}, options) => {
     const accounts = await ethers.getSigners();
     const deployer = accounts[0]
-    const admin = accounts[1]
-    const alice = accounts[2]
-    const bob = accounts[3]
-    const carlos = accounts[4]
+    const admin = accounts[2]
+    const alice = accounts[3]
+    const bob = accounts[4]
     const currentTime = Date.now();
     const SIX_MONTHS_IN_SECS = 6 * 30 * 24 * 60 * 60;
     const firstSupplyChangeAllowed = currentTime + SIX_MONTHS_IN_SECS;
@@ -55,7 +52,6 @@ const governanceFixture = deployments.createFixture(async ({deployments, getName
         admin: admin,
         alice: alice,
         bob: bob,
-        carlos: carlos,
         ZERO_ADDRESS: ZERO_ADDRESS
     };
 })
