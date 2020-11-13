@@ -2,12 +2,11 @@ const { readGrantsFromFile } = require('./readGrantsFromFile')
 const { ethers, deployments } = require("hardhat");
 
 const { log } = deployments
-let startTime = Date.now() + 21600
 let vestingDurationInDays = 180
 let vestingCliffInDays = 180
 let vestingPercentage = 75
 
-async function addGrants() {
+async function addGrants(startTime) {
     const grants = readGrantsFromFile()
     const owner = await deployments.read('Vesting', 'owner');
     const decimals = await deployments.read('ArchToken', 'decimals')
@@ -38,7 +37,8 @@ async function addGrants() {
 }
 
 if (require.main === module) {
-    addGrants()
+    const startTime = Date.now() + 21600
+    addGrants(startTime)
 }
 
 module.exports.addGrants = addGrants
