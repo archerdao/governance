@@ -28,6 +28,10 @@ See EIP-712, EIP-2612, and EIP-3009 for details
 
 - [`approve(address spender, uint256 amount)`](#ArchToken-approve-address-uint256-)
 
+- [`increaseAllowance(address spender, uint256 addedValue)`](#ArchToken-increaseAllowance-address-uint256-)
+
+- [`decreaseAllowance(address spender, uint256 subtractedValue)`](#ArchToken-decreaseAllowance-address-uint256-)
+
 - [`permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)`](#ArchToken-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-)
 
 - [`balanceOf(address account)`](#ArchToken-balanceOf-address-)
@@ -37,6 +41,8 @@ See EIP-712, EIP-2612, and EIP-3009 for details
 - [`transferFrom(address src, address dst, uint256 amount)`](#ArchToken-transferFrom-address-address-uint256-)
 
 - [`transferWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)`](#ArchToken-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-)
+
+- [`receiveWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)`](#ArchToken-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-)
 
 - [`getDomainSeparator()`](#ArchToken-getDomainSeparator--)
 
@@ -182,6 +188,8 @@ This will overwrite the approval amount for `spender`
 
 and is subject to issues noted [here](https://eips.ethereum.org/EIPS/eip-20#approve)
 
+It is recommended to use increaseAllowance and decreaseAllowance instead
+
 ## Parameters:
 
 - `spender`: The address of the account which may transfer tokens
@@ -191,6 +199,34 @@ and is subject to issues noted [here](https://eips.ethereum.org/EIPS/eip-20#appr
 ## Return Values:
 
 - Whether or not the approval succeeded
+
+# Function `increaseAllowance(address spender, uint256 addedValue) → bool` {#ArchToken-increaseAllowance-address-uint256-}
+
+Increase the allowance by a given amount
+
+## Parameters:
+
+- `spender`: Spender's address
+
+- `addedValue`: Amount of increase in allowance
+
+## Return Values:
+
+- True if successful
+
+# Function `decreaseAllowance(address spender, uint256 subtractedValue) → bool` {#ArchToken-decreaseAllowance-address-uint256-}
+
+Decrease the allowance by a given amount
+
+## Parameters:
+
+- `spender`: Spender's address
+
+- `subtractedValue`: Amount of decrease in allowance
+
+## Return Values:
+
+- True if successful
 
 # Function `permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)` {#ArchToken-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}
 
@@ -277,6 +313,34 @@ Transfer tokens with a signed authorization
 - `r`: Half of the ECDSA signature pair
 
 - `s`: Half of the ECDSA signature pair
+
+# Function `receiveWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)` {#ArchToken-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-}
+
+Receive a transfer with a signed authorization from the payer
+
+This has an additional check to ensure that the payee's address matches
+
+the caller of this function to prevent front-running attacks.
+
+## Parameters:
+
+- `from`: Payer's address (Authorizer)
+
+- `to`: Payee's address
+
+- `value`: Amount to be transferred
+
+- `validAfter`: The time after which this is valid (unix time)
+
+- `validBefore`: The time before which this is valid (unix time)
+
+- `nonce`: Unique nonce
+
+- `v`: v of the signature
+
+- `r`: r of the signature
+
+- `s`: s of the signature
 
 # Function `getDomainSeparator() → bytes32` {#ArchToken-getDomainSeparator--}
 

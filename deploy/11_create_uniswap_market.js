@@ -84,8 +84,7 @@ const WETH_ABI = [{
 }]
 
 module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
-    const { getUniswapLiquidity } = require("../scripts/getUniswapLiquidity")
-    const { execute, log } = deployments;
+    const { execute, read, log } = deployments;
     const namedAccounts = await getNamedAccounts();
     const { deployer, liquidityProvider, admin } = namedAccounts;
     const lpSigner = await ethers.getSigner(liquidityProvider)
@@ -94,7 +93,7 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
     const TARGET_TOKEN_LIQUIDITY = process.env.TARGET_TOKEN_LIQUIDITY
     const uniRouter = new ethers.Contract(UNI_ROUTER_ADDRESS, UNI_ROUTER_ABI, lpSigner)
 
-    log(`9) Create Uniswap Market`)
+    log(`11) Create Uniswap Market`)
     // Approve Uniswap router to move `TARGET_TOKEN_LIQUIDITY` tokens
     await execute('ArchToken', { from: liquidityProvider }, 'approve', UNI_ROUTER_ADDRESS, TARGET_TOKEN_LIQUIDITY);
 
@@ -102,20 +101,23 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
     const weth = new ethers.Contract(WETH_ADDRESS, WETH_ABI, lpSigner)
     await weth.approve(UNI_ROUTER_ADDRESS, TARGET_ETH_LIQUIDITY)
 
-    // Transfer `TARGET_TOKEN_LIQUIDITY` tokens to liquidity provider address
-    await execute('ArchToken', { from: deployer }, 'transfer', liquidityProvider, TARGET_TOKEN_LIQUIDITY);
-
-
     // Deadline for adding liquidity = now + 20 minutes
     const deadline = Date.now() + 1200
 
     // Create Uniswap market + provide initial liquidity
-    await uniRouter.addLiquidityETH(archToken.address, TARGET_TOKEN_LIQUIDITY, TARGET_TOKEN_LIQUIDITY, TARGET_ETH_LIQUIDITY, admin, deadline, { value: TARGET_ETH_LIQUIDITY, gasLimit: 6000000 })
-    const { tokenLiquidity, ethLiquidity } = await getUniswapLiquidity()
-    if (tokenLiquidity.gte(TARGET_TOKEN_LIQUIDITY) && ethLiquidity.gte(TARGET_ETH_LIQUIDITY)) {
-        log(`- Created Uniswap market. Token liquidity: ${tokenLiquidity.toString()}, ETH liquidity: ${ethLiquidity.toString()}`);
+    const result = await uniRouter.addLiquidityETH(archToken.address, TARGET_TOKEN_LIQUIDITY, TARGET_TOKEN_LIQUIDITY, TARGET_ETH_LIQUIDITY, admin, deadline, { value: TARGET_ETH_LIQUIDITY, gasLimit: 6000000 })
+    if (result.status) {
+        log(`- Created Uniswap market.`);
     } else {
-        log(`- Error creating Uniswap market`)
+        log(`- Error creating Uniswap market. Tx:`)
+        log(result)
+    }
+
+    // Transfer remaining deployer balance to admin
+    log(`- Transferring remaining deployer Arch tokens to admin address: ${admin}`)
+    let deployerBalance = await read('ArchToken', 'balanceOf', deployer);
+    if(deployerBalance > 0) {
+      await execute('ArchToken', {from: deployer}, 'transfer', admin, deployerBalance);
     }
 };
 
@@ -123,23 +125,23 @@ module.exports.skip = async function({ ethers, deployments, getNamedAccounts }) 
     const { getUniswapLiquidity } = require("../scripts/getUniswapLiquidity")
     const { read, log } = deployments;
     const namedAccounts = await getNamedAccounts();
-    const { deployer, liquidityProvider } = namedAccounts;    
+    const { liquidityProvider } = namedAccounts;    
     const TARGET_ETH_LIQUIDITY = process.env.TARGET_ETH_LIQUIDITY
     const TARGET_TOKEN_LIQUIDITY = process.env.TARGET_TOKEN_LIQUIDITY
-    const { tokenLiquidity, ethLiquidity } = await getUniswapLiquidity()
+    const { tokenLiquidity } = await getUniswapLiquidity()
     const lpETHBalance = await ethers.provider.getBalance(liquidityProvider)
-    const deployerTokenBalance = await read('ArchToken', 'balanceOf', deployer)
+    const lpTokenBalance = await read('ArchToken', 'balanceOf', liquidityProvider)
     
     if (tokenLiquidity.gte(TARGET_TOKEN_LIQUIDITY)) {
-        log(`10) Create Uniswap Market`)
+        log(`11) Create Uniswap Market`)
         log(`- Skipping step, Uniswap liquidity already provided`)
         return true
-    } else if (deployerTokenBalance.lt(TARGET_TOKEN_LIQUIDITY)){
-        log(`10) Create Uniswap Market`)
-        log(`- Skipping step, deployer account does not have enough tokens`)
+    } else if (lpTokenBalance.lt(TARGET_TOKEN_LIQUIDITY)){
+        log(`11) Create Uniswap Market`)
+        log(`- Skipping step, liquidity provider account does not have enough tokens`)
         return true
     } else if (lpETHBalance.lt(TARGET_ETH_LIQUIDITY)){
-        log(`10) Create Uniswap Market`)
+        log(`11) Create Uniswap Market`)
         log(`- Skipping step, liquidity provider account does not have enough ETH`)
         return true
     } else {
@@ -147,5 +149,5 @@ module.exports.skip = async function({ ethers, deployments, getNamedAccounts }) 
     }
 }
 
-module.exports.tags = ["10", "UniswapMarket"];
-module.exports.dependencies = ["9"]
+module.exports.tags = ["11", "UniswapMarket"];
+module.exports.dependencies = ["10"]

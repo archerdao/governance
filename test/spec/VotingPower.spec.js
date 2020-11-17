@@ -130,7 +130,7 @@ describe("VotingPower", function() {
                     )
                 )
         
-                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
                 await votingPower.stakeWithPermit(value, deadline, v, r, s)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(value))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(value))
@@ -167,7 +167,7 @@ describe("VotingPower", function() {
                     )
                 )
         
-                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
                 await expect(votingPower.stakeWithPermit(value, deadline, v, r, s)).to.revertedWith("revert VP::stakeWithPermit: cannot stake 0")
             })
 
@@ -200,7 +200,7 @@ describe("VotingPower", function() {
                     )
                 )
         
-                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
                 await expect(votingPower.stakeWithPermit(value, deadline, v, r, s)).to.revertedWith("revert Arch::validateSig: invalid signature")
             })
 
@@ -233,7 +233,7 @@ describe("VotingPower", function() {
                     )
                 )
         
-                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+                const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
                 await expect(votingPower.connect(alice).stakeWithPermit(value, deadline, v, r, s)).to.revertedWith("revert VP::stakeWithPermit: not enough tokens")
             })
         })

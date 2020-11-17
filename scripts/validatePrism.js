@@ -10,16 +10,16 @@ async function validatePrism() {
 
 if (require.main === module) {
   validatePrism()
-    .then((valid) => {
-        if(valid) {
-          console.log("No issues detected")
-        }      
-        process.exit(0)
-    })
-    .catch(error => {
-      console.error(error);
-      process.exit(1);
-    });
+  .then((valid) => {
+      if(valid) {
+        console.log("No issues detected")
+      }      
+      process.exit(0)
+  })
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });
 }
 
 module.exports.validatePrism = validatePrism

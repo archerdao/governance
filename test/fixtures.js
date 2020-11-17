@@ -13,8 +13,11 @@ const tokenFixture = deployments.createFixture(async ({deployments, getNamedAcco
     const firstSupplyChangeAllowed = currentTime + SIX_MONTHS_IN_SECS;
     const ArchTokenFactory = await ethers.getContractFactory("ArchToken");
     const ArchToken = await ArchTokenFactory.deploy(admin.address, deployer.address, firstSupplyChangeAllowed);
+    const MultisendFactory = await ethers.getContractFactory("Multisend");
+    const Multisend = await MultisendFactory.deploy(ArchToken.address);
     return {
         archToken: ArchToken,
+        multisend: Multisend,
         deployer: deployer,
         admin: admin,
         alice: alice,

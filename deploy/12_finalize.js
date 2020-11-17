@@ -12,9 +12,9 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
 
     let finalized = true;
   
-    log(`10) Finalize`)
+    log(`12) Finalize`)
     // Transfer remaining deployer Arch tokens to multisig
-    log(`- Transferring remaining deployer Arch tokens to admin address: ${admin}`)
+    log(`- CHECK: remaining deployer Arch tokens have been sent to admin address: ${admin}`)
     let deployerBalance = await read('ArchToken', 'balanceOf', deployer);
     let adminBalance = await read('ArchToken', 'balanceOf', admin);
     if(deployerBalance > 0) {
@@ -36,7 +36,7 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
     }
 
     // Check that admin is vesting owner
-    log(`- Checking that vesting contract owner is admin: ${admin}...`)
+    log(`- CHECK: vesting contract owner is admin: ${admin}...`)
     const vestingOwner = await read('Vesting', 'owner');
     if(vestingOwner != admin) {
       log(`  - ISSUE: Vesting contract owner is not admin: ${admin}, current owner: ${vestingOwner}`)
@@ -44,7 +44,7 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
     }
 
     // Check that supply manager contract is token supply manager
-    log(`- Checking that supply manager contract is token supply manager...`)
+    log(`- CHECK: supply manager contract is token supply manager...`)
     const supplyManager = await deployments.get("SupplyManager");
     const tokenSupplyManager = await read('ArchToken', 'supplyManager');
     if(tokenSupplyManager != supplyManager.address) {
@@ -53,7 +53,7 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
     }
 
     // Check that voting power is initialized
-    log(`- Checking that voting power is initialized...`)
+    log(`- CHECK: voting power is initialized...`)
     const vpArchToken = await votingPower.archToken()
     const vpVesting = await votingPower.vestingContract()
     if(vpArchToken == ZERO_ADDRESS || vpVesting == ZERO_ADDRESS) {
@@ -62,7 +62,7 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
     }
 
     // Check if multisig has accepted itself as admin of voting power
-    log(`- Checking that ${admin} has accepted role as admin of voting power...`)
+    log(`- CHECK: ${admin} has accepted role as admin of voting power...`)
     const votingPowerAdmin = await read('VotingPowerPrism', 'proxyAdmin')
     if(votingPowerAdmin != admin) {
         log(`  - ISSUE: Multisig has not yet called 'acceptAdmin' on the voting power prism proxy at ${votingPower.address}`)
@@ -70,7 +70,7 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
     }
 
     // Check that Uniswap pool has been seeded with target liquidity
-    log(`- Checking that Uniswap pool has been created...`)
+    log(`- CHECK: Uniswap pool has been created...`)
     const { tokenLiquidity, ethLiquidity } = await getUniswapLiquidity()
     if(tokenLiquidity.lt(TARGET_TOKEN_LIQUIDITY) || ethLiquidity.lt(TARGET_ETH_LIQUIDITY)) {
         log(`  - ISSUE: Liquidity has not been added to Uniswap pool`)
@@ -84,5 +84,5 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
     }
 };
   
-module.exports.tags = ["11", "Finalize"]
-module.exports.dependencies = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+module.exports.tags = ["12", "Finalize"]
+module.exports.dependencies = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]

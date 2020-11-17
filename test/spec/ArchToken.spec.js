@@ -112,7 +112,7 @@ describe('ArchToken', () => {
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         const balanceBefore = await archToken.balanceOf(alice.address)
         await archToken.transferWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
@@ -149,7 +149,7 @@ describe('ArchToken', () => {
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         await expect(archToken.transferWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::transferWithAuth: auth not yet valid")
       })
@@ -183,7 +183,7 @@ describe('ArchToken', () => {
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         await expect(archToken.transferWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::transferWithAuth: auth expired")
       })
@@ -217,7 +217,7 @@ describe('ArchToken', () => {
           )
         )
     
-        let { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        let { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         const balanceBefore = await archToken.balanceOf(alice.address)
         await archToken.transferWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
@@ -240,7 +240,7 @@ describe('ArchToken', () => {
           )
         )
     
-        let sig = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        let sig = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
 
         await expect(archToken.transferWithAuthorization(deployer.address, bob.address, value, validAfter, validBefore, nonce, sig.v, ethers.utils.hexlify(sig.r), ethers.utils.hexlify(sig.s))).to.revertedWith("revert Arch::transferWithAuth: auth already used")
       })
@@ -276,7 +276,7 @@ describe('ArchToken', () => {
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         const balanceBefore = await archToken.balanceOf(alice.address)
         await archToken.connect(alice).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
@@ -312,7 +312,7 @@ describe('ArchToken', () => {
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         await expect(archToken.connect(bob).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::receiveWithAuth: caller must be the payee")
       })
@@ -347,7 +347,7 @@ describe('ArchToken', () => {
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         await expect(archToken.connect(alice).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::receiveWithAuth: auth not yet valid")
       })
@@ -381,7 +381,7 @@ describe('ArchToken', () => {
           )
         )
     
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         await expect(archToken.connect(alice).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::receiveWithAuth: auth expired")
       })
@@ -415,7 +415,7 @@ describe('ArchToken', () => {
           )
         )
     
-        let { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        let { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         const balanceBefore = await archToken.balanceOf(alice.address)
         await archToken.connect(alice).receiveWithAuthorization(deployer.address, alice.address, value, validAfter, validBefore, nonce, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
@@ -438,7 +438,7 @@ describe('ArchToken', () => {
           )
         )
     
-        let sig = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        let sig = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
 
         await expect(archToken.connect(bob).receiveWithAuthorization(deployer.address, bob.address, value, validAfter, validBefore, nonce, sig.v, ethers.utils.hexlify(sig.r), ethers.utils.hexlify(sig.s))).to.revertedWith("revert Arch::receiveWithAuth: auth already used")
       })
@@ -473,7 +473,7 @@ describe('ArchToken', () => {
           )
         )
 
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         await archToken.permit(deployer.address, alice.address, value, deadline, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))
         expect(await archToken.allowance(deployer.address, alice.address)).to.eq(value)
@@ -510,7 +510,7 @@ describe('ArchToken', () => {
           )
         )
 
-        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY.slice(2), 'hex'))
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
         
         await expect(archToken.permit(deployer.address, alice.address, value, deadline, v, ethers.utils.hexlify(r), ethers.utils.hexlify(s))).to.revertedWith("revert Arch::permit: signature expired")
       })

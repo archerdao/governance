@@ -21,6 +21,9 @@ You can obtain your node's peer ID by calling the `admin_nodeInfo` [as outlined 
 # Support
 
 For any questions or concerns, please reach out to our team:
+
 * Email: [office@archerdao.io](mailto:office@archerdao.io)
+
 * [Telegram](https://t.me/archerdao)
+
 * [Discord](https://discord.gg/98GV73f)
