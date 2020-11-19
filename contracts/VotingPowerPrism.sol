@@ -13,13 +13,14 @@ contract VotingPowerPrism is PrismProxy {
 
     /**
      * @notice Construct a new Voting Power Prism Proxy
-     * @dev Sets initial proxy admin to msg.sender
+     * @dev Sets initial proxy admin to `_admin`
+     * @param _admin Initial proxy admin
      */
-    constructor() {
+    constructor(address _admin) {
         // Initialize storage
         ProxyStorage storage s = proxyStorage();
-        // Set admin to caller
-        s.admin = msg.sender;
+        // Set initial proxy admin
+        s.admin = _admin;
     }
 
     /**

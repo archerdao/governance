@@ -1,9 +1,9 @@
 module.exports = async ({ getNamedAccounts, deployments }) => {
-  const { deploy, log } = deployments;
+  const { deploy, log, deterministic } = deployments;
   const { deployer, admin } = await getNamedAccounts();
-  const currentTime = Date.now();
-  const SIX_MONTHS_IN_SECS = 6 * 30 * 24 * 60 * 60;
-  const firstSupplyChangeAllowed = currentTime + SIX_MONTHS_IN_SECS;
+
+  // Unix timestamp = 2020/05/19 @ 12:00pm UTC
+  const firstSupplyChangeAllowed = 1621425600
 
   log(`1) Arch Token`)
   // Deploy ArchToken contract

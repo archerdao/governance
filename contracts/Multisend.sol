@@ -6,6 +6,10 @@ pragma experimental ABIEncoderV2;
 import "./interfaces/IArchToken.sol";
 import "./lib/ReentrancyGuard.sol";
 
+/**
+ * @title Multisend
+ * @dev Allows the sender to perform batch transfers of ARCH tokens
+ */
 contract Multisend is ReentrancyGuard {
 
     /// @notice ARCH token
@@ -21,6 +25,7 @@ contract Multisend is ReentrancyGuard {
 
     /**
      * @notice Batches multiple transfers
+     * @dev Must approve this contract for `totalAmount` before calling
      * @param totalAmount Total amount to be transferred
      * @param recipients Array of accounts to receive transfers
      * @param amounts Array of amounts to send to accounts via transfers

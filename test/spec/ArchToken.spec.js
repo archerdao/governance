@@ -283,7 +283,7 @@ describe('ArchToken', () => {
         expect(await archToken.balanceOf(alice.address)).to.eq(balanceBefore.add(value))
       })
 
-      it('does not allow a user to receive a transfer intended for another user', async () => {
+      it('does not allow a user to initiate a transfer intended for another user', async () => {
         const domainSeparator = ethers.utils.keccak256(
           ethers.utils.defaultAbiCoder.encode(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],

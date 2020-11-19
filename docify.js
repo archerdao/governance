@@ -28,11 +28,16 @@ function formatTitle(title) {
 function scan(pathName, indentation) {
     if (!excludeInputList.includes(pathName)) {
         if (fs.lstatSync(pathName).isDirectory()) {
-            fs.appendFileSync(SUMMARY_FILE, indentation + "* " + formatTitle(path.basename(pathName)) + "\n");
+            if(fs.existsSync(pathName + "/README.md")) {
+                const link = pathName.slice(PAGES_DIR.length) + "/README.md";
+                fs.appendFileSync(SUMMARY_FILE, indentation + "* [" + formatTitle(path.basename(pathName)) + "](" + relativePath + link + ")\n");
+            } else {
+                fs.appendFileSync(SUMMARY_FILE, indentation + "* " + formatTitle(path.basename(pathName)) + "\n");
+            }
             for (const fileName of fs.readdirSync(pathName))
                 scan(pathName + "/" + fileName, indentation + "  ");
         }
-        else if (pathName.endsWith(".md")) {
+        else if (pathName.endsWith(".md") && !pathName.endsWith("README.md")) {
             const text = formatTitle(path.basename(pathName).slice(0, -3));
             const link = pathName.slice(PAGES_DIR.length);
             fs.appendFileSync(SUMMARY_FILE, indentation + "* [" + text + "](" + relativePath + link + ")\n");

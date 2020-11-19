@@ -84,6 +84,7 @@ const WETH_ABI = [{
 }]
 
 module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
+    const { getUniswapLiquidity } = require("../scripts/getUniswapLiquidity")
     const { execute, read, log } = deployments;
     const namedAccounts = await getNamedAccounts();
     const { deployer, liquidityProvider, admin } = namedAccounts;
@@ -106,8 +107,15 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
 
     // Create Uniswap market + provide initial liquidity
     const result = await uniRouter.addLiquidityETH(archToken.address, TARGET_TOKEN_LIQUIDITY, TARGET_TOKEN_LIQUIDITY, TARGET_ETH_LIQUIDITY, admin, deadline, { value: TARGET_ETH_LIQUIDITY, gasLimit: 6000000 })
-    if (result.status) {
-        log(`- Created Uniswap market.`);
+    if (result.hash) {
+        const receipt = await ethers.provider.waitForTransaction(result.hash)
+        if(receipt.status) {
+            const { tokenLiquidity, ethLiquidity } = await getUniswapLiquidity()
+            log(`- Created Uniswap market. Token liquidity: ${tokenLiquidity.toString()}, ETH liquidity: ${ethLiquidity.toString()}`);
+        } else {
+            log(`- Error creating Uniswap market. Tx:`)
+            log(receipt)
+        }
     } else {
         log(`- Error creating Uniswap market. Tx:`)
         log(result)
