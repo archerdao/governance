@@ -61,7 +61,7 @@ contract Vesting {
     
     /**
      * @notice Add a new token grant
-     * @param recipient The address that is receicing the grant
+     * @param recipient The address that is receiving the grant
      * @param startTime The unix timestamp when the grant will start
      * @param amount The amount of tokens being granted
      * @param vestingDurationInDays The vesting period in days

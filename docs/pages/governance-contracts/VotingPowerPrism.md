@@ -6,17 +6,21 @@ All contracts that use voting power should reference this contract.
 
 # Functions:
 
-- [`constructor()`](#VotingPowerPrism-constructor--)
+- [`constructor(address _admin)`](#VotingPowerPrism-constructor-address-)
 
 - [`receive()`](#VotingPowerPrism-receive--)
 
 - [`fallback()`](#VotingPowerPrism-fallback--)
 
-# Function `constructor()` {#VotingPowerPrism-constructor--}
+# Function `constructor(address _admin)` {#VotingPowerPrism-constructor-address-}
 
 Construct a new Voting Power Prism Proxy
 
-Sets initial proxy admin to msg.sender
+Sets initial proxy admin to `_admin`
+
+## Parameters:
+
+- `_admin`: Initial proxy admin
 
 # Function `receive()` {#VotingPowerPrism-receive--}
 

@@ -44,9 +44,9 @@
     "tenderly:export": "sh -c 'tenderly export ${0}'",
     "tenderly:push": "sh -c 'npx hardhat tenderly:push ${0}=${1}'",
     "tenderly:verify": "sh -c 'npx hardhat tenderly:verify ${0}=${1}'",
-    "mythx:quick": "sh -c 'mythx analyze -y --mode quick --wait ./contracts/${0}.sol'",
-    "mythx:standard": "sh -c 'mythx analyze -y --mode standard --async ./contracts/${0}.sol'",
-    "mythx:deep": "sh -c 'mythx analyze -y --mode deep --async ./contracts/${0}.sol'"
+    "mythx:quick": "sh -c 'mythx analyze --mode quick --wait ./contracts/${0}.sol'",
+    "mythx:standard": "sh -c 'mythx analyze --mode standard --async ./contracts/${0}.sol'",
+    "mythx:deep": "sh -c 'mythx analyze --mode deep --async ./contracts/${0}.sol'"
   },
   "dependencies": {},
   "devDependencies": {

@@ -1,11 +1,5 @@
 [![MythXBadge](https://badgen.net/https/api.mythx.io/v1/projects/d39258a9-1656-4b0f-867d-d67d0632c976/badge/data?cache=300&icon=https://raw.githubusercontent.com/ConsenSys/mythx-github-badge/main/logo_white.svg)](https://docs.mythx.io/dashboard/github-badges)
 
-👋 Thank you for reviewing the ARCH token and initial governance contracts. 
-
-If you have feedback or run into any issues, please submit a new issue on GitHub.  
-
-For general questions and discussion, please join the [Archer DAO Discord](https://discord.gg/EUy73ezy) or [Telegram](https://t.me/archerdao) and stay tuned for announcements in the coming weeks.
-
 # Contract Overview
 
 Archer DAO is a series of Ethereum smart contracts governed by ARCH token holders.
@@ -23,6 +17,8 @@ The initial set of smart contracts deployed for Archer DAO:
 - Token Vesting Contract
 - Voting Power Prism (Proxy)
 - Voting Power Implementation Contract
+- Multisend
+- Vault
 
 
 ## ARCH Token
@@ -82,3 +78,11 @@ Voting Power snapshots are stored following the Diamond Storage technique outlin
 The Voting Power Implementation contract determines how votes are recorded for snapshots.
 
 Initially, the ARCH token is used to calculate Voting Power. This contract may be redeployed to allow for extended functionality, such as delegation or accepting additional tokens.
+
+## Multisend
+
+Multisend is a simple contract that allows the sender to transfer multiple token balances in one transaction.
+
+## Vault
+
+Vaults are used to lock up tokens without providing any voting power (unlike Vesting)
