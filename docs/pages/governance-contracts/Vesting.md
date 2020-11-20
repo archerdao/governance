@@ -48,7 +48,7 @@ Add a new token grant
 
 ## Parameters:
 
-- `recipient`: The address that is receicing the grant
+- `recipient`: The address that is receiving the grant
 
 - `startTime`: The unix timestamp when the grant will start
 
