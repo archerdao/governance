@@ -23,7 +23,7 @@ async function addGrants(startTime) {
         } else {
             continue
         }
-        const totalTokenAllocation = ethers.BigNumber.from(grant.amount).mul(decimalMultiplier)
+        const totalTokenAllocation = ethers.BigNumber.from(parseInt(grant.amount * 100)).mul(decimalMultiplier).div(100)
         const grantAmount = totalTokenAllocation.mul(vestingPercentage).div(100);
         log(`- Creating grant for ${grant.recipient} (class: ${grant.class}) - Total allocation: ${totalTokenAllocation}, Grant amount: ${grantAmount}`)
         await deployments.execute('Vesting', {from: owner, gasLimit: 6000000 }, 'addTokenGrant', grant.recipient, startTime, grantAmount, vestingDurationInDays, vestingCliffInDays);

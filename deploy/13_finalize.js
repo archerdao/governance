@@ -9,18 +9,36 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
     const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
     const TARGET_TOKEN_LIQUIDITY = process.env.TARGET_TOKEN_LIQUIDITY
     const TARGET_ETH_LIQUIDITY = process.env.TARGET_ETH_LIQUIDITY
+    const PROTOCOL_FUND_ADDRESS = process.env.PROTOCOL_FUND_ADDRESS
+    const PROTOCOL_FUND_AMOUNT = process.env.PROTOCOL_FUND_AMOUNT
+    const DAO_TREASURY_ADDRESS = process.env.DAO_TREASURY_ADDRESS
 
     let finalized = true;
   
     log(`13) Finalize`)
-    // Transfer remaining deployer Arch tokens to multisig
-    log(`- CHECK: remaining deployer Arch tokens have been sent to admin address: ${admin}`)
+    // Transfer Marketing and Development budget to PROTOCOL_FUND_ADDRESS
+    log(`- CHECK: marketing and development budget has been sent to protocol fund address: ${PROTOCOL_FUND_ADDRESS}`)
+    let protocolBalance = await read('ArchToken', 'balanceOf', PROTOCOL_FUND_ADDRESS);
+    if(protocolBalance == 0) {
+      const decimals = await deployments.read('ArchToken', 'decimals')
+      const decimalMultiplier = ethers.BigNumber.from(10).pow(decimals)
+      const transferAmount = ethers.BigNumber.from(PROTOCOL_FUND_AMOUNT).mul(decimalMultiplier)
+      await execute('ArchToken', {from: deployer}, 'transfer', PROTOCOL_FUND_ADDRESS, transferAmount)
+      protocolBalance = await read('ArchToken', 'balanceOf', PROTOCOL_FUND_ADDRESS);
+      if(protocolBalance < transferAmount) {
+        log(`  - ISSUE: marketing and development budget not correct. Current balance: ${protocolBalance.toString()}`)
+        finalized = false
+      }
+    }
+
+    // Transfer remaining deployer Arch tokens to treasury
+    log(`- CHECK: remaining deployer Arch tokens have been sent to treasury address: ${DAO_TREASURY_ADDRESS}`)
     let deployerBalance = await read('ArchToken', 'balanceOf', deployer);
-    let adminBalance = await read('ArchToken', 'balanceOf', admin);
+    let treasuryBalance = await read('ArchToken', 'balanceOf', DAO_TREASURY_ADDRESS);
     if(deployerBalance > 0) {
       await execute('ArchToken', {from: deployer}, 'transfer', admin, deployerBalance);
       deployerBalance = await read('ArchToken', 'balanceOf', deployer);
-      adminBalance = await read('ArchToken', 'balanceOf', admin);
+      treasuryBalance = await read('ArchToken', 'balanceOf', DAO_TREASURY_ADDRESS);
     }
 
     // Make sure deployer no longer has balance
@@ -30,7 +48,7 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
     }
 
     // Make sure admin has balance
-    if(adminBalance.eq(0)) {
+    if(treasuryBalance.eq(0)) {
       log(`  - ISSUE: admin balance == 0. Current balance: ${adminBalance.toString()}`)
       finalized = false
     }
@@ -79,7 +97,7 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }) => {
 
     // Check that liquidity provider has locked LP tokens
     log(`- CHECK: LP tokens are locked...`)
-    const lockedBalance = await read('Vault', 'getLockedTokenBalance', poolAddress, admin)
+    const lockedBalance = await read('Vault', 'getLockedTokenBalance', poolAddress, DAO_TREASURY_ADDRESS)
     if(lockedBalance.eq(0)) {
         log(`  - ISSUE: Liquidity tokens have not been locked`)
         finalized = false

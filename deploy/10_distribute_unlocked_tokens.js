@@ -11,13 +11,14 @@ module.exports = async function ({ deployments, getNamedAccounts }) {
 
 module.exports.skip = async function({ deployments, getNamedAccounts }) {
     const { log, read } = deployments
-    const { admin, liquidityProvider } = await getNamedAccounts()
+    const { liquidityProvider } = await getNamedAccounts()
+    const DAO_TREASURY_ADDRESS = process.env.DAO_TREASURY_ADDRESS
     const { readGrantsFromFile } = require("../scripts/readGrantsFromFile")
     const grants = readGrantsFromFile()
     if (grants.length > 0) {
-        const adminTokenBalance = await read("ArchToken", "balanceOf", admin)
+        const treasuryTokenBalance = await read("ArchToken", "balanceOf", DAO_TREASURY_ADDRESS)
         const liquidityProviderBalance = await read("ArchToken", "balanceOf", liquidityProvider)
-        if (adminTokenBalance.gt(0) || liquidityProviderBalance.gt(0)) {
+        if (treasuryTokenBalance.gt(0) || liquidityProviderBalance.gt(0)) {
             log(`10) Distribute Unlocked Tokens`)
             log(`- Skipping step, unlocked tokens already distributed`)
             return true

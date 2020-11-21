@@ -100,4 +100,15 @@ async function getUniswapLiquidity() {
     }
 }
 
+async function printLiquidityDetails() {
+    const {poolAddress, tokenLiquidity, ethLiquidity} = await getUniswapLiquidity()
+    console.log("Pool: " + poolAddress)
+    console.log("Token Liquidity: " + tokenLiquidity)
+    console.log("ETH Liquidity: " + ethLiquidity)
+}
+
+if (require.main === module) {
+    printLiquidityDetails()
+}
+
 module.exports.getUniswapLiquidity = getUniswapLiquidity

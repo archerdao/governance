@@ -23,20 +23,17 @@ const UNI_PAIR_ABI = [
 ]
 
 module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
-    const { getUniswapLiquidity } = require("../scripts/getUniswapLiquidity")
     const { lockLPTokens } = require("../scripts/lockLPTokens")
     const { deploy, log } = deployments;
     const namedAccounts = await getNamedAccounts();
     const { deployer } = namedAccounts;
 
     log(`12) Vault`)
-    const { poolAddress } = await getUniswapLiquidity()
     // Deploy Vault contract
     const deployResult = await deploy("Vault", {
         from: deployer,
         contract: "Vault",
         gas: 4000000,
-        args: [poolAddress],
         skipIfAlreadyDeployed: true
     });
 

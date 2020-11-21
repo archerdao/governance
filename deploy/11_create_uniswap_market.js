@@ -93,6 +93,9 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
     const TARGET_ETH_LIQUIDITY = process.env.TARGET_ETH_LIQUIDITY
     const TARGET_TOKEN_LIQUIDITY = process.env.TARGET_TOKEN_LIQUIDITY
     const uniRouter = new ethers.Contract(UNI_ROUTER_ADDRESS, UNI_ROUTER_ABI, lpSigner)
+    const PROTOCOL_FUND_ADDRESS = process.env.PROTOCOL_FUND_ADDRESS
+    const PROTOCOL_FUND_AMOUNT = process.env.PROTOCOL_FUND_AMOUNT
+    const DAO_TREASURY_ADDRESS = process.env.DAO_TREASURY_ADDRESS
 
     log(`11) Create Uniswap Market`)
     // Approve Uniswap router to move `TARGET_TOKEN_LIQUIDITY` tokens
@@ -106,7 +109,7 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
     const deadline = Date.now() + 1200
 
     // Create Uniswap market + provide initial liquidity
-    const result = await uniRouter.addLiquidityETH(archToken.address, TARGET_TOKEN_LIQUIDITY, TARGET_TOKEN_LIQUIDITY, TARGET_ETH_LIQUIDITY, admin, deadline, { value: TARGET_ETH_LIQUIDITY, gasLimit: 6000000 })
+    const result = await uniRouter.addLiquidityETH(archToken.address, TARGET_TOKEN_LIQUIDITY, TARGET_TOKEN_LIQUIDITY, TARGET_ETH_LIQUIDITY, liquidityProvider, deadline, { from: liquidityProvider, value: TARGET_ETH_LIQUIDITY, gasLimit: 6000000 })
     if (result.hash) {
         const receipt = await ethers.provider.waitForTransaction(result.hash)
         if(receipt.status) {
@@ -121,11 +124,21 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
         log(result)
     }
 
-    // Transfer remaining deployer balance to admin
-    log(`- Transferring remaining deployer Arch tokens to admin address: ${admin}`)
+    // Transfer Marketing and Development budget to PROTOCOL_FUND_ADDRESS
+    log(`- Transferring marketing and development budget to protocol fund address: ${PROTOCOL_FUND_ADDRESS}`)
+    let protocolBalance = await read('ArchToken', 'balanceOf', PROTOCOL_FUND_ADDRESS);
+    if(protocolBalance == 0) {
+      const decimals = await deployments.read('ArchToken', 'decimals')
+      const decimalMultiplier = ethers.BigNumber.from(10).pow(decimals)
+      const transferAmount = ethers.BigNumber.from(PROTOCOL_FUND_AMOUNT).mul(decimalMultiplier)
+      await execute('ArchToken', {from: deployer}, 'transfer', PROTOCOL_FUND_ADDRESS, transferAmount)
+    }
+
+    // Transfer remaining deployer balance to treasury
+    log(`- Transferring remaining deployer Arch tokens to treasury address: ${DAO_TREASURY_ADDRESS}`)
     let deployerBalance = await read('ArchToken', 'balanceOf', deployer);
     if(deployerBalance > 0) {
-      await execute('ArchToken', {from: deployer}, 'transfer', admin, deployerBalance);
+      await execute('ArchToken', {from: deployer}, 'transfer', DAO_TREASURY_ADDRESS, deployerBalance);
     }
 };
 

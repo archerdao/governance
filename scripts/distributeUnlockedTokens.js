@@ -32,7 +32,7 @@ async function distributeUnlockedTokens() {
         } else {
             continue
         }
-        const totalTokenAllocation = ethers.BigNumber.from(grant.amount).mul(decimalMultiplier)
+        const totalTokenAllocation = ethers.BigNumber.from(parseInt(grant.amount * 100)).mul(decimalMultiplier).div(100)
         const unlockedAmount = totalTokenAllocation.mul(unlockedPercentage).div(100);
         recipients.push(grant.recipient)
         amounts.push(unlockedAmount)

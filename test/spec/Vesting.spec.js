@@ -79,7 +79,7 @@ describe("Vesting", function() {
 
         for(const grant of tokenGrants) {
             let userVotesBefore = await votingPower.balanceOf(grant.recipient) 
-            let grantAmount = ethers.BigNumber.from(grant.amount).mul(ethers.BigNumber.from(10).pow(decimals))
+            let grantAmount = ethers.BigNumber.from(parseInt(grant.amount * 100)).mul(ethers.BigNumber.from(10).pow(decimals)).div(100)
             await vesting.addTokenGrant(grant.recipient, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)
             const newGrant = await vesting.getTokenGrant(grant.recipient)
             expect(newGrant[0]).to.eq(START_TIME)

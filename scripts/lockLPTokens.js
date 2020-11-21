@@ -4,6 +4,7 @@ const { ecsign } = require("ethereumjs-util")
 
 const { log } = deployments;
 const LIQUIDITY_PROVIDER_PRIVATE_KEY = process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY
+const DAO_TREASURY_ADDRESS = process.env.DAO_TREASURY_ADDRESS
 
 const UNI_PAIR_ABI = [
     {
@@ -97,7 +98,7 @@ async function lockLPTokens() {
     const deadline = Date.now() + 1200
 
     // Lock duration
-    const SIX_MONTHS_IN_SECS = 6 * 30 * 24 * 60 * 60;
+    const SIX_MONTHS_IN_DAYS = 6 * 30;
 
     const digest = ethers.utils.keccak256(
         ethers.utils.solidityPack(
@@ -119,9 +120,9 @@ async function lockLPTokens() {
     const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(LIQUIDITY_PROVIDER_PRIVATE_KEY, 'hex'))
 
     log(`- Locking LP tokens...`)
-    const result = await deployments.execute('Vault', {from: liquidityProvider, gasLimit: 3000000 }, 'lockTokensWithPermit', liquidityProvider, admin, 0, lpBalance, SIX_MONTHS_IN_SECS, deadline, v, r, s);
+    const result = await deployments.execute('Vault', {from: liquidityProvider, gasLimit: 3000000 }, 'lockTokensWithPermit', poolAddress, liquidityProvider, DAO_TREASURY_ADDRESS, 0, lpBalance, SIX_MONTHS_IN_DAYS, deadline, v, r, s);
     if(result.status) {
-        log(`- Locked ${lpBalance.toString()} tokens for ${admin} - Duration: ${SIX_MONTHS_IN_SECS}`)
+        log(`- Locked ${lpBalance.toString()} tokens for ${admin} - Duration: ${SIX_MONTHS_IN_DAYS}`)
     } else {
         log(`- There was an issue locking LP tokens`)
         log(result)
