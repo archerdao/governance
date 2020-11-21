@@ -1,14 +1,10 @@
 ## `ArchToken`
 
-n circulation
+The governance token for Archer DAO
 
-    uint256 public totalSupply = 100_000_000e18; // 100 million
+ERC-20 with supply controls + add-ons to allow for offchain signing
 
-Address which may mint/burn tokens
-
-    address public supplyManager;
-
-Address whic
+See EIP-712, EIP-2612, and EIP-3009 for details
 
 # Functions:
 
@@ -70,35 +66,47 @@ Address whic
 
 # Function `constructor(address _metadataManager, address _supplyManager, uint256 _firstSupplyChangeAllowed)` {#ArchToken-constructor-address-address-uint256-}
 
-emit Transfer(address(0), msg.sender, totalSupply);
+Construct a new Arch token
 
-        supplyChangeAllowedAfter = _firstSupplyChangeAllowed;
+## Parameters:
 
-        supplyManager = _supplyManager;
+- `_metadataManager`: The account with the ability to change token metadata
 
-        emit SupplyManagerChanged(address(0), _supplyManager);
+- `_supplyManager`: The address with minting ability
 
-        metadataManager = _metadataManager;
-
-        emit MetadataManagerCha
+- `_firstSupplyChangeAllowed`: The timestamp after which the first supply change may occur
 
 # Function `setSupplyManager(address newSupplyManager) → bool` {#ArchToken-setSupplyManager-address-}
 
-ress of the new metadata manager
+Change the supplyManager address
+
+## Parameters:
+
+- `newSupplyManager`: The address of the new supply manager
 
 ## Return Values:
 
 - true if successful
 
-/
-
-    function setMetadataManager(address newMetadataManager) external returns (bool) {
-
 # Function `setMetadataManager(address newMetadataManager) → bool` {#ArchToken-setMetadataManager-address-}
 
-e destination account
+Change the metadataManager address
 
 ## Parameters:
+
+- `newMetadataManager`: The address of the new metadata manager
+
+## Return Values:
+
+- true if successful
+
+# Function `mint(address dst, uint256 amount) → bool` {#ArchToken-mint-address-uint256-}
+
+Mint new tokens
+
+## Parameters:
+
+- `dst`: The address of the destination account
 
 - `amount`: The number of tokens to be minted
 
@@ -106,71 +114,77 @@ e destination account
 
 - Boolean indicating success of mint
 
-/
-
-    function mint(address dst, ui
-
-# Function `mint(address dst, uint256 amount) → bool` {#ArchToken-mint-address-uint256-}
-
-ck.timestamp >= supplyChangeAllowedAfter, "Arch::mint: minting not allowed yet");
-
-        // update the next supply change allowed timestamp
-
-        supplyChangeAllowedAfter = block.timestamp.add(supplyC
-
 # Function `burn(address src, uint256 amount) → bool` {#ArchToken-burn-address-uint256-}
 
-wed yet");
+Burn tokens
 
-        uint256 spenderAllowance = allowances[src][spender];
+## Parameters:
 
-        // check allowance and reduce by amount
+- `src`: The account that will burn tokens
 
-        if (spender != src && spenderAllowance != uint256(-1)) {
+- `amount`: The number of tokens to be burned
+
+## Return Values:
+
+- Boolean indicating success of burn
 
 # Function `setMintCap(uint16 newCap) → bool` {#ArchToken-setMintCap-uint16-}
 
-ng period
+Set the maximum amount of tokens that can be minted at once
+
+## Parameters:
+
+- `newCap`: The new mint cap in bips (10,000 bips = 1% of totalSupply)
+
+## Return Values:
+
+- true if successful
+
+# Function `setSupplyChangeWaitingPeriod(uint32 period) → bool` {#ArchToken-setSupplyChangeWaitingPeriod-uint32-}
+
+Set the minimum time between supply changes
+
+## Parameters:
+
+- `period`: The new supply change waiting period
 
 ## Return Values:
 
 - true if succssful
 
-/
-
-    function setSupplyChangeWaitingPeriod(uint32 period) external returns (bool) {
-
-        require(msg.sender == supplyManager, "Arch::setSupplyChang
-
-# Function `setSupplyChangeWaitingPeriod(uint32 period) → bool` {#ArchToken-setSupplyChangeWaitingPeriod-uint32-}
-
-);
-
-        supplyChangeWaitingPeriod = period;
-
-        return true;
-
-    }
-
-    /**
+# Function `updateTokenMetadata(string tokenName, string tokenSymbol) → bool` {#ArchToken-updateTokenMetadata-string-string-}
 
 Update the token name and symbol
 
 ## Parameters:
 
-- `tokenName`: The ne
+- `tokenName`: The new name for the token
 
-# Function `updateTokenMetadata(string tokenName, string tokenSymbol) → bool` {#ArchToken-updateTokenMetadata-string-string-}
+- `tokenSymbol`: The new symbol for the token
 
-he number of tokens `spender` is approved to spend on behalf of `account`
+## Return Values:
+
+- true if successful
+
+# Function `allowance(address account, address spender) → uint256` {#ArchToken-allowance-address-address-}
+
+Get the number of tokens `spender` is approved to spend on behalf of `account`
 
 ## Parameters:
 
 - `account`: The address of the account holding the funds
 
-- `spender`: The address of the account spending
+- `spender`: The address of the account spending the funds
 
-# Function `allowance(address account, address spender) → uint256` {#ArchToken-allowance-address-address-}
+## Return Values:
+
+- The number of tokens approved
+
+# Function `approve(address spender, uint256 amount) → bool` {#ArchToken-approve-address-uint256-}
+
+Approve `spender` to transfer up to `amount` from `src`
+
+This will overwrite the approval amount for `spender`
 
 and is subject to issues noted [here](https://eips.ethereum.org/EIPS/eip-20#approve)
 
@@ -180,19 +194,13 @@ It is recommended to use increaseAllowance and decreaseAllowance instead
 
 - `spender`: The address of the account which may transfer tokens
 
-- `amount`: The number of tokens t
+- `amount`: The number of tokens that are approved (2^256-1 means infinite)
 
-# Function `approve(address spender, uint256 amount) → bool` {#ArchToken-approve-address-uint256-}
+## Return Values:
 
-256 amount) external returns (bool) {
+- Whether or not the approval succeeded
 
-        _approve(msg.sender, spender, amount);
-
-        return true;
-
-    }
-
-    /**
+# Function `increaseAllowance(address spender, uint256 addedValue) → bool` {#ArchToken-increaseAllowance-address-uint256-}
 
 Increase the allowance by a given amount
 
@@ -206,45 +214,29 @@ Increase the allowance by a given amount
 
 - True if successful
 
-/
-
-    function increaseAllowance(address spender, uint256 addedValue)
-
-        external
-
-        returns (bool)
-
-    {
-
-        _increaseAllowance(msg.sender, spender, addedValue);
-
-        return true;
-
-    }
-
-    /**
-
-# Function `increaseAllowance(address spender, uint256 addedValue) → bool` {#ArchToken-increaseAllowance-address-uint256-}
-
-return True if successful
-
-/
-
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-
-        external
-
-        returns (bool)
-
-    {
-
-        _decreaseAllowance(msg.sender, spende
-
 # Function `decreaseAllowance(address spender, uint256 subtractedValue) → bool` {#ArchToken-decreaseAllowance-address-uint256-}
 
-ved
+Decrease the allowance by a given amount
 
 ## Parameters:
+
+- `spender`: Spender's address
+
+- `subtractedValue`: Amount of decrease in allowance
+
+## Return Values:
+
+- True if successful
+
+# Function `permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)` {#ArchToken-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}
+
+Triggers an approval from owner to spender
+
+## Parameters:
+
+- `owner`: The address to approve from
+
+- `spender`: The address to be approved
 
 - `value`: The number of tokens that are approved (2^256-1 means infinite)
 
@@ -252,21 +244,11 @@ ved
 
 - `v`: The recovery byte of the signature
 
-# Function `permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)` {#ArchToken-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}
+- `r`: Half of the ECDSA signature pair
 
-2 s) external {
+- `s`: Half of the ECDSA signature pair
 
-        require(deadline >= block.timestamp, "Arch::permit: signature expired");
-
-        bytes32 encodeData = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline));
-
-        _validateSignedData(owner, encodeData, v, r, s);
-
-        _approve(owner, spender, value);
-
-    }
-
-    /**
+# Function `balanceOf(address account) → uint256` {#ArchToken-balanceOf-address-}
 
 Get the number of tokens held by the `account`
 
@@ -274,25 +256,17 @@ Get the number of tokens held by the `account`
 
 - `account`: The address of the account to get the balance of
 
-# Function `balanceOf(address account) → uint256` {#ArchToken-balanceOf-address-}
+## Return Values:
 
-st, uint256 amount) external returns (bool) {
-
-        _transferTokens(msg.sender, dst, amount);
-
-        return true;
-
-    }
-
-    /**
-
-Transfer `amount` tokens from `src` to
+- The number of tokens held
 
 # Function `transfer(address dst, uint256 amount) → bool` {#ArchToken-transfer-address-uint256-}
 
-No description
+Transfer `amount` tokens from `msg.sender` to `dst`
 
 ## Parameters:
+
+- `dst`: The address of the destination account
 
 - `amount`: The number of tokens to transfer
 
@@ -300,156 +274,106 @@ No description
 
 - Whether or not the transfer succeeded
 
-/
-
-    function transferFrom(address src, address dst, uint256 amount) external returns (bool) {
-
-        address spender = msg.send
-
 # Function `transferFrom(address src, address dst, uint256 amount) → bool` {#ArchToken-transferFrom-address-address-uint256-}
 
-nce = spenderAllowance.sub(
+Transfer `amount` tokens from `src` to `dst`
 
-                amount,
+## Parameters:
 
-                "Arch::transferFrom: transfer amount exceeds allowance"
+- `src`: The address of the source account
 
-            );
+- `dst`: The address of the destination account
 
-            allowances[src][spender] = newAllowance;
+- `amount`: The number of tokens to transfer
 
-            emit Approval(src, spender, newAllowance);
+## Return Values:
 
-        }
-
-        _transferTokens(src,
+- Whether or not the transfer succeeded
 
 # Function `transferWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)` {#ArchToken-transferWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-}
 
-ress from,
+Transfer tokens with a signed authorization
 
-        address to,
+## Parameters:
 
-        uint256 value,
+- `from`: Payer's address (Authorizer)
 
-        uint256 validAfter,
+- `to`: Payee's address
 
-        uint256 validBefore,
+- `value`: Amount to be transferred
 
-        bytes32 nonce,
+- `validAfter`: The time after which this is valid (unix time)
 
-        uint8 v,
+- `validBefore`: The time before which this is valid (unix time)
 
-        bytes32 r,
+- `nonce`: Unique nonce
 
-        bytes32 s
+- `v`: The recovery byte of the signature
 
-    )
+- `r`: Half of the ECDSA signature pair
 
-        external
-
-    {
-
-        require(block.timestamp > validAfter, "Arch::transferWithAuth: auth not yet valid");
-
-        require(block.timestamp < validBefore, "Arch::transferWithAuth: auth expired");
-
-        require(!authorizationState[from][nonce],  "Arch::transferWithAuth: auth already used");
-
-        bytes32 encodeData =
+- `s`: Half of the ECDSA signature pair
 
 # Function `receiveWithAuthorization(address from, address to, uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce, uint8 v, bytes32 r, bytes32 s)` {#ArchToken-receiveWithAuthorization-address-address-uint256-uint256-uint256-bytes32-uint8-bytes32-bytes32-}
 
-No description
+Receive a transfer with a signed authorization from the payer
+
+This has an additional check to ensure that the payee's address matches
+
+the caller of this function to prevent front-running attacks.
 
 ## Parameters:
+
+- `from`: Payer's address (Authorizer)
+
+- `to`: Payee's address
+
+- `value`: Amount to be transferred
+
+- `validAfter`: The time after which this is valid (unix time)
+
+- `validBefore`: The time before which this is valid (unix time)
+
+- `nonce`: Unique nonce
+
+- `v`: v of the signature
 
 - `r`: r of the signature
 
 - `s`: s of the signature
 
-/
-
-    function receiveWithAuthorization(
-
-        address from,
-
-        address to,
-
-        uint256 value,
-
-        uint256 validAfter,
-
-        uint256 validBefore,
-
-        bytes32 nonce,
-
-        uint8 v,
-
-        bytes32 r,
-
-        bytes32 s
-
-    ) external {
-
-        require(to == msg.sender, "Arch::receiveWithAuth: caller must be the payee");
-
-        require(block.timestamp > validAfter, "Arch::receiveWithAuth: auth not yet valid");
-
-        require(block.timestamp < validBefore, "Arch::receiveWithAuth: auth expired");
-
-        require(!authorizationState[from][nonce],  "Arc
-
 # Function `getDomainSeparator() → bytes32` {#ArchToken-getDomainSeparator--}
 
-No description
-
-## Parameters:
-
-- `v`: The recovery byte of the signature
-
-- `r`: Half of t
+EIP-712 Domain separator
 
 # Event `MintCapChanged(uint16 oldMintCap, uint16 newMintCap)` {#ArchToken-MintCapChanged-uint16-uint16-}
 
-r address is changed
-
-    event MetadataManagerChanged(address i
+An event that's emitted when the mintCap is changed
 
 # Event `SupplyManagerChanged(address oldManager, address newManager)` {#ArchToken-SupplyManagerChanged-address-address-}
 
-ed when the token name and symbol are changed
-
-    event TokenMetaUpdated(stri
+An event that's emitted when the supplyManager address is changed
 
 # Event `SupplyChangeWaitingPeriodChanged(uint32 oldWaitingPeriod, uint32 newWaitingPeriod)` {#ArchToken-SupplyChangeWaitingPeriodChanged-uint32-uint32-}
 
-event Transfer(address indexed from, address indexed to, uint256 value);
+An event that's emitted when the supplyChangeWaitingPeriod is changed
 
 # Event `MetadataManagerChanged(address oldManager, address newManager)` {#ArchToken-MetadataManagerChanged-address-address-}
 
-nt256 value);
-
-An event that's emitted whenever an authorized t
+An event that's emitted when the metadataManager address is changed
 
 # Event `TokenMetaUpdated(string name, string symbol)` {#ArchToken-TokenMetaUpdated-string-string-}
 
-/**
-
-Construct a new Arch token
+An event that's emitted when the token name and symbol are changed
 
 # Event `Transfer(address from, address to, uint256 value)` {#ArchToken-Transfer-address-address-uint256-}
 
-Manager The address with minting ability
+The standard EIP-20 transfer event
 
 # Event `Approval(address owner, address spender, uint256 value)` {#ArchToken-Approval-address-address-uint256-}
 
-e may occur
-
-/
-
-    constructor(address _m
+The standard EIP-20 approval event
 
 # Event `AuthorizationUsed(address authorizer, bytes32 nonce)` {#ArchToken-AuthorizationUsed-address-bytes32-}
 
-ire(_firstSupplyChangeAllowed >= block.timestamp, "Arch::constructor: mint
+An event that's emitted whenever an authorized transfer occurs
