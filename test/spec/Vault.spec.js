@@ -39,7 +39,7 @@ describe("Vault", function() {
         it("creates valid lock of Arch tokens", async function() {
             await archToken.approve(vault.address, ethers.constants.MaxUint256)
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -59,7 +59,7 @@ describe("Vault", function() {
         it("does not allow a lock with a duration of 0", async function() {
             await archToken.approve(vault.address, ethers.constants.MaxUint256)
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 0
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -72,7 +72,7 @@ describe("Vault", function() {
         it("does not allow a lock with a duration of > 25 years", async function() {
             await archToken.approve(vault.address, ethers.constants.MaxUint256)
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 26 * 365
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -85,7 +85,7 @@ describe("Vault", function() {
         it("does not allow a lock of 0", async function() {
             await archToken.approve(vault.address, ethers.constants.MaxUint256)
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(0).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -99,7 +99,7 @@ describe("Vault", function() {
             await archToken.approve(vault.address, ethers.constants.MaxUint256)
             await archToken.transfer(bob.address, await archToken.balanceOf(deployer.address))
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -113,7 +113,7 @@ describe("Vault", function() {
     context("lockTokensWithPermit", async () => {
         it("creates valid lock of Arch tokens", async function() {
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -160,7 +160,7 @@ describe("Vault", function() {
 
         it("does not allow a lock with a duration of 0", async function() {
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 0
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -200,7 +200,7 @@ describe("Vault", function() {
 
         it("does not allow a lock with a duration of > 25 years", async function() {
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 26 * 365
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -239,7 +239,7 @@ describe("Vault", function() {
         })
 
         it("does not allow a lock of 0", async function() {
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(0)
@@ -278,7 +278,7 @@ describe("Vault", function() {
 
         it("does not allow a lock when locker has insufficient balance", async function() {
             let decimals = await archToken.decimals()
-            const START_TIME = Date.now() + 21600
+            const START_TIME = parseInt(Date.now() / 1000) + 21600
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))

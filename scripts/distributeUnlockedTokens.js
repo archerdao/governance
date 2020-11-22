@@ -49,7 +49,7 @@ async function distributeUnlockedTokens() {
     const nonce = await deployments.read('ArchToken', 'nonces', deployer)
 
     // Deadline for distributing tokens = now + 20 minutes
-    const deadline = Date.now() + 1200
+    const deadline = parseInt(Date.now() / 1000) + 1200
 
     const digest = ethers.utils.keccak256(
         ethers.utils.solidityPack(

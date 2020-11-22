@@ -49,7 +49,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -72,7 +72,7 @@ describe("Vesting", function() {
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         const tokenGrants = JSON.parse(fs.readFileSync(`./grants/${network.name}.json`, 'utf-8'))
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -97,7 +97,7 @@ describe("Vesting", function() {
       it("does not allow non-owner to create a grant", async function() {
         await archToken.connect(bob).approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -117,7 +117,7 @@ describe("Vesting", function() {
       it("does not allow a grant before voting power contract is specified", async function() {
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -138,7 +138,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 12 * 365
         const VESTING_CLIFF_IN_DAYS = 11 * 365
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -159,7 +159,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 0
         const VESTING_CLIFF_IN_DAYS = 0
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -180,7 +180,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 26 * 365
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -201,7 +201,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 5
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -222,7 +222,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -254,7 +254,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -275,7 +275,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -297,7 +297,7 @@ describe("Vesting", function() {
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         await archToken.transfer(bob.address, await archToken.balanceOf(deployer.address))
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let totalVested = await archToken.balanceOf(vesting.address)
@@ -320,7 +320,7 @@ describe("Vesting", function() {
         await vesting.setVotingPowerContract(votingPower.address)
         await archToken.approve(vesting.address, ethers.constants.MaxUint256)
         let decimals = await archToken.decimals()
-        const START_TIME = Date.now() + 21600
+        const START_TIME = parseInt(Date.now() / 1000) + 21600
         const VESTING_DURATION_IN_DAYS = 4
         const VESTING_CLIFF_IN_DAYS = 1
         let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))

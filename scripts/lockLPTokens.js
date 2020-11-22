@@ -95,7 +95,7 @@ async function lockLPTokens() {
     const nonce = await uniPool.nonces(liquidityProvider)
 
     // Deadline for distributing tokens = now + 20 minutes
-    const deadline = Date.now() + 1200
+    const deadline = parseInt(Date.now() / 1000) + 1200
 
     // Lock duration
     const SIX_MONTHS_IN_DAYS = 6 * 30;

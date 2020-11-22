@@ -37,7 +37,7 @@ async function addGrants(startTime) {
 }
 
 if (require.main === module) {
-    const startTime = Date.now() + 21600
+    const startTime = parseInt(Date.now() / 1000) + 21600
     addGrants(startTime)
 }
 

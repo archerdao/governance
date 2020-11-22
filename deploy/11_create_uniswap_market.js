@@ -106,7 +106,7 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
     await weth.approve(UNI_ROUTER_ADDRESS, TARGET_ETH_LIQUIDITY)
 
     // Deadline for adding liquidity = now + 20 minutes
-    const deadline = Date.now() + 1200
+    const deadline = parseInt(Date.now() / 1000) + 1200
 
     // Create Uniswap market + provide initial liquidity
     const result = await uniRouter.addLiquidityETH(archToken.address, TARGET_TOKEN_LIQUIDITY, TARGET_TOKEN_LIQUIDITY, TARGET_ETH_LIQUIDITY, liquidityProvider, deadline, { from: liquidityProvider, value: TARGET_ETH_LIQUIDITY, gasLimit: 6000000 })

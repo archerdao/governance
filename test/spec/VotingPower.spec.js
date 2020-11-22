@@ -294,7 +294,7 @@ describe("VotingPower", function() {
                 await vesting.setVotingPowerContract(votingPower.address)
                 await archToken.approve(vesting.address, ethers.constants.MaxUint256)
                 let decimals = await archToken.decimals()
-                const START_TIME = Date.now() + 21600
+                const START_TIME = parseInt(Date.now() / 1000) + 21600
                 const VESTING_DURATION_IN_DAYS = 4
                 const VESTING_CLIFF_IN_DAYS = 1
                 let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
