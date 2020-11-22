@@ -96,6 +96,15 @@ task("accounts", "Prints the list of accounts", async () => {
 // Documentation: https://hardhat.org/config/
 // Deploy add-ons: https://hardhat.org/plugins/hardhat-deploy.html
 module.exports = {
+  solidity: {
+    version: "0.7.4",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 999999
+      }
+    }
+  },
   defaultNetwork: "hardhat",
   networks: {
     hardhat: hardhatConfig,
@@ -147,12 +156,5 @@ module.exports = {
     coinmarketcap: CMC_API_KEY,
     currency: 'USD',
     showTimeSpent: true
-  },
-  solidity: "0.7.4",
-  settings: {
-    optimizer: {
-      enabled: true,
-      runs: 9999
-    }
   }
 };

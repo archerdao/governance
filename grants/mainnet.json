@@ -1,0 +1,312 @@
+[
+    {
+        "amount": "25000.00",
+        "recipient": "0x101f8e3d561d6fF98568bB1364974c16062f1648",
+        "class": "unlocked"
+    },
+    {
+        "amount": "45000.00",
+        "recipient": "0x0783ABC1e6f1eb93b80024a056492e314D949986",
+        "class": "unlocked"
+    },
+    {
+        "amount": "25000.00",
+        "recipient": "0x34159019E86053bC77a4f8761Dc58a34b2B6e862",
+        "class": "unlocked"
+    },
+    {
+        "amount": "25000.00",
+        "recipient": "0xCb9ecadf773322610F94BdC8B5aF1D125613DA77",
+        "class": "unlocked"
+    },
+    {
+        "amount": "25000.00",
+        "recipient": "0x68040792AaBB6cf790512cbEb9259C9e0367127B",
+        "class": "unlocked"
+    },
+    {
+        "amount": "27500.00",
+        "recipient": "0xfb1809e05a4d99df560737696dd0204b01f0faed",
+        "class": "unlocked"
+    },
+    {
+        "amount": "60000.00",
+        "recipient": "0x566642f847a8e3F26A1a01168a6c35B03B474048",
+        "class": "unlocked"
+    },
+    {
+        "amount": "55000.00",
+        "recipient": "0x946676fe8a18133B7a7e59B6a494E63b4aa6ABBb",
+        "class": "unlocked"
+    },
+    {
+        "amount": "17500.00",
+        "recipient": "0xbdfc67d272b9227C3768FF4691d44cc255E9709C",
+        "class": "unlocked"
+    },
+    {
+        "amount": "25000.00",
+        "recipient": "0xBF63a30d911ef4a3d73c9e3BF3d8012E93d6ded3",
+        "class": "unlocked"
+    },
+    {
+        "amount": "25000.00",
+        "recipient": "0xb39059Cf4328FF113033e28beBc2d374a90b7186",
+        "class": "unlocked"
+    },
+    {
+        "amount": "25000.00",
+        "recipient": "0xe77f7569475d7c2590096cbe04730b33951cfc98",
+        "class": "unlocked"
+    },
+    {
+        "amount": "45000.00",
+        "recipient": "0xa70e6fE4488104Be32B9B657F5Be7B68aFc17f9a",
+        "class": "unlocked"
+    },
+    {
+        "amount": "50000.00",
+        "recipient": "0xbe568AbE2E3F07FC8265FA4622283255306bD755",
+        "class": "unlocked"
+    },
+    {
+        "amount": "5000.00",
+        "recipient": "0x439b4225f90AA851d3Bfa16d02eBEbCcF9b1676B",
+        "class": "unlocked"
+    },
+    {
+        "amount": "25000.00",
+        "recipient": "0x72659E10FFa1098930B46c71f57A37AF06b68fa2",
+        "class": "unlocked"
+    },
+    {
+        "amount": "50000.00",
+        "recipient": "0x8916b776A40d6Db84c271E63465f969B6C59B634",
+        "class": "unlocked"
+    },
+    {
+        "amount": "195000.00",
+        "recipient": "0x48Bb09e139b82A6a799b6586f8cD00f9B6d5ce77",
+        "class": "unlocked"
+    },
+    {
+        "amount": "125000.00",
+        "recipient": "0x101f8e3d561d6fF98568bB1364974c16062f1648",
+        "class": "vesting"
+    },
+    {
+        "amount": "83333.33",
+        "recipient": "0x0783ABC1e6f1eb93b80024a056492e314D949986",
+        "class": "vesting"
+    },
+    {
+        "amount": "41666.67",
+        "recipient": "0x34159019E86053bC77a4f8761Dc58a34b2B6e862",
+        "class": "vesting"
+    },
+    {
+        "amount": "41666.67",
+        "recipient": "0xCb9ecadf773322610F94BdC8B5aF1D125613DA77",
+        "class": "vesting"
+    },
+    {
+        "amount": "75000.00",
+        "recipient": "0x68040792AaBB6cf790512cbEb9259C9e0367127B",
+        "class": "vesting"
+    },
+    {
+        "amount": "41666.67",
+        "recipient": "0xE88384BF98D5cC9Fd4e818f426E1E08Ec6Ff34f5",
+        "class": "vesting"
+    },
+    {
+        "amount": "100000.00",
+        "recipient": "0xfb1809e05a4d99df560737696dd0204b01f0faed",
+        "class": "vesting"
+    },
+    {
+        "amount": "75000.00",
+        "recipient": "0x566642f847a8e3F26A1a01168a6c35B03B474048",
+        "class": "vesting"
+    },
+    {
+        "amount": "75000.00",
+        "recipient": "0x946676fe8a18133B7a7e59B6a494E63b4aa6ABBb",
+        "class": "vesting"
+    },
+    {
+        "amount": "58333.33",
+        "recipient": "0xbdfc67d272b9227C3768FF4691d44cc255E9709C",
+        "class": "vesting"
+    },
+    {
+        "amount": "41666.67",
+        "recipient": "0xBF63a30d911ef4a3d73c9e3BF3d8012E93d6ded3",
+        "class": "vesting"
+    },
+    {
+        "amount": "75000.00",
+        "recipient": "0xe77f7569475d7c2590096cbe04730b33951cfc98",
+        "class": "vesting"
+    },
+    {
+        "amount": "83333.33",
+        "recipient": "0xa70e6fE4488104Be32B9B657F5Be7B68aFc17f9a",
+        "class": "vesting"
+    },
+    {
+        "amount": "3500000.00",
+        "recipient": "0x7d81ce4fe23a78e5bb6fbcff31ade1d60f369554",
+        "class": "vesting"
+    },
+    {
+        "amount": "200000.00",
+        "recipient": "0x9B68CEd9a7D1881E3E0d1A0f2833916CD9136FE9",
+        "class": "vesting"
+    },
+    {
+        "amount": "425000.00",
+        "recipient": "0x7cf20a1bb4cae92df714eaf760814860ed5f785f",
+        "class": "vesting"
+    },
+    {
+        "amount": "416666.67",
+        "recipient": "0xA990a11a18b52D2945760D91DCfceF949A81424e",
+        "class": "vesting"
+    },
+    {
+        "amount": "416666.67",
+        "recipient": "0xf96da4775776ea43c42795b116c7a6eccd6e71b5",
+        "class": "vesting"
+    },
+    {
+        "amount": "41666.67",
+        "recipient": "0xe9c0f4667b51a4fd4f4fa7ea0055efb01b01f89d",
+        "class": "vesting"
+    },
+    {
+        "amount": "83333.33",
+        "recipient": "0xEef31F9F962F22Cc0531fAa14ABCE35A9854e952",
+        "class": "vesting"
+    },
+    {
+        "amount": "833333.33",
+        "recipient": "0xafa64cca337efee0ad827f6c2684e69275226e90",
+        "class": "vesting"
+    },
+    {
+        "amount": "41666.67",
+        "recipient": "0xb5d9c1cde53c0e2d1987a1680b242d576f884df9",
+        "class": "vesting"
+    },
+    {
+        "amount": "208333.33",
+        "recipient": "0x7bd1907d1c724ca15b1c09fbaee3570eeb33f64c",
+        "class": "vesting"
+    },
+    {
+        "amount": "83333.33",
+        "recipient": "0x0B5D1A5a58Ca0586cd33050DBC51927A25F32081",
+        "class": "vesting"
+    },
+    {
+        "amount": "250000.00",
+        "recipient": "0x84674B406b87941bcFe71742931328D06D02856D",
+        "class": "vesting"
+    },
+    {
+        "amount": "166666.67",
+        "recipient": "0x77b07b17ba1f2ca021d304bb268de77074797ce8",
+        "class": "vesting"
+    },
+    {
+        "amount": "83333.33",
+        "recipient": "0xFC4656E9b916B2cBC4aa0E870ba4D9A46c8b59a9",
+        "class": "vesting"
+    },
+    {
+        "amount": "416666.67",
+        "recipient": "0x23b4cD421B7cB7d274689B2A7c100BAF8546941B",
+        "class": "vesting"
+    },
+    {
+        "amount": "83333.33",
+        "recipient": "0x7a39c3128cb7cce2284168f0d399db4b9b3da17d",
+        "class": "vesting"
+    },
+    {
+        "amount": "83333.33",
+        "recipient": "0xc2fA98A97cfBad1686E95441e5f187d419bF2c77",
+        "class": "vesting"
+    },
+    {
+        "amount": "333333.33",
+        "recipient": "0xEE338A4307544F7AC4E8569311DCCB7FCC59A00D",
+        "class": "vesting"
+    },
+    {
+        "amount": "416666.67",
+        "recipient": "0x11682B0b03F182F637DF074E69916a90a051e880",
+        "class": "vesting"
+    },
+    {
+        "amount": "416666.67",
+        "recipient": "0x7B8A7D9e7c51906B7A5816192f138d7ed69Fdaaa",
+        "class": "vesting"
+    },
+    {
+        "amount": "1833333.33",
+        "recipient": "0x13d5b8fc84f73fc5a0a5832aa8373044371314d3",
+        "class": "unlocked"
+    },
+    {
+        "amount": "2000000.00",
+        "recipient": "0x848Df9eFee9Fe8b473Ad456CFd46364461B5BC75",
+        "class": "team"
+    },
+    {
+        "amount": "2000000.00",
+        "recipient": "0x8d775aeA4533253327FE70be28F6a56166ddD951",
+        "class": "team"
+    },
+    {
+        "amount": "2000000.00",
+        "recipient": "0x78d8e8807f652b54afe33b7645a26c5ffae5291c",
+        "class": "team"
+    },
+    {
+        "amount": "2000000.00",
+        "recipient": "0x4530B100BF6400268E22fE64d7548fFaafA8dC39",
+        "class": "team"
+    },
+    {
+        "amount": "1000000.00",
+        "recipient": "0xE3f21287432Fd26A0e6Ed5B3Fc508673D9119c27",
+        "class": "team"
+    },
+    {
+        "amount": "100000.00",
+        "recipient": "0x7d630c6570d147c0a4D0dceB379AF2bb2AA633AC",
+        "class": "team"
+    },
+    {
+        "amount": "1000000.00",
+        "recipient": "0xA00373e6cfDC3839619Bf2B645C2028ca83f7580",
+        "class": "team"
+    },
+    {
+        "amount": "200000.00",
+        "recipient": "0x2363AB774b4038A9068e45335Bcf1A805Eb602aB",
+        "class": "team"
+    },
+    {
+        "amount": "500000.00",
+        "recipient": "0x864A83A7581BD07b214d0833481cFB21d2D18286",
+        "class": "team"
+    },
+    {
+        "amount": "2200000.00",
+        "recipient": "0x13d5b8fc84f73fc5a0a5832aa8373044371314d3",
+        "class": "team"
+    }
+]

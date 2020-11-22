@@ -5,10 +5,10 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
 
     log(`8) Create Grants`)
     // Set start time for grants at now + 48 hours
-    const delay = 48 * 60 * 60
-    const startTime = parseInt(Date.now() / 1000) + delay
+    // const delay = 48 * 60 * 60
+    // const startTime = parseInt(Date.now() / 1000) + delay
     // Create grants from file
-    await addGrants(startTime)
+    await addGrants(0)
     log(`- Done creating grants`)
     // Change vesting owner
     log(`- Changing vesting contract owner to admin address: ${admin}`)

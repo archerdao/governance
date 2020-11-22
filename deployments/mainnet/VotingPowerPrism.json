@@ -1,0 +1,372 @@
+{
+  "address": "0x000100bB517E0c003200502A822083000a3B005d",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_admin",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAdmin",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAdmin",
+          "type": "address"
+        }
+      ],
+      "name": "NewAdmin",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldImplementation",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "NewImplementation",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldPendingAdmin",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newPendingAdmin",
+          "type": "address"
+        }
+      ],
+      "name": "NewPendingAdmin",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldPendingImplementation",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newPendingImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "NewPendingImplementation",
+      "type": "event"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "inputs": [],
+      "name": "acceptProxyAdmin",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "acceptProxyImplementation",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingProxyAdmin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingProxyImplementation",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proxyAdmin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proxyImplementation",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proxyImplementationVersion",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPendingAdmin",
+          "type": "address"
+        }
+      ],
+      "name": "setPendingProxyAdmin",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPendingImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "setPendingProxyImplementation",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0x5feb9fd9365bbbbd46e6ab1afa7b01de5a615e00d5ac1ef50764cde6022a8609",
+  "receipt": {
+    "to": null,
+    "from": "0x5b0aC3279dBf84Bb8DA59Be1EcaB118198f022E5",
+    "contractAddress": "0x000100bB517E0c003200502A822083000a3B005d",
+    "transactionIndex": 91,
+    "gasUsed": "635812",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x8e3c13e96a0f6e94c3ff098ba6add7670dc9f78948595740c0b418dee9aae804",
+    "transactionHash": "0x5feb9fd9365bbbbd46e6ab1afa7b01de5a615e00d5ac1ef50764cde6022a8609",
+    "logs": [],
+    "blockNumber": 11309838,
+    "cumulativeGasUsed": "7561041",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x4F8f512Dab59F227EA70B1D8A0044aFa95CC80C3"
+  ],
+  "solcInputHash": "5bf4568ab804ae51559c23ee44b86063",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.4+commit.3f05b770\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_admin\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAdmin\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAdmin\",\"type\":\"address\"}],\"name\":\"NewAdmin\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldImplementation\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"}],\"name\":\"NewImplementation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldPendingAdmin\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newPendingAdmin\",\"type\":\"address\"}],\"name\":\"NewPendingAdmin\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldPendingImplementation\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newPendingImplementation\",\"type\":\"address\"}],\"name\":\"NewPendingImplementation\",\"type\":\"event\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"acceptProxyAdmin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"acceptProxyImplementation\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pendingProxyAdmin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pendingProxyImplementation\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proxyAdmin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proxyImplementation\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proxyImplementationVersion\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPendingAdmin\",\"type\":\"address\"}],\"name\":\"setPendingProxyAdmin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPendingImplementation\",\"type\":\"address\"}],\"name\":\"setPendingProxyImplementation\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"details\":\"Storage for voting power is at this address, while execution is delegated to the prism proxy implementation contract All contracts that use voting power should reference this contract.\",\"kind\":\"dev\",\"methods\":{\"acceptProxyAdmin()\":{\"details\":\"Admin function for pending admin to accept role and update admin\",\"returns\":{\"_0\":\"boolean indicating success of operation\"}},\"acceptProxyImplementation()\":{\"details\":\"Admin function for new implementation to accept it's role as implementation\",\"returns\":{\"_0\":\"boolean indicating success of operation\"}},\"constructor\":{\"details\":\"Sets initial proxy admin to `_admin`\",\"params\":{\"_admin\":\"Initial proxy admin\"}},\"pendingProxyAdmin()\":{\"returns\":{\"_0\":\"admin address\"}},\"pendingProxyImplementation()\":{\"returns\":{\"_0\":\"pending implementation address\"}},\"proxyAdmin()\":{\"returns\":{\"_0\":\"admin address\"}},\"proxyImplementation()\":{\"returns\":{\"_0\":\"implementation address\"}},\"proxyImplementationVersion()\":{\"returns\":{\"_0\":\"version number\"}},\"setPendingProxyAdmin(address)\":{\"details\":\"Admin function to begin change of admin. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.\",\"params\":{\"newPendingAdmin\":\"New pending admin.\"},\"returns\":{\"_0\":\"boolean indicating success of operation\"}},\"setPendingProxyImplementation(address)\":{\"details\":\"Admin function for proposing new implementation contract\",\"returns\":{\"_0\":\"boolean indicating success of operation\"}}},\"title\":\"VotingPowerPrism\",\"version\":1},\"userdoc\":{\"events\":{\"NewAdmin(address,address)\":{\"notice\":\"Emitted when pendingAdmin is accepted, which means admin is updated\"},\"NewImplementation(address,address)\":{\"notice\":\"Emitted when pendingImplementation is accepted, which means implementation is updated\"},\"NewPendingAdmin(address,address)\":{\"notice\":\"Emitted when pendingAdmin is changed\"},\"NewPendingImplementation(address,address)\":{\"notice\":\"Emitted when pendingImplementation is changed\"}},\"kind\":\"user\",\"methods\":{\"acceptProxyAdmin()\":{\"notice\":\"Accepts transfer of admin rights. msg.sender must be pendingAdmin\"},\"acceptProxyImplementation()\":{\"notice\":\"Accepts new implementation for prism. msg.sender must be pendingImplementation\"},\"constructor\":{\"notice\":\"Construct a new Voting Power Prism Proxy\"},\"pendingProxyAdmin()\":{\"notice\":\"Get pending admin for prism proxy\"},\"pendingProxyImplementation()\":{\"notice\":\"Address of pending implementation contract\"},\"proxyAdmin()\":{\"notice\":\"Get current admin for prism proxy\"},\"proxyImplementation()\":{\"notice\":\"Address of implementation contract\"},\"proxyImplementationVersion()\":{\"notice\":\"Current implementation version for proxy\"},\"setPendingProxyAdmin(address)\":{\"notice\":\"Begins transfer of admin rights. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.\"},\"setPendingProxyImplementation(address)\":{\"notice\":\"Create new pending implementation for prism. msg.sender must be admin\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/VotingPowerPrism.sol\":\"VotingPowerPrism\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":999999},\"remappings\":[]},\"sources\":{\"contracts/VotingPowerPrism.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\npragma experimental ABIEncoderV2;\\n\\nimport \\\"./lib/PrismProxy.sol\\\";\\n\\n/**\\n * @title VotingPowerPrism\\n * @dev Storage for voting power is at this address, while execution is delegated to the prism proxy implementation contract\\n * All contracts that use voting power should reference this contract.\\n */\\ncontract VotingPowerPrism is PrismProxy {\\n\\n    /**\\n     * @notice Construct a new Voting Power Prism Proxy\\n     * @dev Sets initial proxy admin to `_admin`\\n     * @param _admin Initial proxy admin\\n     */\\n    constructor(address _admin) {\\n        // Initialize storage\\n        ProxyStorage storage s = proxyStorage();\\n        // Set initial proxy admin\\n        s.admin = _admin;\\n    }\\n\\n    /**\\n     * @notice Forwards call to implementation contract\\n     */\\n    receive() external payable {\\n        _forwardToImplementation();\\n    }\\n\\n    /**\\n     * @notice Forwards call to implementation contract\\n     */\\n    fallback() external payable {\\n        _forwardToImplementation();\\n    }\\n}\\n\",\"keccak256\":\"0x47754c3c41c6f576a0350e86f7894daf6fd841a41f38fc32d0ee21772c2e024b\",\"license\":\"MIT\"},\"contracts/lib/PrismProxy.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\npragma experimental ABIEncoderV2;\\n\\ncontract PrismProxy {\\n\\n    /// @notice Proxy admin and implementation storage variables\\n    struct ProxyStorage {\\n        // Administrator for this contract\\n        address admin;\\n\\n        // Pending administrator for this contract\\n        address pendingAdmin;\\n\\n        // Active implementation of this contract\\n        address implementation;\\n\\n        // Pending implementation of this contract\\n        address pendingImplementation;\\n\\n        // Implementation version of this contract\\n        uint8 version;\\n    }\\n\\n    /// @dev Position in contract storage where prism ProxyStorage struct will be stored\\n    bytes32 constant PRISM_PROXY_STORAGE_POSITION = keccak256(\\\"prism.proxy.storage\\\");\\n\\n    /// @notice Emitted when pendingImplementation is changed\\n    event NewPendingImplementation(address indexed oldPendingImplementation, address indexed newPendingImplementation);\\n\\n    /// @notice Emitted when pendingImplementation is accepted, which means implementation is updated\\n    event NewImplementation(address indexed oldImplementation, address indexed newImplementation);\\n\\n    /// @notice Emitted when pendingAdmin is changed\\n    event NewPendingAdmin(address indexed oldPendingAdmin, address indexed newPendingAdmin);\\n\\n    /// @notice Emitted when pendingAdmin is accepted, which means admin is updated\\n    event NewAdmin(address indexed oldAdmin, address indexed newAdmin);\\n\\n    /**\\n     * @notice Load proxy storage struct from specified PRISM_PROXY_STORAGE_POSITION\\n     * @return ps ProxyStorage struct\\n     */\\n    function proxyStorage() internal pure returns (ProxyStorage storage ps) {        \\n        bytes32 position = PRISM_PROXY_STORAGE_POSITION;\\n        assembly {\\n            ps.slot := position\\n        }\\n    }\\n\\n    /*** Admin Functions ***/\\n    \\n    /**\\n     * @notice Create new pending implementation for prism. msg.sender must be admin\\n     * @dev Admin function for proposing new implementation contract\\n     * @return boolean indicating success of operation\\n     */\\n    function setPendingProxyImplementation(address newPendingImplementation) public returns (bool) {\\n        ProxyStorage storage s = proxyStorage();\\n        require(msg.sender == s.admin, \\\"Prism::setPendingProxyImp: caller must be admin\\\");\\n\\n        address oldPendingImplementation = s.pendingImplementation;\\n\\n        s.pendingImplementation = newPendingImplementation;\\n\\n        emit NewPendingImplementation(oldPendingImplementation, s.pendingImplementation);\\n\\n        return true;\\n    }\\n\\n    /**\\n     * @notice Accepts new implementation for prism. msg.sender must be pendingImplementation\\n     * @dev Admin function for new implementation to accept it's role as implementation\\n     * @return boolean indicating success of operation\\n     */\\n    function acceptProxyImplementation() public returns (bool) {\\n        ProxyStorage storage s = proxyStorage();\\n        // Check caller is pendingImplementation and pendingImplementation \\u2260 address(0)\\n        require(msg.sender == s.pendingImplementation && s.pendingImplementation != address(0), \\\"Prism::acceptProxyImp: caller must be pending implementation\\\");\\n \\n        // Save current values for inclusion in log\\n        address oldImplementation = s.implementation;\\n        address oldPendingImplementation = s.pendingImplementation;\\n\\n        s.implementation = s.pendingImplementation;\\n\\n        s.pendingImplementation = address(0);\\n        s.version++;\\n\\n        emit NewImplementation(oldImplementation, s.implementation);\\n        emit NewPendingImplementation(oldPendingImplementation, s.pendingImplementation);\\n\\n        return true;\\n    }\\n\\n    /**\\n     * @notice Begins transfer of admin rights. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.\\n     * @dev Admin function to begin change of admin. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.\\n     * @param newPendingAdmin New pending admin.\\n     * @return boolean indicating success of operation\\n     */\\n    function setPendingProxyAdmin(address newPendingAdmin) public returns (bool) {\\n        ProxyStorage storage s = proxyStorage();\\n        // Check caller = admin\\n        require(msg.sender == s.admin, \\\"Prism::setPendingProxyAdmin: caller must be admin\\\");\\n\\n        // Save current value, if any, for inclusion in log\\n        address oldPendingAdmin = s.pendingAdmin;\\n\\n        // Store pendingAdmin with value newPendingAdmin\\n        s.pendingAdmin = newPendingAdmin;\\n\\n        // Emit NewPendingAdmin(oldPendingAdmin, newPendingAdmin)\\n        emit NewPendingAdmin(oldPendingAdmin, newPendingAdmin);\\n\\n        return true;\\n    }\\n\\n    /**\\n     * @notice Accepts transfer of admin rights. msg.sender must be pendingAdmin\\n     * @dev Admin function for pending admin to accept role and update admin\\n     * @return boolean indicating success of operation\\n     */\\n    function acceptProxyAdmin() public returns (bool) {\\n        ProxyStorage storage s = proxyStorage();\\n        // Check caller is pendingAdmin and pendingAdmin \\u2260 address(0)\\n        require(msg.sender == s.pendingAdmin && msg.sender != address(0), \\\"Prism::acceptProxyAdmin: caller must be pending admin\\\");\\n\\n        // Save current values for inclusion in log\\n        address oldAdmin = s.admin;\\n        address oldPendingAdmin = s.pendingAdmin;\\n\\n        // Store admin with value pendingAdmin\\n        s.admin = s.pendingAdmin;\\n\\n        // Clear the pending value\\n        s.pendingAdmin = address(0);\\n\\n        emit NewAdmin(oldAdmin, s.admin);\\n        emit NewPendingAdmin(oldPendingAdmin, s.pendingAdmin);\\n\\n        return true;\\n    }\\n\\n    /**\\n     * @notice Get current admin for prism proxy\\n     * @return admin address\\n     */\\n    function proxyAdmin() public view returns (address) {\\n        ProxyStorage storage s = proxyStorage();\\n        return s.admin;\\n    }\\n\\n    /**\\n     * @notice Get pending admin for prism proxy\\n     * @return admin address\\n     */\\n    function pendingProxyAdmin() public view returns (address) {\\n        ProxyStorage storage s = proxyStorage();\\n        return s.pendingAdmin;\\n    }\\n\\n    /**\\n     * @notice Address of implementation contract\\n     * @return implementation address\\n     */\\n    function proxyImplementation() public view returns (address) {\\n        ProxyStorage storage s = proxyStorage();\\n        return s.implementation;\\n    }\\n\\n    /**\\n     * @notice Address of pending implementation contract\\n     * @return pending implementation address\\n     */\\n    function pendingProxyImplementation() public view returns (address) {\\n        ProxyStorage storage s = proxyStorage();\\n        return s.pendingImplementation;\\n    }\\n\\n    /**\\n     * @notice Current implementation version for proxy\\n     * @return version number\\n     */\\n    function proxyImplementationVersion() public view returns (uint8) {\\n        ProxyStorage storage s = proxyStorage();\\n        return s.version;\\n    }\\n\\n    /**\\n     * @notice Delegates execution to an implementation contract.\\n     * @dev Returns to the external caller whatever the implementation returns or forwards reverts\\n     */\\n    function _forwardToImplementation() internal {\\n        ProxyStorage storage s = proxyStorage();\\n        // delegate all other functions to current implementation\\n        (bool success, ) = s.implementation.delegatecall(msg.data);\\n\\n        assembly {\\n              let free_mem_ptr := mload(0x40)\\n              returndatacopy(free_mem_ptr, 0, returndatasize())\\n\\n              switch success\\n              case 0 { revert(free_mem_ptr, returndatasize()) }\\n              default { return(free_mem_ptr, returndatasize()) }\\n        }\\n    }\\n}\",\"keccak256\":\"0x3d2b33b87048fa03f347e9b6f97031a142b565f7d56990d5b923ae65c5ddab37\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50604051610aea380380610aea83398101604081905261002f91610082565b600061003961005e565b80546001600160a01b0319166001600160a01b039390931692909217909155506100b0565b7f0e44922e752e5aec2c0503d75bafd73ddc558f76127cf1484a1819fd3dfb6b9090565b600060208284031215610093578081fd5b81516001600160a01b03811681146100a9578182fd5b9392505050565b610a2b806100bf6000396000f3fe60806040526004361061009a5760003560e01c80633e47158c1161006957806394d8fbd01161004e57806394d8fbd01461016a5780639c2562db1461017f578063ec10bbd514610194576100a9565b80633e47158c146101405780636405901614610155576100a9565b80630758e714146100b15780630c870f91146100e757806315596a201461010957806325f86cbb1461012b576100a9565b366100a9576100a76101b4565b005b6100a76101b4565b3480156100bd57600080fd5b506100d16100cc3660046107fc565b61024d565b6040516100de9190610868565b60405180910390f35b3480156100f357600080fd5b506100fc610335565b6040516100de9190610847565b34801561011557600080fd5b5061011e610360565b6040516100de91906109e7565b34801561013757600080fd5b506100fc610390565b34801561014c57600080fd5b506100fc6103bb565b34801561016157600080fd5b506100d16103e3565b34801561017657600080fd5b506100d1610523565b34801561018b57600080fd5b506100fc6106d0565b3480156101a057600080fd5b506100d16101af3660046107fc565b6106fb565b60006101be6107d8565b600281015460405191925060009173ffffffffffffffffffffffffffffffffffffffff909116906101f29083903690610837565b600060405180830381855af49150503d806000811461022d576040519150601f19603f3d011682016040523d82523d6000602084013e610232565b606091505b505090506040513d6000823e818015610249573d82f35b3d82fd5b6000806102586107d8565b805490915073ffffffffffffffffffffffffffffffffffffffff1633146102b4576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102ab9061092d565b60405180910390fd5b60038101805473ffffffffffffffffffffffffffffffffffffffff8581167fffffffffffffffffffffffff00000000000000000000000000000000000000008316179283905560405191811692169082907fe945ccee5d701fc83f9b8aa8ca94ea4219ec1fcbd4f4cab4f0ea57c5c3e1d81590600090a35060019392505050565b6000806103406107d8565b6002015473ffffffffffffffffffffffffffffffffffffffff1691505090565b60008061036b6107d8565b6003015474010000000000000000000000000000000000000000900460ff1692915050565b60008061039b6107d8565b6001015473ffffffffffffffffffffffffffffffffffffffff1691505090565b6000806103c66107d8565b5473ffffffffffffffffffffffffffffffffffffffff1691505090565b6000806103ee6107d8565b600181015490915073ffffffffffffffffffffffffffffffffffffffff163314801561041957503315155b61044f576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102ab90610873565b805460018201805473ffffffffffffffffffffffffffffffffffffffff8082167fffffffffffffffffffffffff0000000000000000000000000000000000000000808616821780885593169093556040519381169391169083907ff9ffabca9c8276e99321725bcb43fb076a6c66a54b7f21c4e8146d8519b417dc90600090a3600183015460405173ffffffffffffffffffffffffffffffffffffffff918216918316907fca4f2f25d0898edd99413412fb94012f9e54ec8142f9b093e7720646a95b16a990600090a36001935050505090565b60008061052e6107d8565b600381015490915073ffffffffffffffffffffffffffffffffffffffff16331480156105735750600381015473ffffffffffffffffffffffffffffffffffffffff1615155b6105a9576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102ab906108d0565b60028101805460038301805473ffffffffffffffffffffffffffffffffffffffff8082167fffffffffffffffffffffffff00000000000000000000000000000000000000008086168217968790557fffffffffffffffffffffff0000000000000000000000000000000000000000008416740100000000000000000000000000000000000000009190941681900460ff90811660010116029290921790925560405192821693909291169083907fd604de94d45953f9138079ec1b82d533cb2160c906d1076d1f7ed54befbca97a90600090a3600383015460405173ffffffffffffffffffffffffffffffffffffffff918216918316907fe945ccee5d701fc83f9b8aa8ca94ea4219ec1fcbd4f4cab4f0ea57c5c3e1d81590600090a36001935050505090565b6000806106db6107d8565b6003015473ffffffffffffffffffffffffffffffffffffffff1691505090565b6000806107066107d8565b805490915073ffffffffffffffffffffffffffffffffffffffff163314610759576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102ab9061098a565b60018101805473ffffffffffffffffffffffffffffffffffffffff8581167fffffffffffffffffffffffff0000000000000000000000000000000000000000831681179093556040519116919082907fca4f2f25d0898edd99413412fb94012f9e54ec8142f9b093e7720646a95b16a990600090a35060019392505050565b7f0e44922e752e5aec2c0503d75bafd73ddc558f76127cf1484a1819fd3dfb6b9090565b60006020828403121561080d578081fd5b813573ffffffffffffffffffffffffffffffffffffffff81168114610830578182fd5b9392505050565b6000828483379101908152919050565b73ffffffffffffffffffffffffffffffffffffffff91909116815260200190565b901515815260200190565b60208082526035908201527f507269736d3a3a61636365707450726f787941646d696e3a2063616c6c65722060408201527f6d7573742062652070656e64696e672061646d696e0000000000000000000000606082015260800190565b6020808252603c908201527f507269736d3a3a61636365707450726f7879496d703a2063616c6c6572206d7560408201527f73742062652070656e64696e6720696d706c656d656e746174696f6e00000000606082015260800190565b6020808252602f908201527f507269736d3a3a73657450656e64696e6750726f7879496d703a2063616c6c6560408201527f72206d7573742062652061646d696e0000000000000000000000000000000000606082015260800190565b60208082526031908201527f507269736d3a3a73657450656e64696e6750726f787941646d696e3a2063616c60408201527f6c6572206d7573742062652061646d696e000000000000000000000000000000606082015260800190565b60ff9190911681526020019056fea2646970667358221220f247f6d44d2db3474f825566ed8cf1bc29cb4f7642e1590814d656657daa77fe64736f6c63430007040033",
+  "deployedBytecode": "0x60806040526004361061009a5760003560e01c80633e47158c1161006957806394d8fbd01161004e57806394d8fbd01461016a5780639c2562db1461017f578063ec10bbd514610194576100a9565b80633e47158c146101405780636405901614610155576100a9565b80630758e714146100b15780630c870f91146100e757806315596a201461010957806325f86cbb1461012b576100a9565b366100a9576100a76101b4565b005b6100a76101b4565b3480156100bd57600080fd5b506100d16100cc3660046107fc565b61024d565b6040516100de9190610868565b60405180910390f35b3480156100f357600080fd5b506100fc610335565b6040516100de9190610847565b34801561011557600080fd5b5061011e610360565b6040516100de91906109e7565b34801561013757600080fd5b506100fc610390565b34801561014c57600080fd5b506100fc6103bb565b34801561016157600080fd5b506100d16103e3565b34801561017657600080fd5b506100d1610523565b34801561018b57600080fd5b506100fc6106d0565b3480156101a057600080fd5b506100d16101af3660046107fc565b6106fb565b60006101be6107d8565b600281015460405191925060009173ffffffffffffffffffffffffffffffffffffffff909116906101f29083903690610837565b600060405180830381855af49150503d806000811461022d576040519150601f19603f3d011682016040523d82523d6000602084013e610232565b606091505b505090506040513d6000823e818015610249573d82f35b3d82fd5b6000806102586107d8565b805490915073ffffffffffffffffffffffffffffffffffffffff1633146102b4576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102ab9061092d565b60405180910390fd5b60038101805473ffffffffffffffffffffffffffffffffffffffff8581167fffffffffffffffffffffffff00000000000000000000000000000000000000008316179283905560405191811692169082907fe945ccee5d701fc83f9b8aa8ca94ea4219ec1fcbd4f4cab4f0ea57c5c3e1d81590600090a35060019392505050565b6000806103406107d8565b6002015473ffffffffffffffffffffffffffffffffffffffff1691505090565b60008061036b6107d8565b6003015474010000000000000000000000000000000000000000900460ff1692915050565b60008061039b6107d8565b6001015473ffffffffffffffffffffffffffffffffffffffff1691505090565b6000806103c66107d8565b5473ffffffffffffffffffffffffffffffffffffffff1691505090565b6000806103ee6107d8565b600181015490915073ffffffffffffffffffffffffffffffffffffffff163314801561041957503315155b61044f576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102ab90610873565b805460018201805473ffffffffffffffffffffffffffffffffffffffff8082167fffffffffffffffffffffffff0000000000000000000000000000000000000000808616821780885593169093556040519381169391169083907ff9ffabca9c8276e99321725bcb43fb076a6c66a54b7f21c4e8146d8519b417dc90600090a3600183015460405173ffffffffffffffffffffffffffffffffffffffff918216918316907fca4f2f25d0898edd99413412fb94012f9e54ec8142f9b093e7720646a95b16a990600090a36001935050505090565b60008061052e6107d8565b600381015490915073ffffffffffffffffffffffffffffffffffffffff16331480156105735750600381015473ffffffffffffffffffffffffffffffffffffffff1615155b6105a9576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102ab906108d0565b60028101805460038301805473ffffffffffffffffffffffffffffffffffffffff8082167fffffffffffffffffffffffff00000000000000000000000000000000000000008086168217968790557fffffffffffffffffffffff0000000000000000000000000000000000000000008416740100000000000000000000000000000000000000009190941681900460ff90811660010116029290921790925560405192821693909291169083907fd604de94d45953f9138079ec1b82d533cb2160c906d1076d1f7ed54befbca97a90600090a3600383015460405173ffffffffffffffffffffffffffffffffffffffff918216918316907fe945ccee5d701fc83f9b8aa8ca94ea4219ec1fcbd4f4cab4f0ea57c5c3e1d81590600090a36001935050505090565b6000806106db6107d8565b6003015473ffffffffffffffffffffffffffffffffffffffff1691505090565b6000806107066107d8565b805490915073ffffffffffffffffffffffffffffffffffffffff163314610759576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102ab9061098a565b60018101805473ffffffffffffffffffffffffffffffffffffffff8581167fffffffffffffffffffffffff0000000000000000000000000000000000000000831681179093556040519116919082907fca4f2f25d0898edd99413412fb94012f9e54ec8142f9b093e7720646a95b16a990600090a35060019392505050565b7f0e44922e752e5aec2c0503d75bafd73ddc558f76127cf1484a1819fd3dfb6b9090565b60006020828403121561080d578081fd5b813573ffffffffffffffffffffffffffffffffffffffff81168114610830578182fd5b9392505050565b6000828483379101908152919050565b73ffffffffffffffffffffffffffffffffffffffff91909116815260200190565b901515815260200190565b60208082526035908201527f507269736d3a3a61636365707450726f787941646d696e3a2063616c6c65722060408201527f6d7573742062652070656e64696e672061646d696e0000000000000000000000606082015260800190565b6020808252603c908201527f507269736d3a3a61636365707450726f7879496d703a2063616c6c6572206d7560408201527f73742062652070656e64696e6720696d706c656d656e746174696f6e00000000606082015260800190565b6020808252602f908201527f507269736d3a3a73657450656e64696e6750726f7879496d703a2063616c6c6560408201527f72206d7573742062652061646d696e0000000000000000000000000000000000606082015260800190565b60208082526031908201527f507269736d3a3a73657450656e64696e6750726f787941646d696e3a2063616c60408201527f6c6572206d7573742062652061646d696e000000000000000000000000000000606082015260800190565b60ff9190911681526020019056fea2646970667358221220f247f6d44d2db3474f825566ed8cf1bc29cb4f7642e1590814d656657daa77fe64736f6c63430007040033",
+  "devdoc": {
+    "details": "Storage for voting power is at this address, while execution is delegated to the prism proxy implementation contract All contracts that use voting power should reference this contract.",
+    "kind": "dev",
+    "methods": {
+      "acceptProxyAdmin()": {
+        "details": "Admin function for pending admin to accept role and update admin",
+        "returns": {
+          "_0": "boolean indicating success of operation"
+        }
+      },
+      "acceptProxyImplementation()": {
+        "details": "Admin function for new implementation to accept it's role as implementation",
+        "returns": {
+          "_0": "boolean indicating success of operation"
+        }
+      },
+      "constructor": {
+        "details": "Sets initial proxy admin to `_admin`",
+        "params": {
+          "_admin": "Initial proxy admin"
+        }
+      },
+      "pendingProxyAdmin()": {
+        "returns": {
+          "_0": "admin address"
+        }
+      },
+      "pendingProxyImplementation()": {
+        "returns": {
+          "_0": "pending implementation address"
+        }
+      },
+      "proxyAdmin()": {
+        "returns": {
+          "_0": "admin address"
+        }
+      },
+      "proxyImplementation()": {
+        "returns": {
+          "_0": "implementation address"
+        }
+      },
+      "proxyImplementationVersion()": {
+        "returns": {
+          "_0": "version number"
+        }
+      },
+      "setPendingProxyAdmin(address)": {
+        "details": "Admin function to begin change of admin. The newPendingAdmin must call `acceptAdmin` to finalize the transfer.",
+        "params": {
+          "newPendingAdmin": "New pending admin."
+        },
+        "returns": {
+          "_0": "boolean indicating success of operation"
+        }
+      },
+      "setPendingProxyImplementation(address)": {
+        "details": "Admin function for proposing new implementation contract",
+        "returns": {
+          "_0": "boolean indicating success of operation"
+        }
+      }
+    },
+    "title": "VotingPowerPrism",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "NewAdmin(address,address)": {
+        "notice": "Emitted when pendingAdmin is accepted, which means admin is updated"
+      },
+      "NewImplementation(address,address)": {
+        "notice": "Emitted when pendingImplementation is accepted, which means implementation is updated"
+      },
+      "NewPendingAdmin(address,address)": {
+        "notice": "Emitted when pendingAdmin is changed"
+      },
+      "NewPendingImplementation(address,address)": {
+        "notice": "Emitted when pendingImplementation is changed"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "acceptProxyAdmin()": {
+        "notice": "Accepts transfer of admin rights. msg.sender must be pendingAdmin"
+      },
+      "acceptProxyImplementation()": {
+        "notice": "Accepts new implementation for prism. msg.sender must be pendingImplementation"
+      },
+      "constructor": {
+        "notice": "Construct a new Voting Power Prism Proxy"
+      },
+      "pendingProxyAdmin()": {
+        "notice": "Get pending admin for prism proxy"
+      },
+      "pendingProxyImplementation()": {
+        "notice": "Address of pending implementation contract"
+      },
+      "proxyAdmin()": {
+        "notice": "Get current admin for prism proxy"
+      },
+      "proxyImplementation()": {
+        "notice": "Address of implementation contract"
+      },
+      "proxyImplementationVersion()": {
+        "notice": "Current implementation version for proxy"
+      },
+      "setPendingProxyAdmin(address)": {
+        "notice": "Begins transfer of admin rights. The newPendingAdmin must call `acceptAdmin` to finalize the transfer."
+      },
+      "setPendingProxyImplementation(address)": {
+        "notice": "Create new pending implementation for prism. msg.sender must be admin"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

@@ -1,0 +1,867 @@
+{
+  "address": "0x9db4694BE49558ba5F3CD4C449988fc0AeBa6E94",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "locker",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint16",
+          "name": "durationInDays",
+          "type": "uint16"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        }
+      ],
+      "name": "LockCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint16",
+          "name": "oldDuration",
+          "type": "uint16"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint16",
+          "name": "newDuration",
+          "type": "uint16"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        }
+      ],
+      "name": "LockExtended",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "amountClaimed",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        }
+      ],
+      "name": "UnlockedTokensClaimed",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "activeLocks",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimAllUnlockedTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimUnlockedTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "daysToAdd",
+          "type": "uint16"
+        }
+      ],
+      "name": "extendLock",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "getActiveLocks",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "getAllActiveLocks",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "receiver",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "startTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint16",
+              "name": "duration",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountClaimed",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Vault.Lock[]",
+          "name": "receiverLocks",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getLockedBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "getLockedTokenBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockedBalance",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTokenLock",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "receiver",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "startTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint16",
+              "name": "duration",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountClaimed",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Vault.Lock",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getUnlockedBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "getUnlockedTokenBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "unlockedBalance",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "locker",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "lockDurationInDays",
+          "type": "uint16"
+        }
+      ],
+      "name": "lockTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "locker",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "lockDurationInDays",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "v",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "lockTokensWithPermit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "numLocks",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenLocks",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "duration",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountClaimed",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd9f1629457ab36029668b85043661a7a5afad8c2248370a3f5abda6df0c708ab",
+  "receipt": {
+    "to": null,
+    "from": "0x4F8f512Dab59F227EA70B1D8A0044aFa95CC80C3",
+    "contractAddress": "0x9db4694BE49558ba5F3CD4C449988fc0AeBa6E94",
+    "transactionIndex": 25,
+    "gasUsed": "1990866",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xf0a7018a4b1471f387e18a96f1f11998fd348b23c02a8e5f0971a6e7bd5cf7da",
+    "transactionHash": "0xd9f1629457ab36029668b85043661a7a5afad8c2248370a3f5abda6df0c708ab",
+    "logs": [],
+    "blockNumber": 11309991,
+    "cumulativeGasUsed": "3957108",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "5bf4568ab804ae51559c23ee44b86063",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.4+commit.3f05b770\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"locker\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"durationInDays\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"}],\"name\":\"LockCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint16\",\"name\":\"oldDuration\",\"type\":\"uint16\"},{\"indexed\":true,\"internalType\":\"uint16\",\"name\":\"newDuration\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"}],\"name\":\"LockExtended\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"amountClaimed\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"}],\"name\":\"UnlockedTokensClaimed\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"activeLocks\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"}],\"name\":\"claimAllUnlockedTokens\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"claimUnlockedTokens\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"},{\"internalType\":\"uint16\",\"name\":\"daysToAdd\",\"type\":\"uint16\"}],\"name\":\"extendLock\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"}],\"name\":\"getActiveLocks\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"}],\"name\":\"getAllActiveLocks\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint16\",\"name\":\"duration\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"amountClaimed\",\"type\":\"uint256\"}],\"internalType\":\"struct Vault.Lock[]\",\"name\":\"receiverLocks\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"}],\"name\":\"getLockedBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"}],\"name\":\"getLockedTokenBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"lockedBalance\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"}],\"name\":\"getTokenLock\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint16\",\"name\":\"duration\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"amountClaimed\",\"type\":\"uint256\"}],\"internalType\":\"struct Vault.Lock\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lockId\",\"type\":\"uint256\"}],\"name\":\"getUnlockedBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"}],\"name\":\"getUnlockedTokenBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"unlockedBalance\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"locker\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint16\",\"name\":\"lockDurationInDays\",\"type\":\"uint16\"}],\"name\":\"lockTokens\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"locker\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint16\",\"name\":\"lockDurationInDays\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"lockTokensWithPermit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"numLocks\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"tokenLocks\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"startTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint16\",\"name\":\"duration\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"amountClaimed\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Contract for locking up tokens for set periods of time Tokens locked in this contract DO NOT count towards voting power\",\"kind\":\"dev\",\"methods\":{\"claimAllUnlockedTokens(uint256)\":{\"details\":\"Errors if no tokens are unlockedIt is advised receivers check they are entitled to claim via `getUnlockedBalance` before calling this\",\"params\":{\"lockId\":\"The lock id for an unlocked token balance\"}},\"claimUnlockedTokens(uint256,uint256)\":{\"details\":\"Errors if no tokens are unlockedIt is advised receivers check they are entitled to claim via `getUnlockedBalance` before calling this\",\"params\":{\"amount\":\"The amount of unlocked tokens to claim\",\"lockId\":\"The lock id for an unlocked token balance\"}},\"extendLock(uint256,uint16)\":{\"params\":{\"daysToAdd\":\"The number of days to add to duration\",\"lockId\":\"The lock id for a locked token balance\"}},\"getActiveLocks(address)\":{\"params\":{\"receiver\":\"The address that has locked balances\"},\"returns\":{\"_0\":\"the lock ids\"}},\"getAllActiveLocks(address)\":{\"params\":{\"receiver\":\"The address that has locked balances\"},\"returns\":{\"receiverLocks\":\"the lock ids\"}},\"getLockedBalance(uint256)\":{\"details\":\"Returns 0 if duration has ended\",\"params\":{\"lockId\":\"The lock ID\"},\"returns\":{\"_0\":\"The amount that is locked\"}},\"getLockedTokenBalance(address,address)\":{\"params\":{\"receiver\":\"The address that has locked balances\",\"token\":\"The token to check\"},\"returns\":{\"lockedBalance\":\"the total amount of `token` locked \"}},\"getTokenLock(uint256)\":{\"params\":{\"lockId\":\"The ID for the locked balance\"},\"returns\":{\"_0\":\"the lock\"}},\"getUnlockedBalance(uint256)\":{\"details\":\"Returns 0 if duration has not ended\",\"params\":{\"lockId\":\"The lock ID\"},\"returns\":{\"_0\":\"The amount that can be claimed\"}},\"getUnlockedTokenBalance(address,address)\":{\"params\":{\"receiver\":\"The address that has unlocked balances\",\"token\":\"The token to check\"},\"returns\":{\"unlockedBalance\":\"the total amount of `token` unlocked \"}},\"lockTokens(address,address,address,uint256,uint256,uint16)\":{\"params\":{\"amount\":\"The amount of tokens being locked\",\"lockDurationInDays\":\"The lock period in days\",\"locker\":\"The account that is locking tokens\",\"receiver\":\"The account that will be able to retrieve unlocked tokens\",\"startTime\":\"The unix timestamp when the lock period will start\"}},\"lockTokensWithPermit(address,address,address,uint256,uint256,uint16,uint256,uint8,bytes32,bytes32)\":{\"params\":{\"amount\":\"The amount of tokens being locked\",\"deadline\":\"The time at which to expire the signature\",\"lockDurationInDays\":\"The lock period in days\",\"locker\":\"The account that is locking tokens\",\"r\":\"Half of the ECDSA signature pair\",\"receiver\":\"The account that will be able to retrieve unlocked tokens\",\"s\":\"Half of the ECDSA signature pair\",\"startTime\":\"The unix timestamp when the lock period will start\",\"token\":\"Address of token to lock\",\"v\":\"The recovery byte of the signature\"}}},\"stateVariables\":{\"SECONDS_PER_DAY\":{\"details\":\"Used to translate lock periods specified in days to seconds\"}},\"title\":\"Vault\",\"version\":1},\"userdoc\":{\"events\":{\"LockCreated(address,address,address,uint256,uint256,uint16,uint256)\":{\"notice\":\"Event emitted when a new lock is created\"},\"LockExtended(uint16,uint16,uint256,uint256)\":{\"notice\":\"Event emitted when lock duration extended\"},\"UnlockedTokensClaimed(address,address,uint256,uint256)\":{\"notice\":\"Event emitted when tokens are claimed by a receiver from an unlocked balance\"}},\"kind\":\"user\",\"methods\":{\"activeLocks(address,uint256)\":{\"notice\":\"Mapping of address to lock id\"},\"claimAllUnlockedTokens(uint256)\":{\"notice\":\"Allows receiver to claim all of their unlocked tokens for a given lock\"},\"claimUnlockedTokens(uint256,uint256)\":{\"notice\":\"Allows receiver to claim a portion of their unlocked tokens for a given lock\"},\"extendLock(uint256,uint16)\":{\"notice\":\"Allows receiver extend lock period for a given lock\"},\"getActiveLocks(address)\":{\"notice\":\"Get token locks for receiver\"},\"getAllActiveLocks(address)\":{\"notice\":\"Get all active token locks for receiver\"},\"getLockedBalance(uint256)\":{\"notice\":\"Get locked balance for a given lock id\"},\"getLockedTokenBalance(address,address)\":{\"notice\":\"Get total locked token balance of receiver\"},\"getTokenLock(uint256)\":{\"notice\":\"Get token lock for given lock id\"},\"getUnlockedBalance(uint256)\":{\"notice\":\"Get unlocked balance for a given lock id\"},\"getUnlockedTokenBalance(address,address)\":{\"notice\":\"Get total unlocked token balance of receiver\"},\"lockTokens(address,address,address,uint256,uint256,uint16)\":{\"notice\":\"Lock tokens\"},\"lockTokensWithPermit(address,address,address,uint256,uint256,uint16,uint256,uint8,bytes32,bytes32)\":{\"notice\":\"Lock tokens\"},\"numLocks()\":{\"notice\":\"Number of locks\"},\"tokenLocks(uint256)\":{\"notice\":\"Mapping of lock id > token locks\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/Vault.sol\":\"Vault\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":999999},\"remappings\":[]},\"sources\":{\"contracts/Vault.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\npragma experimental ABIEncoderV2;\\n\\nimport \\\"./interfaces/IUniswapV2ERC20.sol\\\";\\nimport \\\"./lib/SafeMath.sol\\\";\\n\\n/**\\n * @title Vault\\n * @dev Contract for locking up tokens for set periods of time\\n * Tokens locked in this contract DO NOT count towards voting power\\n */\\ncontract Vault {\\n    using SafeMath for uint256;\\n\\n    /// @notice Lock definition\\n    struct Lock {\\n        address token;\\n        address receiver;\\n        uint256 startTime;\\n        uint256 amount;\\n        uint16 duration;\\n        uint256 amountClaimed;\\n    }\\n\\n    /// @dev Used to translate lock periods specified in days to seconds\\n    uint256 constant internal SECONDS_PER_DAY = 86400;\\n    \\n    /// @notice Mapping of lock id > token locks\\n    mapping (uint256 => Lock) public tokenLocks;\\n\\n    /// @notice Mapping of address to lock id\\n    mapping (address => uint[]) public activeLocks;\\n\\n    ///@notice Number of locks\\n    uint256 public numLocks;\\n\\n    /// @notice Event emitted when a new lock is created\\n    event LockCreated(address indexed token, address indexed locker, address indexed receiver, uint256 amount, uint256 startTime, uint16 durationInDays, uint256 lockId);\\n    \\n    /// @notice Event emitted when tokens are claimed by a receiver from an unlocked balance\\n    event UnlockedTokensClaimed(address indexed receiver, address indexed token, uint256 indexed amountClaimed, uint256 lockId);\\n\\n    /// @notice Event emitted when lock duration extended\\n    event LockExtended(uint16 indexed oldDuration, uint16 indexed newDuration, uint256 startTime, uint256 lockId);\\n    \\n    /**\\n     * @notice Lock tokens\\n     * @param locker The account that is locking tokens\\n     * @param receiver The account that will be able to retrieve unlocked tokens\\n     * @param startTime The unix timestamp when the lock period will start\\n     * @param amount The amount of tokens being locked\\n     * @param lockDurationInDays The lock period in days\\n     */\\n    function lockTokens(\\n        address token,\\n        address locker,\\n        address receiver,\\n        uint256 startTime,\\n        uint256 amount,\\n        uint16 lockDurationInDays\\n    ) \\n        external\\n    {\\n        require(lockDurationInDays > 0, \\\"Vault::lockTokens: duration must be > 0\\\");\\n        require(lockDurationInDays <= 25*365, \\\"Vault::lockTokens: duration more than 25 years\\\");\\n        require(amount > 0, \\\"Vault::lockTokens: amount not > 0\\\");\\n\\n        // Transfer the tokens under the control of the vault contract\\n        require(IUniswapV2ERC20(token).transferFrom(locker, address(this), amount), \\\"Vault::lockTokens: transfer failed\\\");\\n\\n        uint256 lockStartTime = startTime == 0 ? block.timestamp : startTime;\\n\\n        Lock memory lock = Lock({\\n            token: token,\\n            receiver: receiver,\\n            startTime: lockStartTime,\\n            amount: amount,\\n            duration: lockDurationInDays,\\n            amountClaimed: 0\\n        });\\n        tokenLocks[numLocks] = lock;\\n        activeLocks[receiver].push(numLocks);\\n        emit LockCreated(token, locker, receiver, amount, lockStartTime, lockDurationInDays, numLocks);\\n        numLocks++;\\n    }\\n\\n    /**\\n     * @notice Lock tokens\\n     * @param token Address of token to lock\\n     * @param locker The account that is locking tokens\\n     * @param receiver The account that will be able to retrieve unlocked tokens\\n     * @param startTime The unix timestamp when the lock period will start\\n     * @param amount The amount of tokens being locked\\n     * @param lockDurationInDays The lock period in days\\n     * @param deadline The time at which to expire the signature\\n     * @param v The recovery byte of the signature\\n     * @param r Half of the ECDSA signature pair\\n     * @param s Half of the ECDSA signature pair\\n     */\\n    function lockTokensWithPermit(\\n        address token,\\n        address locker,\\n        address receiver,\\n        uint256 startTime,\\n        uint256 amount,\\n        uint16 lockDurationInDays,\\n        uint256 deadline,\\n        uint8 v, \\n        bytes32 r, \\n        bytes32 s\\n    ) \\n        external\\n    {\\n        require(lockDurationInDays > 0, \\\"Vault::lockTokensWithPermit: duration must be > 0\\\");\\n        require(lockDurationInDays <= 25*365, \\\"Vault::lockTokensWithPermit: duration more than 25 years\\\");\\n        require(amount > 0, \\\"Vault::lockTokensWithPermit: amount not > 0\\\");\\n\\n        // Set approval using permit signature\\n        IUniswapV2ERC20(token).permit(locker, address(this), amount, deadline, v, r, s);\\n\\n        // Transfer the tokens under the control of the vault contract\\n        require(IUniswapV2ERC20(token).transferFrom(locker, address(this), amount), \\\"Vault::lockTokensWithPermit: transfer failed\\\");\\n\\n        uint256 lockStartTime = startTime == 0 ? block.timestamp : startTime;\\n\\n        Lock memory lock = Lock({\\n            token: token,\\n            receiver: receiver,\\n            startTime: lockStartTime,\\n            amount: amount,\\n            duration: lockDurationInDays,\\n            amountClaimed: 0\\n        });\\n        tokenLocks[numLocks] = lock;\\n        activeLocks[receiver].push(numLocks);\\n        emit LockCreated(token, locker, receiver, amount, lockStartTime, lockDurationInDays, numLocks);\\n        numLocks++;\\n    }\\n\\n    /**\\n     * @notice Get token locks for receiver\\n     * @param receiver The address that has locked balances\\n     * @return the lock ids\\n     */\\n    function getActiveLocks(address receiver) public view returns(uint256[] memory){\\n        return activeLocks[receiver];\\n    }\\n\\n    /**\\n     * @notice Get token lock for given lock id\\n     * @param lockId The ID for the locked balance\\n     * @return the lock\\n     */\\n    function getTokenLock(uint256 lockId) public view returns(Lock memory){\\n        return tokenLocks[lockId];\\n    }\\n\\n    /**\\n     * @notice Get all active token locks for receiver\\n     * @param receiver The address that has locked balances\\n     * @return receiverLocks the lock ids\\n     */\\n    function getAllActiveLocks(address receiver) public view returns(Lock[] memory receiverLocks){\\n        uint256[] memory lockIds = getActiveLocks(receiver);\\n        receiverLocks = new Lock[](lockIds.length);\\n        for (uint256 i; i < lockIds.length; i++) {\\n            receiverLocks[i] = getTokenLock(lockIds[i]);\\n        }\\n    }\\n\\n    /**\\n     * @notice Get total locked token balance of receiver\\n     * @param token The token to check\\n     * @param receiver The address that has locked balances\\n     * @return lockedBalance the total amount of `token` locked \\n     */\\n    function getLockedTokenBalance(address token, address receiver) public view returns(uint256 lockedBalance){\\n        Lock[] memory locks = getAllActiveLocks(receiver);\\n        for (uint256 i; i < locks.length; i++) {\\n            if(locks[i].token == token){\\n                if(block.timestamp <= locks[i].startTime) {\\n                    lockedBalance = lockedBalance.add(locks[i].amount);\\n                } else {\\n                    // Check if duration was reached\\n                    uint256 elapsedTime = block.timestamp.sub(locks[i].startTime);\\n                    uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);\\n\\n                    if (elapsedDays < locks[i].duration) {\\n                        lockedBalance = lockedBalance.add(locks[i].amount);\\n                    }\\n                }\\n            }\\n        }\\n    }\\n\\n     /**\\n     * @notice Get total unlocked token balance of receiver\\n     * @param token The token to check\\n     * @param receiver The address that has unlocked balances\\n     * @return unlockedBalance the total amount of `token` unlocked \\n     */\\n    function getUnlockedTokenBalance(address token, address receiver) public view returns(uint256 unlockedBalance){\\n        Lock[] memory locks = getAllActiveLocks(receiver);\\n        for (uint256 i; i < locks.length; i++) {\\n            if(locks[i].token == token){\\n                if(block.timestamp > locks[i].startTime) {\\n                    // Check if duration was reached\\n                    uint256 elapsedTime = block.timestamp.sub(locks[i].startTime);\\n                    uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);\\n\\n                    if (elapsedDays >= locks[i].duration && locks[i].amountClaimed != locks[i].amount) {\\n                        unlockedBalance = unlockedBalance.add(locks[i].amount).sub(locks[i].amountClaimed);\\n                    }\\n                }\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice Get locked balance for a given lock id\\n     * @dev Returns 0 if duration has ended\\n     * @param lockId The lock ID\\n     * @return The amount that is locked\\n     */\\n    function getLockedBalance(uint256 lockId) public view returns (uint256) {\\n        Lock storage lock = tokenLocks[lockId];\\n\\n        if (block.timestamp <= lock.startTime) {\\n            return lock.amount;\\n        }\\n\\n        // Check duration was reached\\n        uint256 elapsedTime = block.timestamp.sub(lock.startTime);\\n        uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);\\n        \\n        if (elapsedDays >= lock.duration) {\\n            return 0;\\n        } else {\\n            return lock.amount;\\n        }\\n    }\\n\\n    /**\\n     * @notice Get unlocked balance for a given lock id\\n     * @dev Returns 0 if duration has not ended\\n     * @param lockId The lock ID\\n     * @return The amount that can be claimed\\n     */\\n    function getUnlockedBalance(uint256 lockId) public view returns (uint256) {\\n        Lock storage lock = tokenLocks[lockId];\\n\\n        // For locks created with a future start date, that hasn't been reached, return 0\\n        if (block.timestamp < lock.startTime) {\\n            return 0;\\n        }\\n\\n        // Check duration was reached\\n        uint256 elapsedTime = block.timestamp.sub(lock.startTime);\\n        uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);\\n        \\n        if (elapsedDays < lock.duration) {\\n            return 0;\\n        } else {\\n            return lock.amount.sub(lock.amountClaimed);\\n        }\\n    }\\n\\n    /**\\n     * @notice Allows receiver to claim all of their unlocked tokens for a given lock\\n     * @dev Errors if no tokens are unlocked\\n     * @dev It is advised receivers check they are entitled to claim via `getUnlockedBalance` before calling this\\n     * @param lockId The lock id for an unlocked token balance\\n     */\\n    function claimAllUnlockedTokens(uint256 lockId) external {\\n        uint256 unlockedAmount = getUnlockedBalance(lockId);\\n        require(unlockedAmount > 0, \\\"Vault::claimAllUnlockedTokens: unlockedAmount is 0\\\");\\n\\n        Lock storage lock = tokenLocks[lockId];\\n        lock.amountClaimed = unlockedAmount;\\n        \\n        require(msg.sender == lock.receiver, \\\"Vault::claimAllUnlockedTokens: msg.sender must be receiver\\\");\\n        require(IUniswapV2ERC20(lock.token).transfer(lock.receiver, unlockedAmount), \\\"Vault::claimAllUnlockedTokens: transfer failed\\\");\\n        emit UnlockedTokensClaimed(lock.receiver, lock.token, unlockedAmount, lockId);\\n    }\\n\\n    /**\\n     * @notice Allows receiver to claim a portion of their unlocked tokens for a given lock\\n     * @dev Errors if no tokens are unlocked\\n     * @dev It is advised receivers check they are entitled to claim via `getUnlockedBalance` before calling this\\n     * @param lockId The lock id for an unlocked token balance\\n     * @param amount The amount of unlocked tokens to claim\\n     */\\n    function claimUnlockedTokens(uint256 lockId, uint256 amount) external {\\n        uint256 unlockedAmount = getUnlockedBalance(lockId);\\n        require(unlockedAmount >= amount, \\\"Vault::claimUnlockedTokens: unlockedAmount < amount\\\");\\n\\n        Lock storage lock = tokenLocks[lockId];\\n        lock.amountClaimed = lock.amountClaimed.add(amount);\\n        \\n        require(msg.sender == lock.receiver, \\\"Vault::claimUnlockedTokens: msg.sender must be receiver\\\");\\n        require(IUniswapV2ERC20(lock.token).transfer(lock.receiver, amount), \\\"Vault::claimUnlockedTokens: transfer failed\\\");\\n        emit UnlockedTokensClaimed(lock.receiver, lock.token, amount, lockId);\\n    }\\n\\n    /**\\n     * @notice Allows receiver extend lock period for a given lock\\n     * @param lockId The lock id for a locked token balance\\n     * @param daysToAdd The number of days to add to duration\\n     */\\n    function extendLock(uint256 lockId, uint16 daysToAdd) external {\\n        Lock storage lock = tokenLocks[lockId];\\n        require(msg.sender == lock.receiver, \\\"Vault::extendLock: msg.sender must be receiver\\\");\\n        uint16 oldDuration = lock.duration;\\n        uint16 newDuration = _add16(oldDuration, daysToAdd, \\\"Vault::extendLock: max days exceeded\\\");\\n        lock.duration = newDuration;\\n        emit LockExtended(oldDuration, newDuration, lock.startTime, lockId);\\n    }\\n\\n    /**\\n     * @notice Adds uint16 to uint16 safely\\n     * @param a First number\\n     * @param b Second number\\n     * @param errorMessage Error message to use if numbers cannot be added\\n     * @return uint16 number\\n     */\\n    function _add16(uint16 a, uint16 b, string memory errorMessage) internal pure returns (uint16) {\\n        uint16 c = a + b;\\n        require(c >= a, errorMessage);\\n        return c;\\n    }\\n}\",\"keccak256\":\"0x09850731c90200035974c3a5845d6464962e9e3c3520ab47f6c196662b731d4c\",\"license\":\"MIT\"},\"contracts/interfaces/IUniswapV2ERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\n\\ninterface IUniswapV2ERC20 {\\n  event Approval(address indexed owner, address indexed spender, uint value);\\n  event Transfer(address indexed from, address indexed to, uint value);\\n\\n  function name() external pure returns (string memory);\\n  function symbol() external pure returns (string memory);\\n  function decimals() external pure returns (uint8);\\n  function totalSupply() external view returns (uint);\\n  function balanceOf(address owner) external view returns (uint);\\n  function allowance(address owner, address spender) external view returns (uint);\\n\\n  function approve(address spender, uint value) external returns (bool);\\n  function transfer(address to, uint value) external returns (bool);\\n  function transferFrom(address from, address to, uint value) external returns (bool);\\n\\n  function DOMAIN_SEPARATOR() external view returns (bytes32);\\n  function PERMIT_TYPEHASH() external pure returns (bytes32);\\n  function nonces(address owner) external view returns (uint);\\n\\n  function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;\\n}\",\"keccak256\":\"0x76789a0ea4bfd818ba7c7c963bc86b28372311268588c6a2b486efa3e005dce1\",\"license\":\"MIT\"},\"contracts/lib/SafeMath.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\n\\n// From https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/Math.sol\\n// Subject to the MIT license.\\n\\n/**\\n * @dev Wrappers over Solidity's arithmetic operations with added overflow\\n * checks.\\n *\\n * Arithmetic operations in Solidity wrap on overflow. This can easily result\\n * in bugs, because programmers usually assume that an overflow raises an\\n * error, which is the standard behavior in high level programming languages.\\n * `SafeMath` restores this intuition by reverting the transaction when an\\n * operation overflows.\\n *\\n * Using this library instead of the unchecked operations eliminates an entire\\n * class of bugs, so it's recommended to use it always.\\n */\\nlibrary SafeMath {\\n    /**\\n     * @dev Returns the addition of two unsigned integers, reverting on overflow.\\n     *\\n     * Counterpart to Solidity's `+` operator.\\n     *\\n     * Requirements:\\n     * - Addition cannot overflow.\\n     */\\n    function add(uint256 a, uint256 b) internal pure returns (uint256) {\\n        uint256 c = a + b;\\n        require(c >= a, \\\"SafeMath: addition overflow\\\");\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the addition of two unsigned integers, reverting with custom message on overflow.\\n     *\\n     * Counterpart to Solidity's `+` operator.\\n     *\\n     * Requirements:\\n     * - Addition cannot overflow.\\n     */\\n    function add(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        uint256 c = a + b;\\n        require(c >= a, errorMessage);\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the subtraction of two unsigned integers, reverting on underflow (when the result is negative).\\n     *\\n     * Counterpart to Solidity's `-` operator.\\n     *\\n     * Requirements:\\n     * - Subtraction cannot underflow.\\n     */\\n    function sub(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return sub(a, b, \\\"SafeMath: subtraction underflow\\\");\\n    }\\n\\n    /**\\n     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on underflow (when the result is negative).\\n     *\\n     * Counterpart to Solidity's `-` operator.\\n     *\\n     * Requirements:\\n     * - Subtraction cannot underflow.\\n     */\\n    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        require(b <= a, errorMessage);\\n        uint256 c = a - b;\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the multiplication of two unsigned integers, reverting on overflow.\\n     *\\n     * Counterpart to Solidity's `*` operator.\\n     *\\n     * Requirements:\\n     * - Multiplication cannot overflow.\\n     */\\n    function mul(uint256 a, uint256 b) internal pure returns (uint256) {\\n        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the\\n        // benefit is lost if 'b' is also tested.\\n        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522\\n        if (a == 0) {\\n            return 0;\\n        }\\n\\n        uint256 c = a * b;\\n        require(c / a == b, \\\"SafeMath: multiplication overflow\\\");\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the multiplication of two unsigned integers, reverting on overflow.\\n     *\\n     * Counterpart to Solidity's `*` operator.\\n     *\\n     * Requirements:\\n     * - Multiplication cannot overflow.\\n     */\\n    function mul(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the\\n        // benefit is lost if 'b' is also tested.\\n        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522\\n        if (a == 0) {\\n            return 0;\\n        }\\n\\n        uint256 c = a * b;\\n        require(c / a == b, errorMessage);\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the integer division of two unsigned integers.\\n     * Reverts on division by zero. The result is rounded towards zero.\\n     *\\n     * Counterpart to Solidity's `/` operator. Note: this function uses a\\n     * `revert` opcode (which leaves remaining gas untouched) while Solidity\\n     * uses an invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     * - The divisor cannot be zero.\\n     */\\n    function div(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return div(a, b, \\\"SafeMath: division by zero\\\");\\n    }\\n\\n    /**\\n     * @dev Returns the integer division of two unsigned integers.\\n     * Reverts with custom message on division by zero. The result is rounded towards zero.\\n     *\\n     * Counterpart to Solidity's `/` operator. Note: this function uses a\\n     * `revert` opcode (which leaves remaining gas untouched) while Solidity\\n     * uses an invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     * - The divisor cannot be zero.\\n     */\\n    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        // Solidity only automatically asserts when dividing by 0\\n        require(b > 0, errorMessage);\\n        uint256 c = a / b;\\n        // assert(a == b * c + a % b); // There is no case in which this doesn't hold\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),\\n     * Reverts when dividing by zero.\\n     *\\n     * Counterpart to Solidity's `%` operator. This function uses a `revert`\\n     * opcode (which leaves remaining gas untouched) while Solidity uses an\\n     * invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     * - The divisor cannot be zero.\\n     */\\n    function mod(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return mod(a, b, \\\"SafeMath: modulo by zero\\\");\\n    }\\n\\n    /**\\n     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),\\n     * Reverts with custom message when dividing by zero.\\n     *\\n     * Counterpart to Solidity's `%` operator. This function uses a `revert`\\n     * opcode (which leaves remaining gas untouched) while Solidity uses an\\n     * invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     * - The divisor cannot be zero.\\n     */\\n    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        require(b != 0, errorMessage);\\n        return a % b;\\n    }\\n}\",\"keccak256\":\"0x961855901713e710c05dd67f9a01e501a54e82e68a526fe3662e228c27f788d9\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061233e806100206000396000f3fe608060405234801561001057600080fd5b50600436106100f55760003560e01c80637eaecc2611610097578063b0b5babe11610066578063b0b5babe1461020f578063b5145e621461022f578063d422cf5814610242578063e5aa64d81461024a576100f5565b80637eaecc26146101b15780638d113012146101c4578063946ca949146101d757806398b04a3a146101fc576100f5565b806351807ad5116100d357806351807ad51461014b57806361496d591461015e578063763d1bd61461017e5780637976ea161461019e576100f5565b80632c4e9ebd146100fa578063334a2310146101235780633adcbadc14610136575b600080fd5b61010d610108366004611a97565b61025d565b60405161011a91906122ae565b60405180910390f35b61010d610131366004611918565b6102d7565b610149610144366004611a97565b61045a565b005b6101496101593660046119af565b610658565b61017161016c3660046118fe565b610ae2565b60405161011a9190611c84565b61019161018c3660046118fe565b610b5b565b60405161011a9190611c36565b61010d6101ac366004611918565b610c0c565b61010d6101bf366004611a97565b610d40565b6101496101d2366004611aaf565b610dca565b6101ea6101e5366004611a97565b610ee0565b60405161011a96959493929190611b7b565b61010d61020a366004611a4e565b610f34565b61022261021d366004611a97565b610f65565b60405161011a91906122a0565b61014961023d36600461194a565b610fe1565b61010d6113d7565b610149610258366004611ad1565b6113dd565b600081815260208190526040812060028101544211610281576003015490506102d2565b600061029a8260020154426115e090919063ffffffff16565b905060006102ab826201518061162b565b600484015490915061ffff1681106102c957600093505050506102d2565b50506003015490505b919050565b600060606102e483610b5b565b905060005b8151811015610452578473ffffffffffffffffffffffffffffffffffffffff1682828151811061031557fe5b60200260200101516000015173ffffffffffffffffffffffffffffffffffffffff16141561044a5781818151811061034957fe5b60200260200101516040015142111561044a57600061038883838151811061036d57fe5b602002602001015160400151426115e090919063ffffffff16565b90506000610399826201518061162b565b90508383815181106103a757fe5b60200260200101516080015161ffff1681101580156103f457508383815181106103cd57fe5b6020026020010151606001518484815181106103e557fe5b602002602001015160a0015114155b156104475761044484848151811061040857fe5b602002602001015160a0015161043e86868151811061042357fe5b6020026020010151606001518861166d90919063ffffffff16565b906115e0565b94505b50505b6001016102e9565b505092915050565b600061046582610d40565b9050600081116104aa576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611fb8565b60405180910390fd5b600082815260208190526040902060058101829055600181015473ffffffffffffffffffffffffffffffffffffffff163314610512576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611f5b565b805460018201546040517fa9059cbb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff9283169263a9059cbb9261056f929116908690600401611c10565b602060405180830381600087803b15801561058957600080fd5b505af115801561059d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105c19190611a77565b6105f7576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611d2d565b80546001820154604051849273ffffffffffffffffffffffffffffffffffffffff9081169216907f93900409fdb269cad2f66fb6f629bca922bca043b1a6aaea0f6d36aac5efa3e29061064b9088906122ae565b60405180910390a4505050565b60008561ffff1611610696576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611de7565b6123a58561ffff1611156106d6576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611d8a565b60008611610710576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a1906121e6565b6040517fd505accf00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff8b169063d505accf9061076e908c9030908b908a908a908a908a90600401611bc2565b600060405180830381600087803b15801561078857600080fd5b505af115801561079c573d6000803e3d6000fd5b50506040517f23b872dd00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff8d1692506323b872dd91506107f6908c9030908b90600401611b4a565b602060405180830381600087803b15801561081057600080fd5b505af1158015610824573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906108489190611a77565b61087e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190612015565b6000871561088c578761088e565b425b9050610898611862565b6040518060c001604052808d73ffffffffffffffffffffffffffffffffffffffff1681526020018b73ffffffffffffffffffffffffffffffffffffffff1681526020018381526020018981526020018861ffff1681526020016000815250905080600080600254815260200190815260200160002060008201518160000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060208201518160010160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550604082015181600201556060820151816003015560808201518160040160006101000a81548161ffff021916908361ffff16021790555060a08201518160050155905050600160008b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060025490806001815401808255809150506001900390600052602060002001600090919091909150558973ffffffffffffffffffffffffffffffffffffffff168b73ffffffffffffffffffffffffffffffffffffffff168d73ffffffffffffffffffffffffffffffffffffffff167f30e2bc2d3d392db8b8e24983a41a4f2bb25e8c6e4eeb390289a3d3b747a937b68b868c600254604051610ac394939291906122c5565b60405180910390a4505060028054600101905550505050505050505050565b73ffffffffffffffffffffffffffffffffffffffff8116600090815260016020908152604091829020805483518184028101840190945280845260609392830182828015610b4f57602002820191906000526020600020905b815481526020019060010190808311610b3b575b50505050509050919050565b606080610b6783610ae2565b9050805167ffffffffffffffff81118015610b8157600080fd5b50604051908082528060200260200182016040528015610bbb57816020015b610ba8611862565b815260200190600190039081610ba05790505b50915060005b8151811015610c0557610be6828281518110610bd957fe5b6020026020010151610f65565b838281518110610bf257fe5b6020908102919091010152600101610bc1565b5050919050565b60006060610c1983610b5b565b905060005b8151811015610452578473ffffffffffffffffffffffffffffffffffffffff16828281518110610c4a57fe5b60200260200101516000015173ffffffffffffffffffffffffffffffffffffffff161415610d3857818181518110610c7e57fe5b6020026020010151604001514211610cc157610cba828281518110610c9f57fe5b6020026020010151606001518461166d90919063ffffffff16565b9250610d38565b6000610cd283838151811061036d57fe5b90506000610ce3826201518061162b565b9050838381518110610cf157fe5b60200260200101516080015161ffff16811015610d3557610d32848481518110610d1757fe5b6020026020010151606001518661166d90919063ffffffff16565b94505b50505b600101610c1e565b60008181526020819052604081206002810154421015610d645760009150506102d2565b6000610d7d8260020154426115e090919063ffffffff16565b90506000610d8e826201518061162b565b600484015490915061ffff16811015610dad57600093505050506102d2565b60058301546003840154610dc0916115e0565b93505050506102d2565b6000828152602081905260409020600181015473ffffffffffffffffffffffffffffffffffffffff163314610e2b576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190612189565b60048101546040805160608101909152602480825261ffff90921691600091610e5f91849187916122e560208301396116e1565b6004840180547fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00001661ffff83811691821790925560028601546040519394509092918516917f44b1182afdf36e6e6a6954eae4cb656741a62da83fd42203bb0163ec6953557591610ed1918a906122b7565b60405180910390a35050505050565b60006020819052908152604090208054600182015460028301546003840154600485015460059095015473ffffffffffffffffffffffffffffffffffffffff9485169594909316939192909161ffff169086565b60016020528160005260406000208181548110610f5057600080fd5b90600052602060002001600091509150505481565b610f6d611862565b5060009081526020818152604091829020825160c081018452815473ffffffffffffffffffffffffffffffffffffffff90811682526001830154169281019290925260028101549282019290925260038201546060820152600482015461ffff16608082015260059091015460a082015290565b60008161ffff161161101f576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a1906120cf565b6123a58161ffff16111561105f576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a19061212c565b60008211611099576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611ea1565b6040517f23b872dd00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff8716906323b872dd906110ef90889030908790600401611b4a565b602060405180830381600087803b15801561110957600080fd5b505af115801561111d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906111419190611a77565b611177576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190612072565b600083156111855783611187565b425b9050611191611862565b6040518060c001604052808973ffffffffffffffffffffffffffffffffffffffff1681526020018773ffffffffffffffffffffffffffffffffffffffff1681526020018381526020018581526020018461ffff1681526020016000815250905080600080600254815260200190815260200160002060008201518160000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060208201518160010160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550604082015181600201556060820151816003015560808201518160040160006101000a81548161ffff021916908361ffff16021790555060a08201518160050155905050600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060025490806001815401808255809150506001900390600052602060002001600090919091909150558573ffffffffffffffffffffffffffffffffffffffff168773ffffffffffffffffffffffffffffffffffffffff168973ffffffffffffffffffffffffffffffffffffffff167f30e2bc2d3d392db8b8e24983a41a4f2bb25e8c6e4eeb390289a3d3b747a937b68786886002546040516113bc94939291906122c5565b60405180910390a45050600280546001019055505050505050565b60025481565b60006113e883610d40565b905081811015611424576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611e44565b60008381526020819052604090206005810154611441908461166d565b6005820155600181015473ffffffffffffffffffffffffffffffffffffffff163314611499576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190612243565b805460018201546040517fa9059cbb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff9283169263a9059cbb926114f6929116908790600401611c10565b602060405180830381600087803b15801561151057600080fd5b505af1158015611524573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906115489190611a77565b61157e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611efe565b80546001820154604051859273ffffffffffffffffffffffffffffffffffffffff9081169216907f93900409fdb269cad2f66fb6f629bca922bca043b1a6aaea0f6d36aac5efa3e2906115d29089906122ae565b60405180910390a450505050565b600061162283836040518060400160405280601f81526020017f536166654d6174683a207375627472616374696f6e20756e646572666c6f7700815250611732565b90505b92915050565b600061162283836040518060400160405280601a81526020017f536166654d6174683a206469766973696f6e206279207a65726f0000000000008152506117e3565b60008282018381101561162257604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601b60248201527f536166654d6174683a206164646974696f6e206f766572666c6f770000000000604482015290519081900360640190fd5b60008383018261ffff8087169083161015611729576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a19190611cbc565b50949350505050565b600081848411156117db576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825283818151815260200191508051906020019080838360005b838110156117a0578181015183820152602001611788565b50505050905090810190601f1680156117cd5780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b505050900390565b6000818361184c576040517f08c379a00000000000000000000000000000000000000000000000000000000081526020600482018181528351602484015283519092839260449091019190850190808383600083156117a0578181015183820152602001611788565b50600083858161185857fe5b0495945050505050565b6040518060c00160405280600073ffffffffffffffffffffffffffffffffffffffff168152602001600073ffffffffffffffffffffffffffffffffffffffff1681526020016000815260200160008152602001600061ffff168152602001600081525090565b803573ffffffffffffffffffffffffffffffffffffffff811681146102d257600080fd5b803561ffff811681146102d257600080fd5b60006020828403121561190f578081fd5b611622826118c8565b6000806040838503121561192a578081fd5b611933836118c8565b9150611941602084016118c8565b90509250929050565b60008060008060008060c08789031215611962578182fd5b61196b876118c8565b9550611979602088016118c8565b9450611987604088016118c8565b935060608701359250608087013591506119a360a088016118ec565b90509295509295509295565b6000806000806000806000806000806101408b8d0312156119ce578384fd5b6119d78b6118c8565b99506119e560208c016118c8565b98506119f360408c016118c8565b975060608b0135965060808b01359550611a0f60a08c016118ec565b945060c08b0135935060e08b013560ff81168114611a2b578384fd5b809350506101008b013591506101208b013590509295989b9194979a5092959850565b60008060408385031215611a60578182fd5b611a69836118c8565b946020939093013593505050565b600060208284031215611a88578081fd5b81518015158114611622578182fd5b600060208284031215611aa8578081fd5b5035919050565b60008060408385031215611ac1578182fd5b82359150611941602084016118ec565b60008060408385031215611ae3578182fd5b50508035926020909101359150565b73ffffffffffffffffffffffffffffffffffffffff80825116835280602083015116602084015250604081015160408301526060810151606083015261ffff608082015116608083015260a081015160a08301525050565b73ffffffffffffffffffffffffffffffffffffffff9384168152919092166020820152604081019190915260600190565b73ffffffffffffffffffffffffffffffffffffffff96871681529490951660208501526040840192909252606083015261ffff16608082015260a081019190915260c00190565b73ffffffffffffffffffffffffffffffffffffffff97881681529590961660208601526040850193909352606084019190915260ff16608083015260a082015260c081019190915260e00190565b73ffffffffffffffffffffffffffffffffffffffff929092168252602082015260400190565b6020808252825182820181905260009190848201906040850190845b81811015611c7857611c65838551611af2565b9284019260c09290920191600101611c52565b50909695505050505050565b6020808252825182820181905260009190848201906040850190845b81811015611c7857835183529284019291840191600101611ca0565b6000602080835283518082850152825b81811015611ce857858101830151858201604001528201611ccc565b81811115611cf95783604083870101525b50601f017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe016929092016040019392505050565b6020808252602e908201527f5661756c743a3a636c61696d416c6c556e6c6f636b6564546f6b656e733a207460408201527f72616e73666572206661696c6564000000000000000000000000000000000000606082015260800190565b60208082526038908201527f5661756c743a3a6c6f636b546f6b656e73576974685065726d69743a2064757260408201527f6174696f6e206d6f7265207468616e2032352079656172730000000000000000606082015260800190565b60208082526031908201527f5661756c743a3a6c6f636b546f6b656e73576974685065726d69743a2064757260408201527f6174696f6e206d757374206265203e2030000000000000000000000000000000606082015260800190565b60208082526033908201527f5661756c743a3a636c61696d556e6c6f636b6564546f6b656e733a20756e6c6f60408201527f636b6564416d6f756e74203c20616d6f756e7400000000000000000000000000606082015260800190565b60208082526021908201527f5661756c743a3a6c6f636b546f6b656e733a20616d6f756e74206e6f74203e2060408201527f3000000000000000000000000000000000000000000000000000000000000000606082015260800190565b6020808252602b908201527f5661756c743a3a636c61696d556e6c6f636b6564546f6b656e733a207472616e60408201527f73666572206661696c6564000000000000000000000000000000000000000000606082015260800190565b6020808252603a908201527f5661756c743a3a636c61696d416c6c556e6c6f636b6564546f6b656e733a206d60408201527f73672e73656e646572206d757374206265207265636569766572000000000000606082015260800190565b60208082526032908201527f5661756c743a3a636c61696d416c6c556e6c6f636b6564546f6b656e733a207560408201527f6e6c6f636b6564416d6f756e7420697320300000000000000000000000000000606082015260800190565b6020808252602c908201527f5661756c743a3a6c6f636b546f6b656e73576974685065726d69743a2074726160408201527f6e73666572206661696c65640000000000000000000000000000000000000000606082015260800190565b60208082526022908201527f5661756c743a3a6c6f636b546f6b656e733a207472616e73666572206661696c60408201527f6564000000000000000000000000000000000000000000000000000000000000606082015260800190565b60208082526027908201527f5661756c743a3a6c6f636b546f6b656e733a206475726174696f6e206d75737460408201527f206265203e203000000000000000000000000000000000000000000000000000606082015260800190565b6020808252602e908201527f5661756c743a3a6c6f636b546f6b656e733a206475726174696f6e206d6f726560408201527f207468616e203235207965617273000000000000000000000000000000000000606082015260800190565b6020808252602e908201527f5661756c743a3a657874656e644c6f636b3a206d73672e73656e646572206d7560408201527f7374206265207265636569766572000000000000000000000000000000000000606082015260800190565b6020808252602b908201527f5661756c743a3a6c6f636b546f6b656e73576974685065726d69743a20616d6f60408201527f756e74206e6f74203e2030000000000000000000000000000000000000000000606082015260800190565b60208082526037908201527f5661756c743a3a636c61696d556e6c6f636b6564546f6b656e733a206d73672e60408201527f73656e646572206d757374206265207265636569766572000000000000000000606082015260800190565b60c081016116258284611af2565b90815260200190565b918252602082015260400190565b938452602084019290925261ffff16604083015260608201526080019056fe5661756c743a3a657874656e644c6f636b3a206d61782064617973206578636565646564a264697066735822122008d26d3040efd94cf6f94e55b313ea5f5027e8c07e7cab835ef4e7bca2167f7564736f6c63430007040033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100f55760003560e01c80637eaecc2611610097578063b0b5babe11610066578063b0b5babe1461020f578063b5145e621461022f578063d422cf5814610242578063e5aa64d81461024a576100f5565b80637eaecc26146101b15780638d113012146101c4578063946ca949146101d757806398b04a3a146101fc576100f5565b806351807ad5116100d357806351807ad51461014b57806361496d591461015e578063763d1bd61461017e5780637976ea161461019e576100f5565b80632c4e9ebd146100fa578063334a2310146101235780633adcbadc14610136575b600080fd5b61010d610108366004611a97565b61025d565b60405161011a91906122ae565b60405180910390f35b61010d610131366004611918565b6102d7565b610149610144366004611a97565b61045a565b005b6101496101593660046119af565b610658565b61017161016c3660046118fe565b610ae2565b60405161011a9190611c84565b61019161018c3660046118fe565b610b5b565b60405161011a9190611c36565b61010d6101ac366004611918565b610c0c565b61010d6101bf366004611a97565b610d40565b6101496101d2366004611aaf565b610dca565b6101ea6101e5366004611a97565b610ee0565b60405161011a96959493929190611b7b565b61010d61020a366004611a4e565b610f34565b61022261021d366004611a97565b610f65565b60405161011a91906122a0565b61014961023d36600461194a565b610fe1565b61010d6113d7565b610149610258366004611ad1565b6113dd565b600081815260208190526040812060028101544211610281576003015490506102d2565b600061029a8260020154426115e090919063ffffffff16565b905060006102ab826201518061162b565b600484015490915061ffff1681106102c957600093505050506102d2565b50506003015490505b919050565b600060606102e483610b5b565b905060005b8151811015610452578473ffffffffffffffffffffffffffffffffffffffff1682828151811061031557fe5b60200260200101516000015173ffffffffffffffffffffffffffffffffffffffff16141561044a5781818151811061034957fe5b60200260200101516040015142111561044a57600061038883838151811061036d57fe5b602002602001015160400151426115e090919063ffffffff16565b90506000610399826201518061162b565b90508383815181106103a757fe5b60200260200101516080015161ffff1681101580156103f457508383815181106103cd57fe5b6020026020010151606001518484815181106103e557fe5b602002602001015160a0015114155b156104475761044484848151811061040857fe5b602002602001015160a0015161043e86868151811061042357fe5b6020026020010151606001518861166d90919063ffffffff16565b906115e0565b94505b50505b6001016102e9565b505092915050565b600061046582610d40565b9050600081116104aa576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611fb8565b60405180910390fd5b600082815260208190526040902060058101829055600181015473ffffffffffffffffffffffffffffffffffffffff163314610512576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611f5b565b805460018201546040517fa9059cbb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff9283169263a9059cbb9261056f929116908690600401611c10565b602060405180830381600087803b15801561058957600080fd5b505af115801561059d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105c19190611a77565b6105f7576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611d2d565b80546001820154604051849273ffffffffffffffffffffffffffffffffffffffff9081169216907f93900409fdb269cad2f66fb6f629bca922bca043b1a6aaea0f6d36aac5efa3e29061064b9088906122ae565b60405180910390a4505050565b60008561ffff1611610696576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611de7565b6123a58561ffff1611156106d6576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611d8a565b60008611610710576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a1906121e6565b6040517fd505accf00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff8b169063d505accf9061076e908c9030908b908a908a908a908a90600401611bc2565b600060405180830381600087803b15801561078857600080fd5b505af115801561079c573d6000803e3d6000fd5b50506040517f23b872dd00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff8d1692506323b872dd91506107f6908c9030908b90600401611b4a565b602060405180830381600087803b15801561081057600080fd5b505af1158015610824573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906108489190611a77565b61087e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190612015565b6000871561088c578761088e565b425b9050610898611862565b6040518060c001604052808d73ffffffffffffffffffffffffffffffffffffffff1681526020018b73ffffffffffffffffffffffffffffffffffffffff1681526020018381526020018981526020018861ffff1681526020016000815250905080600080600254815260200190815260200160002060008201518160000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060208201518160010160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550604082015181600201556060820151816003015560808201518160040160006101000a81548161ffff021916908361ffff16021790555060a08201518160050155905050600160008b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060025490806001815401808255809150506001900390600052602060002001600090919091909150558973ffffffffffffffffffffffffffffffffffffffff168b73ffffffffffffffffffffffffffffffffffffffff168d73ffffffffffffffffffffffffffffffffffffffff167f30e2bc2d3d392db8b8e24983a41a4f2bb25e8c6e4eeb390289a3d3b747a937b68b868c600254604051610ac394939291906122c5565b60405180910390a4505060028054600101905550505050505050505050565b73ffffffffffffffffffffffffffffffffffffffff8116600090815260016020908152604091829020805483518184028101840190945280845260609392830182828015610b4f57602002820191906000526020600020905b815481526020019060010190808311610b3b575b50505050509050919050565b606080610b6783610ae2565b9050805167ffffffffffffffff81118015610b8157600080fd5b50604051908082528060200260200182016040528015610bbb57816020015b610ba8611862565b815260200190600190039081610ba05790505b50915060005b8151811015610c0557610be6828281518110610bd957fe5b6020026020010151610f65565b838281518110610bf257fe5b6020908102919091010152600101610bc1565b5050919050565b60006060610c1983610b5b565b905060005b8151811015610452578473ffffffffffffffffffffffffffffffffffffffff16828281518110610c4a57fe5b60200260200101516000015173ffffffffffffffffffffffffffffffffffffffff161415610d3857818181518110610c7e57fe5b6020026020010151604001514211610cc157610cba828281518110610c9f57fe5b6020026020010151606001518461166d90919063ffffffff16565b9250610d38565b6000610cd283838151811061036d57fe5b90506000610ce3826201518061162b565b9050838381518110610cf157fe5b60200260200101516080015161ffff16811015610d3557610d32848481518110610d1757fe5b6020026020010151606001518661166d90919063ffffffff16565b94505b50505b600101610c1e565b60008181526020819052604081206002810154421015610d645760009150506102d2565b6000610d7d8260020154426115e090919063ffffffff16565b90506000610d8e826201518061162b565b600484015490915061ffff16811015610dad57600093505050506102d2565b60058301546003840154610dc0916115e0565b93505050506102d2565b6000828152602081905260409020600181015473ffffffffffffffffffffffffffffffffffffffff163314610e2b576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190612189565b60048101546040805160608101909152602480825261ffff90921691600091610e5f91849187916122e560208301396116e1565b6004840180547fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00001661ffff83811691821790925560028601546040519394509092918516917f44b1182afdf36e6e6a6954eae4cb656741a62da83fd42203bb0163ec6953557591610ed1918a906122b7565b60405180910390a35050505050565b60006020819052908152604090208054600182015460028301546003840154600485015460059095015473ffffffffffffffffffffffffffffffffffffffff9485169594909316939192909161ffff169086565b60016020528160005260406000208181548110610f5057600080fd5b90600052602060002001600091509150505481565b610f6d611862565b5060009081526020818152604091829020825160c081018452815473ffffffffffffffffffffffffffffffffffffffff90811682526001830154169281019290925260028101549282019290925260038201546060820152600482015461ffff16608082015260059091015460a082015290565b60008161ffff161161101f576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a1906120cf565b6123a58161ffff16111561105f576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a19061212c565b60008211611099576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611ea1565b6040517f23b872dd00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff8716906323b872dd906110ef90889030908790600401611b4a565b602060405180830381600087803b15801561110957600080fd5b505af115801561111d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906111419190611a77565b611177576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190612072565b600083156111855783611187565b425b9050611191611862565b6040518060c001604052808973ffffffffffffffffffffffffffffffffffffffff1681526020018773ffffffffffffffffffffffffffffffffffffffff1681526020018381526020018581526020018461ffff1681526020016000815250905080600080600254815260200190815260200160002060008201518160000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060208201518160010160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550604082015181600201556060820151816003015560808201518160040160006101000a81548161ffff021916908361ffff16021790555060a08201518160050155905050600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060025490806001815401808255809150506001900390600052602060002001600090919091909150558573ffffffffffffffffffffffffffffffffffffffff168773ffffffffffffffffffffffffffffffffffffffff168973ffffffffffffffffffffffffffffffffffffffff167f30e2bc2d3d392db8b8e24983a41a4f2bb25e8c6e4eeb390289a3d3b747a937b68786886002546040516113bc94939291906122c5565b60405180910390a45050600280546001019055505050505050565b60025481565b60006113e883610d40565b905081811015611424576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611e44565b60008381526020819052604090206005810154611441908461166d565b6005820155600181015473ffffffffffffffffffffffffffffffffffffffff163314611499576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190612243565b805460018201546040517fa9059cbb00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff9283169263a9059cbb926114f6929116908790600401611c10565b602060405180830381600087803b15801561151057600080fd5b505af1158015611524573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906115489190611a77565b61157e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a190611efe565b80546001820154604051859273ffffffffffffffffffffffffffffffffffffffff9081169216907f93900409fdb269cad2f66fb6f629bca922bca043b1a6aaea0f6d36aac5efa3e2906115d29089906122ae565b60405180910390a450505050565b600061162283836040518060400160405280601f81526020017f536166654d6174683a207375627472616374696f6e20756e646572666c6f7700815250611732565b90505b92915050565b600061162283836040518060400160405280601a81526020017f536166654d6174683a206469766973696f6e206279207a65726f0000000000008152506117e3565b60008282018381101561162257604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601b60248201527f536166654d6174683a206164646974696f6e206f766572666c6f770000000000604482015290519081900360640190fd5b60008383018261ffff8087169083161015611729576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104a19190611cbc565b50949350505050565b600081848411156117db576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825283818151815260200191508051906020019080838360005b838110156117a0578181015183820152602001611788565b50505050905090810190601f1680156117cd5780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b505050900390565b6000818361184c576040517f08c379a00000000000000000000000000000000000000000000000000000000081526020600482018181528351602484015283519092839260449091019190850190808383600083156117a0578181015183820152602001611788565b50600083858161185857fe5b0495945050505050565b6040518060c00160405280600073ffffffffffffffffffffffffffffffffffffffff168152602001600073ffffffffffffffffffffffffffffffffffffffff1681526020016000815260200160008152602001600061ffff168152602001600081525090565b803573ffffffffffffffffffffffffffffffffffffffff811681146102d257600080fd5b803561ffff811681146102d257600080fd5b60006020828403121561190f578081fd5b611622826118c8565b6000806040838503121561192a578081fd5b611933836118c8565b9150611941602084016118c8565b90509250929050565b60008060008060008060c08789031215611962578182fd5b61196b876118c8565b9550611979602088016118c8565b9450611987604088016118c8565b935060608701359250608087013591506119a360a088016118ec565b90509295509295509295565b6000806000806000806000806000806101408b8d0312156119ce578384fd5b6119d78b6118c8565b99506119e560208c016118c8565b98506119f360408c016118c8565b975060608b0135965060808b01359550611a0f60a08c016118ec565b945060c08b0135935060e08b013560ff81168114611a2b578384fd5b809350506101008b013591506101208b013590509295989b9194979a5092959850565b60008060408385031215611a60578182fd5b611a69836118c8565b946020939093013593505050565b600060208284031215611a88578081fd5b81518015158114611622578182fd5b600060208284031215611aa8578081fd5b5035919050565b60008060408385031215611ac1578182fd5b82359150611941602084016118ec565b60008060408385031215611ae3578182fd5b50508035926020909101359150565b73ffffffffffffffffffffffffffffffffffffffff80825116835280602083015116602084015250604081015160408301526060810151606083015261ffff608082015116608083015260a081015160a08301525050565b73ffffffffffffffffffffffffffffffffffffffff9384168152919092166020820152604081019190915260600190565b73ffffffffffffffffffffffffffffffffffffffff96871681529490951660208501526040840192909252606083015261ffff16608082015260a081019190915260c00190565b73ffffffffffffffffffffffffffffffffffffffff97881681529590961660208601526040850193909352606084019190915260ff16608083015260a082015260c081019190915260e00190565b73ffffffffffffffffffffffffffffffffffffffff929092168252602082015260400190565b6020808252825182820181905260009190848201906040850190845b81811015611c7857611c65838551611af2565b9284019260c09290920191600101611c52565b50909695505050505050565b6020808252825182820181905260009190848201906040850190845b81811015611c7857835183529284019291840191600101611ca0565b6000602080835283518082850152825b81811015611ce857858101830151858201604001528201611ccc565b81811115611cf95783604083870101525b50601f017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe016929092016040019392505050565b6020808252602e908201527f5661756c743a3a636c61696d416c6c556e6c6f636b6564546f6b656e733a207460408201527f72616e73666572206661696c6564000000000000000000000000000000000000606082015260800190565b60208082526038908201527f5661756c743a3a6c6f636b546f6b656e73576974685065726d69743a2064757260408201527f6174696f6e206d6f7265207468616e2032352079656172730000000000000000606082015260800190565b60208082526031908201527f5661756c743a3a6c6f636b546f6b656e73576974685065726d69743a2064757260408201527f6174696f6e206d757374206265203e2030000000000000000000000000000000606082015260800190565b60208082526033908201527f5661756c743a3a636c61696d556e6c6f636b6564546f6b656e733a20756e6c6f60408201527f636b6564416d6f756e74203c20616d6f756e7400000000000000000000000000606082015260800190565b60208082526021908201527f5661756c743a3a6c6f636b546f6b656e733a20616d6f756e74206e6f74203e2060408201527f3000000000000000000000000000000000000000000000000000000000000000606082015260800190565b6020808252602b908201527f5661756c743a3a636c61696d556e6c6f636b6564546f6b656e733a207472616e60408201527f73666572206661696c6564000000000000000000000000000000000000000000606082015260800190565b6020808252603a908201527f5661756c743a3a636c61696d416c6c556e6c6f636b6564546f6b656e733a206d60408201527f73672e73656e646572206d757374206265207265636569766572000000000000606082015260800190565b60208082526032908201527f5661756c743a3a636c61696d416c6c556e6c6f636b6564546f6b656e733a207560408201527f6e6c6f636b6564416d6f756e7420697320300000000000000000000000000000606082015260800190565b6020808252602c908201527f5661756c743a3a6c6f636b546f6b656e73576974685065726d69743a2074726160408201527f6e73666572206661696c65640000000000000000000000000000000000000000606082015260800190565b60208082526022908201527f5661756c743a3a6c6f636b546f6b656e733a207472616e73666572206661696c60408201527f6564000000000000000000000000000000000000000000000000000000000000606082015260800190565b60208082526027908201527f5661756c743a3a6c6f636b546f6b656e733a206475726174696f6e206d75737460408201527f206265203e203000000000000000000000000000000000000000000000000000606082015260800190565b6020808252602e908201527f5661756c743a3a6c6f636b546f6b656e733a206475726174696f6e206d6f726560408201527f207468616e203235207965617273000000000000000000000000000000000000606082015260800190565b6020808252602e908201527f5661756c743a3a657874656e644c6f636b3a206d73672e73656e646572206d7560408201527f7374206265207265636569766572000000000000000000000000000000000000606082015260800190565b6020808252602b908201527f5661756c743a3a6c6f636b546f6b656e73576974685065726d69743a20616d6f60408201527f756e74206e6f74203e2030000000000000000000000000000000000000000000606082015260800190565b60208082526037908201527f5661756c743a3a636c61696d556e6c6f636b6564546f6b656e733a206d73672e60408201527f73656e646572206d757374206265207265636569766572000000000000000000606082015260800190565b60c081016116258284611af2565b90815260200190565b918252602082015260400190565b938452602084019290925261ffff16604083015260608201526080019056fe5661756c743a3a657874656e644c6f636b3a206d61782064617973206578636565646564a264697066735822122008d26d3040efd94cf6f94e55b313ea5f5027e8c07e7cab835ef4e7bca2167f7564736f6c63430007040033",
+  "devdoc": {
+    "details": "Contract for locking up tokens for set periods of time Tokens locked in this contract DO NOT count towards voting power",
+    "kind": "dev",
+    "methods": {
+      "claimAllUnlockedTokens(uint256)": {
+        "details": "Errors if no tokens are unlockedIt is advised receivers check they are entitled to claim via `getUnlockedBalance` before calling this",
+        "params": {
+          "lockId": "The lock id for an unlocked token balance"
+        }
+      },
+      "claimUnlockedTokens(uint256,uint256)": {
+        "details": "Errors if no tokens are unlockedIt is advised receivers check they are entitled to claim via `getUnlockedBalance` before calling this",
+        "params": {
+          "amount": "The amount of unlocked tokens to claim",
+          "lockId": "The lock id for an unlocked token balance"
+        }
+      },
+      "extendLock(uint256,uint16)": {
+        "params": {
+          "daysToAdd": "The number of days to add to duration",
+          "lockId": "The lock id for a locked token balance"
+        }
+      },
+      "getActiveLocks(address)": {
+        "params": {
+          "receiver": "The address that has locked balances"
+        },
+        "returns": {
+          "_0": "the lock ids"
+        }
+      },
+      "getAllActiveLocks(address)": {
+        "params": {
+          "receiver": "The address that has locked balances"
+        },
+        "returns": {
+          "receiverLocks": "the lock ids"
+        }
+      },
+      "getLockedBalance(uint256)": {
+        "details": "Returns 0 if duration has ended",
+        "params": {
+          "lockId": "The lock ID"
+        },
+        "returns": {
+          "_0": "The amount that is locked"
+        }
+      },
+      "getLockedTokenBalance(address,address)": {
+        "params": {
+          "receiver": "The address that has locked balances",
+          "token": "The token to check"
+        },
+        "returns": {
+          "lockedBalance": "the total amount of `token` locked "
+        }
+      },
+      "getTokenLock(uint256)": {
+        "params": {
+          "lockId": "The ID for the locked balance"
+        },
+        "returns": {
+          "_0": "the lock"
+        }
+      },
+      "getUnlockedBalance(uint256)": {
+        "details": "Returns 0 if duration has not ended",
+        "params": {
+          "lockId": "The lock ID"
+        },
+        "returns": {
+          "_0": "The amount that can be claimed"
+        }
+      },
+      "getUnlockedTokenBalance(address,address)": {
+        "params": {
+          "receiver": "The address that has unlocked balances",
+          "token": "The token to check"
+        },
+        "returns": {
+          "unlockedBalance": "the total amount of `token` unlocked "
+        }
+      },
+      "lockTokens(address,address,address,uint256,uint256,uint16)": {
+        "params": {
+          "amount": "The amount of tokens being locked",
+          "lockDurationInDays": "The lock period in days",
+          "locker": "The account that is locking tokens",
+          "receiver": "The account that will be able to retrieve unlocked tokens",
+          "startTime": "The unix timestamp when the lock period will start"
+        }
+      },
+      "lockTokensWithPermit(address,address,address,uint256,uint256,uint16,uint256,uint8,bytes32,bytes32)": {
+        "params": {
+          "amount": "The amount of tokens being locked",
+          "deadline": "The time at which to expire the signature",
+          "lockDurationInDays": "The lock period in days",
+          "locker": "The account that is locking tokens",
+          "r": "Half of the ECDSA signature pair",
+          "receiver": "The account that will be able to retrieve unlocked tokens",
+          "s": "Half of the ECDSA signature pair",
+          "startTime": "The unix timestamp when the lock period will start",
+          "token": "Address of token to lock",
+          "v": "The recovery byte of the signature"
+        }
+      }
+    },
+    "stateVariables": {
+      "SECONDS_PER_DAY": {
+        "details": "Used to translate lock periods specified in days to seconds"
+      }
+    },
+    "title": "Vault",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "LockCreated(address,address,address,uint256,uint256,uint16,uint256)": {
+        "notice": "Event emitted when a new lock is created"
+      },
+      "LockExtended(uint16,uint16,uint256,uint256)": {
+        "notice": "Event emitted when lock duration extended"
+      },
+      "UnlockedTokensClaimed(address,address,uint256,uint256)": {
+        "notice": "Event emitted when tokens are claimed by a receiver from an unlocked balance"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "activeLocks(address,uint256)": {
+        "notice": "Mapping of address to lock id"
+      },
+      "claimAllUnlockedTokens(uint256)": {
+        "notice": "Allows receiver to claim all of their unlocked tokens for a given lock"
+      },
+      "claimUnlockedTokens(uint256,uint256)": {
+        "notice": "Allows receiver to claim a portion of their unlocked tokens for a given lock"
+      },
+      "extendLock(uint256,uint16)": {
+        "notice": "Allows receiver extend lock period for a given lock"
+      },
+      "getActiveLocks(address)": {
+        "notice": "Get token locks for receiver"
+      },
+      "getAllActiveLocks(address)": {
+        "notice": "Get all active token locks for receiver"
+      },
+      "getLockedBalance(uint256)": {
+        "notice": "Get locked balance for a given lock id"
+      },
+      "getLockedTokenBalance(address,address)": {
+        "notice": "Get total locked token balance of receiver"
+      },
+      "getTokenLock(uint256)": {
+        "notice": "Get token lock for given lock id"
+      },
+      "getUnlockedBalance(uint256)": {
+        "notice": "Get unlocked balance for a given lock id"
+      },
+      "getUnlockedTokenBalance(address,address)": {
+        "notice": "Get total unlocked token balance of receiver"
+      },
+      "lockTokens(address,address,address,uint256,uint256,uint16)": {
+        "notice": "Lock tokens"
+      },
+      "lockTokensWithPermit(address,address,address,uint256,uint256,uint16,uint256,uint8,bytes32,bytes32)": {
+        "notice": "Lock tokens"
+      },
+      "numLocks()": {
+        "notice": "Number of locks"
+      },
+      "tokenLocks(uint256)": {
+        "notice": "Mapping of lock id > token locks"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 2832,
+        "contract": "contracts/Vault.sol:Vault",
+        "label": "tokenLocks",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_struct(Lock)2823_storage)"
+      },
+      {
+        "astId": 2838,
+        "contract": "contracts/Vault.sol:Vault",
+        "label": "activeLocks",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)"
+      },
+      {
+        "astId": 2841,
+        "contract": "contracts/Vault.sol:Vault",
+        "label": "numLocks",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_uint256)dyn_storage": {
+        "base": "t_uint256",
+        "encoding": "dynamic_array",
+        "label": "uint256[]",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_address,t_array(t_uint256)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_uint256)dyn_storage"
+      },
+      "t_mapping(t_uint256,t_struct(Lock)2823_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct Vault.Lock)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Lock)2823_storage"
+      },
+      "t_struct(Lock)2823_storage": {
+        "encoding": "inplace",
+        "label": "struct Vault.Lock",
+        "members": [
+          {
+            "astId": 2812,
+            "contract": "contracts/Vault.sol:Vault",
+            "label": "token",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 2814,
+            "contract": "contracts/Vault.sol:Vault",
+            "label": "receiver",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 2816,
+            "contract": "contracts/Vault.sol:Vault",
+            "label": "startTime",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2818,
+            "contract": "contracts/Vault.sol:Vault",
+            "label": "amount",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 2820,
+            "contract": "contracts/Vault.sol:Vault",
+            "label": "duration",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint16"
+          },
+          {
+            "astId": 2822,
+            "contract": "contracts/Vault.sol:Vault",
+            "label": "amountClaimed",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "192"
+      },
+      "t_uint16": {
+        "encoding": "inplace",
+        "label": "uint16",
+        "numberOfBytes": "2"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

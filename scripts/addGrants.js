@@ -17,7 +17,7 @@ async function addGrants(startTime) {
             vestingCliffInDays = 0
             vestingPercentage = 75
         } else if (grant.class == "team") {
-            vestingDurationInDays = 540
+            vestingDurationInDays = 730
             vestingCliffInDays = 180
             vestingPercentage = 100
         } else {
@@ -37,8 +37,7 @@ async function addGrants(startTime) {
 }
 
 if (require.main === module) {
-    const startTime = parseInt(Date.now() / 1000) + 21600
-    addGrants(startTime)
+    addGrants(0)
 }
 
 module.exports.addGrants = addGrants

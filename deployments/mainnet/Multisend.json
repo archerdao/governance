@@ -1,0 +1,200 @@
+{
+  "address": "0xc3B4d54420Ac1C0d91A6bf8e15F7CE5C4D8F8a36",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IArchToken",
+          "name": "_token",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address[]",
+          "name": "recipients",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "batchTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address[]",
+          "name": "recipients",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "v",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "batchTransferWithPermit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "token",
+      "outputs": [
+        {
+          "internalType": "contract IArchToken",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x0014299372a10961df623525911f4af4602927ffc68d270e6ae4233892b8cd64",
+  "receipt": {
+    "to": null,
+    "from": "0x4F8f512Dab59F227EA70B1D8A0044aFa95CC80C3",
+    "contractAddress": "0xc3B4d54420Ac1C0d91A6bf8e15F7CE5C4D8F8a36",
+    "transactionIndex": 179,
+    "gasUsed": "672242",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xd389efa1816fbf69c1af22fcc469b8037ef5ab9eab3c9ffc643d7b4f62f658ac",
+    "transactionHash": "0x0014299372a10961df623525911f4af4602927ffc68d270e6ae4233892b8cd64",
+    "logs": [],
+    "blockNumber": 11309970,
+    "cumulativeGasUsed": "11332952",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x1F3f9D3068568F8040775be2e8C03C103C61f3aF"
+  ],
+  "solcInputHash": "5bf4568ab804ae51559c23ee44b86063",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.4+commit.3f05b770\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IArchToken\",\"name\":\"_token\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"totalAmount\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"recipients\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"batchTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"totalAmount\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"recipients\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"batchTransferWithPermit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"internalType\":\"contract IArchToken\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Allows the sender to perform batch transfers of ARCH tokens\",\"kind\":\"dev\",\"methods\":{\"batchTransfer(uint256,address[],uint256[])\":{\"details\":\"Must approve this contract for `totalAmount` before calling\",\"params\":{\"amounts\":\"Array of amounts to send to accounts via transfers\",\"recipients\":\"Array of accounts to receive transfers\",\"totalAmount\":\"Total amount to be transferred\"}},\"batchTransferWithPermit(uint256,address[],uint256[],uint256,uint8,bytes32,bytes32)\":{\"params\":{\"amounts\":\"Array of amounts to send to accounts via transfers\",\"deadline\":\"The time at which to expire the signature\",\"r\":\"Half of the ECDSA signature pair\",\"recipients\":\"Array of accounts to receive transfers\",\"s\":\"Half of the ECDSA signature pair\",\"totalAmount\":\"Total amount to be transferred\",\"v\":\"The recovery byte of the signature\"}},\"constructor\":{\"params\":{\"_token\":\"Address of ARCH token\"}}},\"title\":\"Multisend\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"batchTransfer(uint256,address[],uint256[])\":{\"notice\":\"Batches multiple transfers\"},\"batchTransferWithPermit(uint256,address[],uint256[],uint256,uint8,bytes32,bytes32)\":{\"notice\":\"Batches multiple transfers with approval provided by permit function\"},\"constructor\":{\"notice\":\"Construct a new Multisend contract\"},\"token()\":{\"notice\":\"ARCH token\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/Multisend.sol\":\"Multisend\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":999999},\"remappings\":[]},\"sources\":{\"contracts/Multisend.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.7.0;\\npragma experimental ABIEncoderV2;\\n\\nimport \\\"./interfaces/IArchToken.sol\\\";\\nimport \\\"./lib/ReentrancyGuard.sol\\\";\\n\\n/**\\n * @title Multisend\\n * @dev Allows the sender to perform batch transfers of ARCH tokens\\n */\\ncontract Multisend is ReentrancyGuard {\\n\\n    /// @notice ARCH token\\n    IArchToken public token;\\n\\n    /**\\n     * @notice Construct a new Multisend contract\\n     * @param _token Address of ARCH token\\n     */\\n    constructor(IArchToken _token) {\\n        token = _token;\\n    }\\n\\n    /**\\n     * @notice Batches multiple transfers\\n     * @dev Must approve this contract for `totalAmount` before calling\\n     * @param totalAmount Total amount to be transferred\\n     * @param recipients Array of accounts to receive transfers\\n     * @param amounts Array of amounts to send to accounts via transfers\\n     */\\n    function batchTransfer(\\n        uint256 totalAmount,\\n        address[] calldata recipients,\\n        uint256[] calldata amounts\\n    ) external nonReentrant {\\n        _batchTransfer(totalAmount, recipients, amounts);\\n    }\\n\\n    /**\\n     * @notice Batches multiple transfers with approval provided by permit function\\n     * @param totalAmount Total amount to be transferred\\n     * @param recipients Array of accounts to receive transfers\\n     * @param amounts Array of amounts to send to accounts via transfers\\n     * @param deadline The time at which to expire the signature\\n     * @param v The recovery byte of the signature\\n     * @param r Half of the ECDSA signature pair\\n     * @param s Half of the ECDSA signature pair\\n     */\\n    function batchTransferWithPermit(\\n        uint256 totalAmount,\\n        address[] calldata recipients,\\n        uint256[] calldata amounts,\\n        uint256 deadline,\\n        uint8 v, \\n        bytes32 r, \\n        bytes32 s\\n    ) external nonReentrant {\\n        token.permit(msg.sender, address(this), totalAmount, deadline, v, r, s);\\n        _batchTransfer(totalAmount, recipients, amounts);\\n    }\\n\\n    /**\\n     * @notice Internal implementation of batch transfer\\n     * @param totalAmount Total amount to be transferred\\n     * @param recipients Array of accounts to receive transfers\\n     * @param amounts Array of amounts to send to accounts via transfers\\n     */\\n    function _batchTransfer(\\n        uint256 totalAmount,\\n        address[] calldata recipients,\\n        uint256[] calldata amounts\\n    ) internal {\\n        require(token.allowance(msg.sender, address(this)) >= totalAmount, \\\"Multisend::_batchTransfer: allowance too low\\\");\\n        require(token.balanceOf(msg.sender) >= totalAmount, \\\"Multisend::_batchTransfer: sender balance too low\\\");\\n        require(recipients.length == amounts.length, \\\"Multisend::_batchTransfer: recipients length != amounts length\\\");\\n        uint256 amountTransferred = 0;\\n        for (uint256 i; i < recipients.length; i++) {\\n            bool success = token.transferFrom(msg.sender, recipients[i], amounts[i]);\\n            require(success, \\\"Multisend::_batchTransfer: failed to transfer tokens\\\");\\n            amountTransferred = amountTransferred + amounts[i];\\n        }\\n        require(amountTransferred == totalAmount, \\\"Multisend::_batchTransfer: total != transferred amount\\\");\\n    }\\n}\",\"keccak256\":\"0x562ea2505eecb1f33d806409cedfeacd33787bf5ee6ec60a8720288e8847fdb1\",\"license\":\"MIT\"},\"contracts/interfaces/IArchToken.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\n\\ninterface IArchToken {\\n    function name() external view returns (string memory);\\n    function symbol() external view returns (string memory);\\n    function decimals() external view returns (uint8);\\n    function totalSupply() external view returns (uint256);\\n    function balanceOf(address account) external view returns (uint256);\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\n    function allowance(address owner, address spender) external view returns (uint256);\\n    function approve(address spender, uint256 amount) external returns (bool);\\n    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);\\n    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;\\n    function mint(address dst, uint256 amount) external returns (bool);\\n    function burn(address src, uint256 amount) external returns (bool);\\n    function updateTokenMetadata(string memory tokenName, string memory tokenSymbol) external returns (bool);\\n    function supplyManager() external view returns (address);\\n    function metadataManager() external view returns (address);\\n    function supplyChangeAllowedAfter() external view returns (uint256);\\n    function supplyChangeWaitingPeriod() external view returns (uint32);\\n    function supplyChangeWaitingPeriodMinimum() external view returns (uint32);\\n    function mintCap() external view returns (uint16);\\n    function setSupplyManager(address newSupplyManager) external returns (bool);\\n    function setMetadataManager(address newMetadataManager) external returns (bool);\\n    function setSupplyChangeWaitingPeriod(uint32 period) external returns (bool);\\n    function setMintCap(uint16 newCap) external returns (bool);\\n    event MintCapChanged(uint16 indexed oldMintCap, uint16 indexed newMintCap);\\n    event SupplyManagerChanged(address indexed oldManager, address indexed newManager);\\n    event SupplyChangeWaitingPeriodChanged(uint32 indexed oldWaitingPeriod, uint32 indexed newWaitingPeriod);\\n    event MetadataManagerChanged(address indexed oldManager, address indexed newManager);\\n    event TokenMetaUpdated(string indexed name, string indexed symbol);\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n    event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);\\n}\",\"keccak256\":\"0x573123d04812487103499ebafe969bb27f00c4236bf433416ef6e84155deef3c\",\"license\":\"MIT\"},\"contracts/lib/ReentrancyGuard.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.7.0;\\n\\n/**\\n * @dev Contract module that helps prevent reentrant calls to a function.\\n *\\n * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier\\n * available, which can be applied to functions to make sure there are no nested\\n * (reentrant) calls to them.\\n *\\n * Note that because there is a single `nonReentrant` guard, functions marked as\\n * `nonReentrant` may not call one another. This can be worked around by making\\n * those functions `private`, and then adding `external` `nonReentrant` entry\\n * points to them.\\n *\\n * TIP: If you would like to learn more about reentrancy and alternative ways\\n * to protect against it, check out our blog post\\n * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].\\n */\\nabstract contract ReentrancyGuard {\\n    // Booleans are more expensive than uint256 or any type that takes up a full\\n    // word because each write operation emits an extra SLOAD to first read the\\n    // slot's contents, replace the bits taken up by the boolean, and then write\\n    // back. This is the compiler's defense against contract upgrades and\\n    // pointer aliasing, and it cannot be disabled.\\n\\n    // The values being non-zero value makes deployment a bit more expensive,\\n    // but in exchange the refund on every call to nonReentrant will be lower in\\n    // amount. Since refunds are capped to a percentage of the total\\n    // transaction's gas, it is best to keep them low in cases like this one, to\\n    // increase the likelihood of the full refund coming into effect.\\n    uint256 private constant _NOT_ENTERED = 1;\\n    uint256 private constant _ENTERED = 2;\\n\\n    uint256 private _status;\\n\\n    constructor () {\\n        _status = _NOT_ENTERED;\\n    }\\n\\n    /**\\n     * @dev Prevents a contract from calling itself, directly or indirectly.\\n     * Calling a `nonReentrant` function from another `nonReentrant`\\n     * function is not supported. It is possible to prevent this from happening\\n     * by making the `nonReentrant` function external, and make it call a\\n     * `private` function that does the actual work.\\n     */\\n    modifier nonReentrant() {\\n        // On the first call to nonReentrant, _notEntered will be true\\n        require(_status != _ENTERED, \\\"ReentrancyGuard: reentrant call\\\");\\n\\n        // Any calls to nonReentrant after this point will fail\\n        _status = _ENTERED;\\n\\n        _;\\n\\n        // By storing the original value once again, a refund is triggered (see\\n        // https://eips.ethereum.org/EIPS/eip-2200)\\n        _status = _NOT_ENTERED;\\n    }\\n}\",\"keccak256\":\"0x3318ee67bfc251e74ac8ac1a97061fdaed4f5355fd9c23eb26e1ee1550f675bd\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50604051610b12380380610b1283398101604081905261002f91610059565b6001600081905580546001600160a01b0319166001600160a01b0392909216919091179055610087565b60006020828403121561006a578081fd5b81516001600160a01b0381168114610080578182fd5b9392505050565b610a7c806100966000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80637b5cbf5014610046578063ec09172a1461005b578063fc0c546a1461006e575b600080fd5b61005961005436600461068c565b61008c565b005b610059610069366004610703565b61011c565b610076610244565b60405161008391906107ae565b60405180910390f35b600260005414156100fe57604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c00604482015290519081900360640190fd5b60026000556101108585858585610260565b50506001600055505050565b6002600054141561018e57604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c00604482015290519081900360640190fd5b60026000556001546040517fd505accf00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff9091169063d505accf906101f590339030908e908a908a908a908a90600401610827565b600060405180830381600087803b15801561020f57600080fd5b505af1158015610223573d6000803e3d6000fd5b505050506102348989898989610260565b5050600160005550505050505050565b60015473ffffffffffffffffffffffffffffffffffffffff1681565b6001546040517fdd62ed3e000000000000000000000000000000000000000000000000000000008152869173ffffffffffffffffffffffffffffffffffffffff169063dd62ed3e906102b890339030906004016107cf565b60206040518083038186803b1580156102d057600080fd5b505afa1580156102e4573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103089190610674565b1015610349576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016103409061098c565b60405180910390fd5b6001546040517f70a08231000000000000000000000000000000000000000000000000000000008152869173ffffffffffffffffffffffffffffffffffffffff16906370a082319061039f9033906004016107ae565b60206040518083038186803b1580156103b757600080fd5b505afa1580156103cb573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103ef9190610674565b1015610427576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161034090610875565b828114610460576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610340906108d2565b6000805b8481101561058e5760015460009073ffffffffffffffffffffffffffffffffffffffff166323b872dd3389898681811061049a57fe5b90506020020160208101906104af9190610619565b8888878181106104bb57fe5b905060200201356040518463ffffffff1660e01b81526004016104e0939291906107f6565b602060405180830381600087803b1580156104fa57600080fd5b505af115801561050e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105329190610654565b90508061056b576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016103409061092f565b84848381811061057757fe5b602002919091013593909301925050600101610464565b508581146105c8576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610340906109e9565b505050505050565b60008083601f8401126105e1578182fd5b50813567ffffffffffffffff8111156105f8578182fd5b602083019150836020808302850101111561061257600080fd5b9250929050565b60006020828403121561062a578081fd5b813573ffffffffffffffffffffffffffffffffffffffff8116811461064d578182fd5b9392505050565b600060208284031215610665578081fd5b8151801515811461064d578182fd5b600060208284031215610685578081fd5b5051919050565b6000806000806000606086880312156106a3578081fd5b85359450602086013567ffffffffffffffff808211156106c1578283fd5b6106cd89838a016105d0565b909650945060408801359150808211156106e5578283fd5b506106f2888289016105d0565b969995985093965092949392505050565b600080600080600080600080600060e08a8c031215610720578384fd5b8935985060208a013567ffffffffffffffff8082111561073e578586fd5b61074a8d838e016105d0565b909a50985060408c0135915080821115610762578586fd5b5061076f8c828d016105d0565b90975095505060608a0135935060808a013560ff8116811461078f578384fd5b8093505060a08a0135915060c08a013590509295985092959850929598565b73ffffffffffffffffffffffffffffffffffffffff91909116815260200190565b73ffffffffffffffffffffffffffffffffffffffff92831681529116602082015260400190565b73ffffffffffffffffffffffffffffffffffffffff9384168152919092166020820152604081019190915260600190565b73ffffffffffffffffffffffffffffffffffffffff97881681529590961660208601526040850193909352606084019190915260ff16608083015260a082015260c081019190915260e00190565b60208082526031908201527f4d756c746973656e643a3a5f62617463685472616e736665723a2073656e646560408201527f722062616c616e636520746f6f206c6f77000000000000000000000000000000606082015260800190565b6020808252603e908201527f4d756c746973656e643a3a5f62617463685472616e736665723a20726563697060408201527f69656e7473206c656e67746820213d20616d6f756e7473206c656e6774680000606082015260800190565b60208082526034908201527f4d756c746973656e643a3a5f62617463685472616e736665723a206661696c6560408201527f6420746f207472616e7366657220746f6b656e73000000000000000000000000606082015260800190565b6020808252602c908201527f4d756c746973656e643a3a5f62617463685472616e736665723a20616c6c6f7760408201527f616e636520746f6f206c6f770000000000000000000000000000000000000000606082015260800190565b60208082526036908201527f4d756c746973656e643a3a5f62617463685472616e736665723a20746f74616c60408201527f20213d207472616e7366657272656420616d6f756e740000000000000000000060608201526080019056fea2646970667358221220774cfcbd7b3960e60591a10186f66a44a2ad0fdf87dc94bbf76bb0632f0e252d64736f6c63430007040033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80637b5cbf5014610046578063ec09172a1461005b578063fc0c546a1461006e575b600080fd5b61005961005436600461068c565b61008c565b005b610059610069366004610703565b61011c565b610076610244565b60405161008391906107ae565b60405180910390f35b600260005414156100fe57604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c00604482015290519081900360640190fd5b60026000556101108585858585610260565b50506001600055505050565b6002600054141561018e57604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c00604482015290519081900360640190fd5b60026000556001546040517fd505accf00000000000000000000000000000000000000000000000000000000815273ffffffffffffffffffffffffffffffffffffffff9091169063d505accf906101f590339030908e908a908a908a908a90600401610827565b600060405180830381600087803b15801561020f57600080fd5b505af1158015610223573d6000803e3d6000fd5b505050506102348989898989610260565b5050600160005550505050505050565b60015473ffffffffffffffffffffffffffffffffffffffff1681565b6001546040517fdd62ed3e000000000000000000000000000000000000000000000000000000008152869173ffffffffffffffffffffffffffffffffffffffff169063dd62ed3e906102b890339030906004016107cf565b60206040518083038186803b1580156102d057600080fd5b505afa1580156102e4573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103089190610674565b1015610349576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016103409061098c565b60405180910390fd5b6001546040517f70a08231000000000000000000000000000000000000000000000000000000008152869173ffffffffffffffffffffffffffffffffffffffff16906370a082319061039f9033906004016107ae565b60206040518083038186803b1580156103b757600080fd5b505afa1580156103cb573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103ef9190610674565b1015610427576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161034090610875565b828114610460576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610340906108d2565b6000805b8481101561058e5760015460009073ffffffffffffffffffffffffffffffffffffffff166323b872dd3389898681811061049a57fe5b90506020020160208101906104af9190610619565b8888878181106104bb57fe5b905060200201356040518463ffffffff1660e01b81526004016104e0939291906107f6565b602060405180830381600087803b1580156104fa57600080fd5b505af115801561050e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105329190610654565b90508061056b576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016103409061092f565b84848381811061057757fe5b602002919091013593909301925050600101610464565b508581146105c8576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610340906109e9565b505050505050565b60008083601f8401126105e1578182fd5b50813567ffffffffffffffff8111156105f8578182fd5b602083019150836020808302850101111561061257600080fd5b9250929050565b60006020828403121561062a578081fd5b813573ffffffffffffffffffffffffffffffffffffffff8116811461064d578182fd5b9392505050565b600060208284031215610665578081fd5b8151801515811461064d578182fd5b600060208284031215610685578081fd5b5051919050565b6000806000806000606086880312156106a3578081fd5b85359450602086013567ffffffffffffffff808211156106c1578283fd5b6106cd89838a016105d0565b909650945060408801359150808211156106e5578283fd5b506106f2888289016105d0565b969995985093965092949392505050565b600080600080600080600080600060e08a8c031215610720578384fd5b8935985060208a013567ffffffffffffffff8082111561073e578586fd5b61074a8d838e016105d0565b909a50985060408c0135915080821115610762578586fd5b5061076f8c828d016105d0565b90975095505060608a0135935060808a013560ff8116811461078f578384fd5b8093505060a08a0135915060c08a013590509295985092959850929598565b73ffffffffffffffffffffffffffffffffffffffff91909116815260200190565b73ffffffffffffffffffffffffffffffffffffffff92831681529116602082015260400190565b73ffffffffffffffffffffffffffffffffffffffff9384168152919092166020820152604081019190915260600190565b73ffffffffffffffffffffffffffffffffffffffff97881681529590961660208601526040850193909352606084019190915260ff16608083015260a082015260c081019190915260e00190565b60208082526031908201527f4d756c746973656e643a3a5f62617463685472616e736665723a2073656e646560408201527f722062616c616e636520746f6f206c6f77000000000000000000000000000000606082015260800190565b6020808252603e908201527f4d756c746973656e643a3a5f62617463685472616e736665723a20726563697060408201527f69656e7473206c656e67746820213d20616d6f756e7473206c656e6774680000606082015260800190565b60208082526034908201527f4d756c746973656e643a3a5f62617463685472616e736665723a206661696c6560408201527f6420746f207472616e7366657220746f6b656e73000000000000000000000000606082015260800190565b6020808252602c908201527f4d756c746973656e643a3a5f62617463685472616e736665723a20616c6c6f7760408201527f616e636520746f6f206c6f770000000000000000000000000000000000000000606082015260800190565b60208082526036908201527f4d756c746973656e643a3a5f62617463685472616e736665723a20746f74616c60408201527f20213d207472616e7366657272656420616d6f756e740000000000000000000060608201526080019056fea2646970667358221220774cfcbd7b3960e60591a10186f66a44a2ad0fdf87dc94bbf76bb0632f0e252d64736f6c63430007040033",
+  "devdoc": {
+    "details": "Allows the sender to perform batch transfers of ARCH tokens",
+    "kind": "dev",
+    "methods": {
+      "batchTransfer(uint256,address[],uint256[])": {
+        "details": "Must approve this contract for `totalAmount` before calling",
+        "params": {
+          "amounts": "Array of amounts to send to accounts via transfers",
+          "recipients": "Array of accounts to receive transfers",
+          "totalAmount": "Total amount to be transferred"
+        }
+      },
+      "batchTransferWithPermit(uint256,address[],uint256[],uint256,uint8,bytes32,bytes32)": {
+        "params": {
+          "amounts": "Array of amounts to send to accounts via transfers",
+          "deadline": "The time at which to expire the signature",
+          "r": "Half of the ECDSA signature pair",
+          "recipients": "Array of accounts to receive transfers",
+          "s": "Half of the ECDSA signature pair",
+          "totalAmount": "Total amount to be transferred",
+          "v": "The recovery byte of the signature"
+        }
+      },
+      "constructor": {
+        "params": {
+          "_token": "Address of ARCH token"
+        }
+      }
+    },
+    "title": "Multisend",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "batchTransfer(uint256,address[],uint256[])": {
+        "notice": "Batches multiple transfers"
+      },
+      "batchTransferWithPermit(uint256,address[],uint256[],uint256,uint8,bytes32,bytes32)": {
+        "notice": "Batches multiple transfers with approval provided by permit function"
+      },
+      "constructor": {
+        "notice": "Construct a new Multisend contract"
+      },
+      "token()": {
+        "notice": "ARCH token"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 7025,
+        "contract": "contracts/Multisend.sol:Multisend",
+        "label": "_status",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1278,
+        "contract": "contracts/Multisend.sol:Multisend",
+        "label": "token",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_contract(IArchToken)5682"
+      }
+    ],
+    "types": {
+      "t_contract(IArchToken)5682": {
+        "encoding": "inplace",
+        "label": "contract IArchToken",
+        "numberOfBytes": "20"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
