@@ -13,7 +13,7 @@ const PERMIT_TYPEHASH = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes('Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)')
 )
 
-describe("Vesting", function() {
+describe("Vault", function() {
     let archToken
     let vault
     let deployer
@@ -316,6 +316,136 @@ describe("Vesting", function() {
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
+        })
+    })
+
+    context("getLockedTokenBalance", async () => {
+        it("returns 0 if locked token balance does not exist", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          expect(await vault.getLockedTokenBalance(ZERO_ADDRESS, bob.address)).to.eq(0)
+        })
+  
+        it("returns 0 after lock duration has ended", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
+          await ethers.provider.send("evm_mine")
+          expect(await vault.getLockedTokenBalance(archToken.address, bob.address)).to.eq(0)
+        })
+  
+        it("returns total locked tokens if before duration has ended", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          expect(await vault.getLockedTokenBalance(archToken.address, bob.address)).to.eq(lockAmount)
+        })
+    })
+
+    context("getUnlockedTokenBalance", async () => {
+        it("returns 0 if locked token balance does not exist", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          expect(await vault.getUnlockedTokenBalance(ZERO_ADDRESS, bob.address)).to.eq(0)
+        })
+  
+        it("returns total amount after lock duration has ended and none claimed", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
+          await ethers.provider.send("evm_mine")
+          expect(await vault.getUnlockedTokenBalance(archToken.address, bob.address)).to.eq(lockAmount)
+        })
+
+        it("returns correct amount after lock duration has ended and some claimed", async function() {
+            await archToken.approve(vault.address, ethers.constants.MaxUint256)
+            let decimals = await archToken.decimals()
+            const { timestamp } = await ethers.provider.getBlock('latest')
+            const START_TIME = timestamp + 21600
+            const DURATION_IN_DAYS = 4
+            const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
+            let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
+            await ethers.provider.send("evm_mine")
+            let claimAmount = ethers.BigNumber.from(100).mul(ethers.BigNumber.from(10).pow(decimals))
+            await vault.connect(bob).claimUnlockedTokens(0, claimAmount)
+            expect(await vault.getUnlockedTokenBalance(archToken.address, bob.address)).to.eq(lockAmount.sub(claimAmount))
+        })
+  
+        it("returns 0 if before duration has ended", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          expect(await vault.getUnlockedTokenBalance(archToken.address, bob.address)).to.eq(0)
+        })
+    })
+
+    context("getLockedBalance", async () => {
+        it("returns 0 if lock id does not exist", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          expect(await vault.getLockedBalance(1)).to.eq(0)
+        })
+  
+        it("returns 0 after lock duration has ended", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
+          await ethers.provider.send("evm_mine")
+          expect(await vault.getLockedBalance(0)).to.eq(0)
+        })
+  
+        it("returns total locked tokens if before duration has ended", async function() {
+          await archToken.approve(vault.address, ethers.constants.MaxUint256)
+          let decimals = await archToken.decimals()
+          const { timestamp } = await ethers.provider.getBlock('latest')
+          const START_TIME = timestamp + 21600
+          const DURATION_IN_DAYS = 4
+          let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          expect(await vault.getLockedBalance(0)).to.eq(lockAmount)
         })
     })
 
