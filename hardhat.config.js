@@ -17,6 +17,8 @@ const VP_DEPLOYER_ADDRESS = process.env.VP_DEPLOYER_ADDRESS
 const VP_DEPLOYER_PRIVATE_KEY = process.env.VP_DEPLOYER_PRIVATE_KEY
 const LIQUIDITY_PROVIDER_ADDRESS = process.env.LIQUIDITY_PROVIDER_ADDRESS
 const LIQUIDITY_PROVIDER_PRIVATE_KEY = process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY
+const STAKER_ADDRESS = process.env.STAKER_ADDRESS
+const STAKER_PRIVATE_KEY = process.env.STAKER_PRIVATE_KEY
 const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const TENDERLY_USERNAME = process.env.TENDERLY_USERNAME
 const TENDERLY_PROJECT_NAME = process.env.TENDERLY_PROJECT_NAME
@@ -79,6 +81,11 @@ if (DEPLOYER_PRIVATE_KEY && DEPLOYER_PRIVATE_KEY.length > 0) {
     rinkebyConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
     mainnetConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
   }
+
+  if (STAKER_PRIVATE_KEY && STAKER_PRIVATE_KEY.length > 0) {
+    rinkebyConfig.accounts.push(STAKER_PRIVATE_KEY)
+    mainnetConfig.accounts.push(STAKER_PRIVATE_KEY)
+  }
 }
 
 
@@ -131,8 +138,13 @@ module.exports = {
       1: VP_DEPLOYER_ADDRESS,
       4: VP_DEPLOYER_ADDRESS
     },
-    admin: {
+    staker: {
       default: 3,
+      1: STAKER_ADDRESS,
+      4: STAKER_ADDRESS
+    },
+    admin: {
+      default: 4,
       1: ADMIN_ADDRESS,
       4: ADMIN_ADDRESS
     }
