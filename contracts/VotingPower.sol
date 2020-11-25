@@ -55,6 +55,14 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     }
 
     /**
+     * @notice Decimals used for voting power
+     * @return decimals
+     */
+    function decimals() public pure returns (uint8) {
+        return 18;
+    }
+
+    /**
      * @notice Address of vesting contract
      * @return Address of vesting contract
      */

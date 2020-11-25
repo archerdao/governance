@@ -60,6 +60,12 @@ describe("VotingPower", function() {
             })
         })
 
+        context("decimals", async () => {
+            it("returns the correct decimals for voting power", async function() {
+                expect(await votingPower.decimals()).to.eq(18)
+            })
+        })
+
         context("vestingContract", async () => {
             it("returns the current vesting contract address", async function() {
                 expect(await votingPower.vestingContract()).to.eq(vesting.address)
