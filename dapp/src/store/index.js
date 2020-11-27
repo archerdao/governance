@@ -5,8 +5,14 @@ Vue.use(Vuex);
 
 import {ethers} from 'ethers';
 
+import TokenABI from '../contracts/VestingToken';
 import VestingABI from '../contracts/Vesting';
+import VotingPowerABI from '../contracts/VotingPower';
+// import VotingPowerPrismABI from '../contracts/VotingPowerPrism';
+
 import DeployedVestingAddresses from '../contracts/DeployedVestingAddresses';
+import DeployedVestingTokenAddresses from '../contracts/DeployedVestingTokenAddresses';
+import DeployedVotingPowerPrismAddresses from '../contracts/DeployedVotingPowerPrismAddresses';
 
 import {initOnboard, initNotify} from '@/services/BlocknativeServices';
 
@@ -35,13 +41,16 @@ export default new Vuex.Store({
   state: {
     account: null,
     contracts: null,
+    tokenBalance: null,
     tokenGrant: null,
     tokenGrantAdmin: null,
     tokenGrantTxs: null,
+    votingPower: null,
     loadingVestingSchedules: true,
     admins: [
       ethers.utils.getAddress('0x818Ff73A5d881C27A945bE944973156C01141232'),
       ethers.utils.getAddress('0xFd90411B0c246743aE0000BB18c723A3BB909Dee'),
+      ethers.utils.getAddress('0x612B33827A46b50bCF13e8Ab0E70fa020e6D8933'),
     ],
   },
   mutations: {
@@ -51,6 +60,9 @@ export default new Vuex.Store({
     setContracts(state, contracts) {
       state.contracts = contracts;
     },
+    setTokenBalance(state, tokenBalance) {
+      state.tokenBalance = tokenBalance;
+    },
     setTokenGrant(state, tokenGrant) {
       state.tokenGrant = tokenGrant;
     },
@@ -59,6 +71,9 @@ export default new Vuex.Store({
     },
     setTokenGrantTxs(state, tokenGrantTxs) {
       state.tokenGrantTxs = tokenGrantTxs;
+    },
+    setVotingPower(state, votingPower) {
+      state.votingPower = votingPower;
     },
   },
   actions: {
@@ -81,6 +96,8 @@ export default new Vuex.Store({
     async disconnect({commit}) {
       commit('setAccount', null);
       commit('setTokenGrant', null);
+      commit('setTokenBalance', null);
+      commit('setVotingPower', null);
     },
     async setupContracts({commit, dispatch}) {
       const signer = provider.getSigner();
@@ -93,8 +110,33 @@ export default new Vuex.Store({
         signer
       );
 
-      commit('setContracts', {vestingContract});
+      const votingPowerPrismContractAddress = DeployedVotingPowerPrismAddresses[chain.chainId.toString()];
+      const votingPowerPrismContract = new ethers.Contract(
+        votingPowerPrismContractAddress,
+        VotingPowerABI,
+        signer
+      );
+
+      const tokenContractAddress = DeployedVestingTokenAddresses[chain.chainId.toString()];
+      const tokenContract = new ethers.Contract(
+        tokenContractAddress,
+        TokenABI,
+        signer
+      );
+
+      commit('setContracts', {tokenContract, vestingContract, votingPowerPrismContract});
       dispatch('getTokenGrantsForUser');
+      dispatch('getVotingPowerForUser');
+      dispatch('getTokenBalanceForUser');
+    },
+    async getVotingPowerForUser({state, commit}) {
+      if (state.contracts && state.account) {
+        const {votingPowerPrismContract} = state.contracts;
+
+        const votingPower = await votingPowerPrismContract.balanceOf(state.account);
+
+        commit('setVotingPower', votingPower);
+      }
     },
     async getTokenGrantsForUser({state, commit}) {
       if (state.contracts && state.account) {
@@ -104,6 +146,15 @@ export default new Vuex.Store({
         const totalDue = await vestingContract.calculateGrantClaim(state.account);
 
         commit('setTokenGrant', mapGrant(tokenGrant, totalDue));
+      }
+    },
+    async getTokenBalanceForUser({state, commit}) {
+      if (state.contracts && state.account) {
+        const {tokenContract} = state.contracts;
+
+        const tokenBalance = await tokenContract.balanceOf(state.account);
+
+        commit('setTokenBalance', tokenBalance);
       }
     },
     async getTokenGrantsForUserAdmin({state, commit}, address) {
@@ -135,6 +186,8 @@ export default new Vuex.Store({
     tokenGrant: (state) => state.tokenGrant,
     tokenGrantAdmin: (state) => state.tokenGrantAdmin,
     tokenGrantTxs: (state) => state.tokenGrantTxs,
+    votingPower: (state) => state.votingPower,
+    tokenBalance: (state) => state.tokenBalance,
     loadingVestingSchedules: (state) => state.loadingVestingSchedules,
   },
 });
