@@ -28,10 +28,12 @@
         <section v-else-if="account && tokenGrant && hasNoTokenGrant">
             <div class="container has-text-centered">
                 <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
-                    No Token Grant Found
+                    Your account has no vesting tokens.
                 </h2>
 
-                <img src=" https://placekitten.com/g/600/250"/>
+                <b-button type="is-primary" size="is-large" class="mt-3 mx-2" @click="goToStaking">
+                    Go to Staking
+                </b-button>
             </div>
         </section>
 
@@ -87,6 +89,9 @@
       async backToHome() {
         await this.$store.dispatch('disconnect');
         return this.$router.push({name: 'Home'});
+      },
+      async goToStaking() {
+        return this.$router.push({name: 'Staking'});
       },
       async claim() {
         this.claiming = true;

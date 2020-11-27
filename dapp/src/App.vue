@@ -5,7 +5,7 @@
                 <div class="navbar-brand">
                     <div class="navbar-item">
                         <router-link :to="{name: 'Home'}">
-                            ACME Inc.
+                            Archer DAO
                         </router-link>
                     </div>
                 </div>
@@ -14,8 +14,11 @@
                     <b-navbar-item tag="router-link" :to="{ name: 'Vesting' }" v-if="account">
                         Vesting
                     </b-navbar-item>
+                    <b-navbar-item tag="router-link" :to="{ name: 'Staking' }" v-if="account">
+                        Staking
+                    </b-navbar-item>
                     <b-navbar-item tag="router-link" :to="{ name: 'VestingAdmin' }" v-if="accountAdmin">
-                        Vesting Admin
+                        Admin Panel
                     </b-navbar-item>
                 </div>
 
@@ -67,7 +70,7 @@
     $white: #fff;
     $gray: #D6D7DC;
 
-    $dark: #14171A;
+    $dark: #1B212B;
 
     $link: $gray;
     $link-hover: $gray;

@@ -9,7 +9,7 @@
                     {{ toDate(grant.startTime).fromNow() }}
                 </p>
                 <p class="mt-4">
-                    {{ toDate(grant.startTime).format('MMM Do YYYY') }}
+                    {{ toDate(grant.startTime).format('MMM Do, YYYY') }}
                 </p>
             </div>
         </div>
@@ -18,32 +18,31 @@
                 <p class="heading">DAYS</p>
                 <p class="title">{{ grant.vestingDuration }}</p>
                 <p class="mt-4">
-                    {{ toDate(grant.startTime).add(parseInt(grant.vestingDuration), 'days').format('MMM Do YYYY') }}
+                    {{ toDate(grant.startTime).add(parseInt(grant.vestingDuration), 'days').format('MMM Do, YYYY') }}
                 </p>
             </div>
-
         </div>
         <div class="level-item has-text-centered" v-if="parseInt(grant.vestingCliff) > 0">
             <div>
                 <p class="heading">CLIFF</p>
                 <p class="title">{{ grant.vestingCliff }}</p>
                 <p class="mt-4">
-                    {{ toDate(grant.startTime).add(parseInt(grant.vestingCliff), 'days').format('MMM Do YYYY') }}
+                    {{ toDate(grant.startTime).add(parseInt(grant.vestingCliff), 'days').format('MMM Do, YYYY') }}
                 </p>
             </div>
         </div>
         <div class="level-item has-text-centered">
             <div>
-                <p class="heading">VESTED AMT</p>
+                <p class="heading">GRANT AMT</p>
                 <p class="title">
                     <animated-number
                             :value="grant.amount"
-                            :duration="2000"
+                            :duration="1200"
                             :formatValue="to6DpAndCurrencyFormatted"
                     />
                 </p>
                 <p class="mt-4">
-                    Your balance XXXX
+                    ARCH Tokens
                 </p>
             </div>
         </div>
@@ -53,27 +52,27 @@
                 <p class="title">
                     <animated-number
                             :value="grant.totalClaimed"
-                            :duration="2000"
+                            :duration="1200"
                             :formatValue="to6DpAndCurrencyFormatted"
                     />
                 </p>
                 <p class="mt-4">
-                    {{ ((parseFloat(grant.totalClaimed) /  parseFloat(grant.amount)) * 100).toFixed(2) }}% claimed
+                    {{ percentFormatted(grant.totalClaimed, grant.amount) }} claimed
                 </p>
             </div>
         </div>
         <div class="level-item has-text-centered">
             <div>
-                <p class="heading">DUE</p>
+                <p class="heading">AVAILABLE</p>
                 <p class="title">
                     <animated-number
                             :value="grant.totalDue"
-                            :duration="2000"
+                            :duration="1200"
                             :formatValue="to6DpAndCurrencyFormatted"
                     />
                 </p>
                 <p class="mt-4">
-                    {{ ((parseFloat(grant.totalDue) /  parseFloat(grant.amount)) * 100).toFixed(2) }}% due
+                    {{ percentFormatted(grant.totalDue, grant.amount) }} due
                 </p>
             </div>
         </div>
@@ -94,6 +93,9 @@
         const to6Dp = this.$options.filters.to6Dp(value);
         const formatted = this.$options.filters.currency(to6Dp);
         return `${formatted}`;
+      },
+      percentFormatted(numerator, denominator) {
+        return `${(parseFloat(numerator) / parseFloat(denominator) * 100).toFixed(0)}%`
       },
       toDate(value) {
         return moment.unix(value);
