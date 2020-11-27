@@ -5,6 +5,11 @@ node_modules/
 /subgraph/build/
 /.firebase/
 
+# deployment files
+
+.gcloudignore
+app*.yaml
+
 # local env files
 .env
 .env.local
