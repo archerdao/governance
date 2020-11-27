@@ -27,7 +27,7 @@ export function initOnboard(subscriptions) {
       {checkName: "connect"},
       {checkName: "accounts"},
       {checkName: "network"},
-      {checkName: "balance", minimumBalance: "100000"},
+      // {checkName: "balance", minimumBalance: "100000"},
     ],
   });
 }
