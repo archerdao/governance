@@ -11,11 +11,11 @@
                 </div>
 
                 <div class="navbar-start">
-                    <b-navbar-item tag="router-link" :to="{ name: 'Vesting' }" v-if="account">
-                        Vesting
-                    </b-navbar-item>
                     <b-navbar-item tag="router-link" :to="{ name: 'Staking' }" v-if="account">
                         Staking
+                    </b-navbar-item>
+                    <b-navbar-item tag="router-link" :to="{ name: 'Vesting' }" v-if="account">
+                        Vesting
                     </b-navbar-item>
                     <b-navbar-item tag="router-link" :to="{ name: 'VestingAdmin' }" v-if="accountAdmin">
                         Admin Panel

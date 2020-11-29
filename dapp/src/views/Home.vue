@@ -17,7 +17,7 @@
                             Connect to another wallet
                         </b-button>
                         <b-button type="is-primary" size="is-large" class="mt-3 mx-2" @click="connect">
-                           Go to Vesting
+                           Go to Staking
                         </b-button>
                     </div>
                 </div>
@@ -41,8 +41,8 @@
         }
         this.$store.dispatch("bootstrap", {
           onSuccessCallback: () => {
-            console.log('Bootstrapped >>> Vesting');
-            this.$router.push({name: 'Vesting'});
+            console.log('Bootstrapped >>> Staking');
+            this.$router.push({name: 'Staking'});
           },
         });
       },
