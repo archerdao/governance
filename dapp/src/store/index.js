@@ -8,7 +8,6 @@ import {ethers} from 'ethers';
 import TokenABI from '../contracts/VestingToken';
 import VestingABI from '../contracts/Vesting';
 import VotingPowerABI from '../contracts/VotingPower';
-// import VotingPowerPrismABI from '../contracts/VotingPowerPrism';
 
 import DeployedVestingAddresses from '../contracts/DeployedVestingAddresses';
 import DeployedVestingTokenAddresses from '../contracts/DeployedVestingTokenAddresses';
@@ -36,11 +35,13 @@ const mapGrant = (tokenGrant, totalDue) => {
   };
 };
 
-
 export default new Vuex.Store({
   state: {
     account: null,
+    approvedBalance: null,
     contracts: null,
+    stakedBalance: null,
+    stakeWithPermit: null,
     tokenBalance: null,
     tokenGrant: null,
     tokenGrantAdmin: null,
@@ -57,8 +58,17 @@ export default new Vuex.Store({
     setAccount(state, account) {
       state.account = account;
     },
+    setApprovedBalance(state, approvedBalance) {
+      state.approvedBalance = approvedBalance;
+    },
     setContracts(state, contracts) {
       state.contracts = contracts;
+    },
+    setStakedBalance(state, stakedBalance) {
+      state.stakedBalance = stakedBalance;
+    },
+    setStakeWithPermit(state, stakeWithPermit) {
+      state.stakeWithPermit = stakeWithPermit;
     },
     setTokenBalance(state, tokenBalance) {
       state.tokenBalance = tokenBalance;
@@ -95,6 +105,9 @@ export default new Vuex.Store({
     },
     async disconnect({commit}) {
       commit('setAccount', null);
+      commit('setApprovedBalance', null);
+      commit('setStakedBalance', null);
+      commit('setStakeWithPermit', null);
       commit('setTokenGrant', null);
       commit('setTokenBalance', null);
       commit('setVotingPower', null);
@@ -128,32 +141,45 @@ export default new Vuex.Store({
       dispatch('getTokenGrantsForUser');
       dispatch('getVotingPowerForUser');
       dispatch('getTokenBalanceForUser');
+      dispatch('getStakedBalanceForUser');
+      dispatch('getApprovedBalanceForUser');
     },
     async getVotingPowerForUser({state, commit}) {
       if (state.contracts && state.account) {
         const {votingPowerPrismContract} = state.contracts;
-
         const votingPower = await votingPowerPrismContract.balanceOf(state.account);
-
         commit('setVotingPower', votingPower);
       }
     },
     async getTokenGrantsForUser({state, commit}) {
       if (state.contracts && state.account) {
         const {vestingContract} = state.contracts;
-
         const tokenGrant = await vestingContract.getTokenGrant(state.account);
         const totalDue = await vestingContract.calculateGrantClaim(state.account);
-
         commit('setTokenGrant', mapGrant(tokenGrant, totalDue));
+      }
+    },
+    async getApprovedBalanceForUser({state, commit}) {
+      if (state.contracts && state.account) {
+        const {tokenContract, votingPowerPrismContract} = state.contracts;
+        const approvedBalance = await tokenContract.allowance(
+          state.account,
+          votingPowerPrismContract.address
+        );
+        commit('setApprovedBalance', approvedBalance);
+      }
+    },
+    async getStakedBalanceForUser({state, commit}) {
+      if (state.contracts && state.account) {
+        const {votingPowerPrismContract} = state.contracts;
+        const stakedBalance = await votingPowerPrismContract.getARCHAmountStaked(state.account);
+        commit('setStakedBalance', stakedBalance);
       }
     },
     async getTokenBalanceForUser({state, commit}) {
       if (state.contracts && state.account) {
         const {tokenContract} = state.contracts;
-
         const tokenBalance = await tokenContract.balanceOf(state.account);
-
         commit('setTokenBalance', tokenBalance);
       }
     },
@@ -163,19 +189,125 @@ export default new Vuex.Store({
         if (!ethers.utils.isAddress(address)) return;
 
         const {vestingContract} = state.contracts;
-
         const tokenGrant = await vestingContract.getTokenGrant(address);
         const totalDue = await vestingContract.calculateGrantClaim(address);
-
         commit('setTokenGrantAdmin', mapGrant(tokenGrant, totalDue));
       }
     },
     async claim({state}) {
       if (state.contracts && state.account) {
         const {vestingContract} = state.contracts;
-        const tx = await vestingContract.claimVestedTokens(state.account);
+        try {
+          const tx = await vestingContract.claimVestedTokens(state.account);
+          await tx.wait(1);
+          return true;
+        }
+        catch (err) {
+          return false;
+        }
+      }
+    },
+    async approve({state}) {
+      // Approval function for EIP-712
+      // Note: this solution uses provider.sent("eth_signTypedData_v4", ...)
+      // instead of experimental _signTypedData.
+      // See https://github.com/ethers-io/ethers.js/issues/298
+      if (state.contracts && state.account) {
+        const {tokenContract, votingPowerPrismContract} = state.contracts;
+        const signer = provider.getSigner();
+        const chain = await provider.getNetwork();
 
-        await tx.wait(1);
+        const name = await tokenContract.name(); // token name
+        const version = "1";
+        const chainId = chain.chainId.toString();
+        const verifyingContract = ethers.utils.getAddress(tokenContract.address);
+
+        const stakeAmount = await tokenContract.balanceOf(state.account);
+        const nonce = await tokenContract.nonces(state.account);
+        const deadline = parseInt(Date.now() / 1000) + 1200; // now plus 20 mins
+
+        const domain = {
+          name,
+          version,
+          chainId,
+          verifyingContract
+        };
+
+        const types = {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "version", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+          Permit: [
+            { name: "owner", type: "address" },
+            { name: "spender", type: "address" },
+            { name: "value", type: "uint256" },
+            { name: "nonce", type: "uint256" },
+            { name: "deadline", type: "uint256" },
+          ]
+        };
+
+        const value = {
+          owner: ethers.utils.getAddress(state.account),
+          spender: ethers.utils.getAddress(votingPowerPrismContract.address),
+          value: stakeAmount.toString(),
+          nonce: nonce.toString(),
+          deadline: deadline.toString(),
+        };
+
+        const msgParams = JSON.stringify({
+          types,
+          domain,
+          primaryType: "Permit",
+          message: value,
+        });
+
+        const params = [state.account, msgParams];
+
+        try {
+          const signature = await provider.send("eth_signTypedData_v4", params);
+          this.commit('setStakeWithPermit', {
+            amount: stakeAmount.toString(),
+            deadline: deadline.toString(),
+            r: ethers.utils.arrayify("0x" + signature.substring(2).substring(0,64)),
+            s: ethers.utils.arrayify("0x" + signature.substring(2).substring(64, 128)),
+            v: parseInt(signature.substring(2).substring(128, 130), 16),
+          });
+          return true;
+        }
+        catch (err) {
+          return false;
+        }
+      }
+    },
+    async stakeWithPermit({state}) {
+      if (state.contracts && state.account && state.stakeWithPermit) {
+        const {amount, deadline, v, r, s} = state.stakeWithPermit;
+
+        const {votingPowerPrismContract} = state.contracts;
+        try {
+          const tx = await votingPowerPrismContract.stakeWithPermit(amount, deadline, v, r, s);
+          await tx.wait(1);
+          return true;
+        }
+        catch (err) {
+          return false;
+        }
+      }
+    },
+    async withdraw({state}) {
+      if (state.contracts && state.account) {
+        const {votingPowerPrismContract} = state.contracts;
+        try {
+          const tx = await votingPowerPrismContract.withdraw(state.stakedBalance);
+          await tx.wait(1);
+          return true;
+        }
+        catch (err) {
+          return false;
+        }
       }
     },
   },
@@ -183,10 +315,13 @@ export default new Vuex.Store({
     contracts: (state) => state.contracts,
     account: (state) => state.account,
     accountAdmin: (state) => state.account && state.admins.indexOf(ethers.utils.getAddress(state.account)) !== -1,
+    approvedBalance: (state) => state.approvedBalance,
     tokenGrant: (state) => state.tokenGrant,
     tokenGrantAdmin: (state) => state.tokenGrantAdmin,
     tokenGrantTxs: (state) => state.tokenGrantTxs,
     votingPower: (state) => state.votingPower,
+    stakeWithPermit: (state) => state.stakeWithPermit,
+    stakedBalance: (state) => state.stakedBalance,
     tokenBalance: (state) => state.tokenBalance,
     loadingVestingSchedules: (state) => state.loadingVestingSchedules,
   },

@@ -6,7 +6,7 @@
                     Staking
                 </h1>
                 <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
-                    Stake tokens to get voting power.
+                    Stake tokens for voting power
                 </h2>
             </div>
         </div>
@@ -15,21 +15,22 @@
             <div class="container">
                 <section class="has-text-centered">
                     <voting-power-level 
-                      :votingPower="votingPower"
+                      :approvedBalance="approvedBalance"
                       :stakedBalance="stakedBalance"
                       :tokenBalance="tokenBalance"
+                      :votingPower="votingPower"
                     ></voting-power-level>
                 </section>
             </div>
         </section>
 
-        <section v-else-if="account">
+        <!-- <section v-else-if="account">
             <div class="container has-text-centered">
                 <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
-                    Stake tokens to get voting power.
+                    Stake tokens for voting power.
                 </h2>
             </div>
-        </section>
+        </section> -->
 
         <spinner v-else></spinner>
     </article>
@@ -47,7 +48,8 @@
     },
     computed: {
       ...mapGetters([
-        'account', 
+        'account',
+        'approvedBalance',
         'stakedBalance', 
         'tokenBalance', 
         'votingPower',
@@ -59,21 +61,18 @@
       };
     },
     mounted() {
-      this.getVotingPowerForUser();
-      this.polling = setInterval(this.getVotingPowerForUser, POLL_RATE);
+      this.getStakingBalancesForUser();
+      this.polling = setInterval(this.getStakingBalancesForUser, POLL_RATE);
     },
     beforeDestroy() {
       clearInterval(this.polling);
     },
     methods: {
-      async getVotingPowerForUser() {
+      async getStakingBalancesForUser() {
         await this.$store.dispatch('getVotingPowerForUser');
         await this.$store.dispatch('getTokenBalanceForUser');
         await this.$store.dispatch('getStakedBalanceForUser');
-      },
-      async backToHome() {
-        await this.$store.dispatch('disconnect');
-        return this.$router.push({name: 'Home'});
+        // await this.$store.dispatch('getApprovedBalanceForUser');
       },
     },
   };
