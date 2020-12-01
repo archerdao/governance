@@ -16,7 +16,7 @@
                         <b-button type="is-primary" outlined size="is-large" class="mt-3 mx-2" @click="disconnect">
                             Connect to another wallet
                         </b-button>
-                        <b-button type="is-primary" size="is-large" class="mt-3 mx-2" @click="connect">
+                        <b-button type="is-primary" size="is-large" class="mt-3 mx-2" @click="goToStaking">
                            Go to Staking
                         </b-button>
                     </div>
@@ -48,6 +48,9 @@
       },
       disconnect() {
         this.$store.dispatch('disconnect');
+      },
+      goToStaking() {
+        return this.$router.push({name: 'Staking'});
       },
     },
   };

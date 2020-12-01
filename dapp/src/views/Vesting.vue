@@ -90,7 +90,7 @@
         await this.$store.dispatch('disconnect');
         return this.$router.push({name: 'Home'});
       },
-      async goToStaking() {
+      goToStaking() {
         return this.$router.push({name: 'Staking'});
       },
       async claim() {

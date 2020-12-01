@@ -17,6 +17,9 @@
                     <b-navbar-item tag="router-link" :to="{ name: 'Vesting' }" v-if="account">
                         Vesting
                     </b-navbar-item>
+                    <!-- <b-navbar-item href="https://gov.archerdao.io" v-if="account">
+                        Voting&nbsp;&nearr;
+                    </b-navbar-item> -->
                     <b-navbar-item tag="router-link" :to="{ name: 'VestingAdmin' }" v-if="accountAdmin">
                         Admin Panel
                     </b-navbar-item>
@@ -34,11 +37,30 @@
 
         <router-view></router-view>
 
-        <footer>
-            <div class="content has-text-centered">
-                <p></p>
+        <nav class="navbar is-fixed-bottom">
+            <div class="container py-3 is-flex is-justify-between">
+                <div class="navbar-end">
+                    <b-navbar-item href="https://github.com/archerdao/governance" target="_blank">
+                        <span class="icon is-medium">
+                            <i class="mdi mdi-github"></i>
+                        </span>
+                        Github
+                    </b-navbar-item>
+                    <b-navbar-item href="https://twitter.com/Archer_DAO" target="_blank">
+                        <span class="icon is-medium">
+                            <i class="mdi mdi-twitter"></i>
+                        </span>
+                        Twitter
+                    </b-navbar-item>
+                    <b-navbar-item href="https://discord.gg/98GV73f" target="_blank">
+                        <span class="icon is-medium">
+                            <i class="mdi mdi-discord"></i>
+                        </span>
+                        Discord
+                    </b-navbar-item>
+                </div>
             </div>
-        </footer>
+        </nav>
     </section>
 </template>
 
@@ -55,7 +77,11 @@
       },
     },
     mounted() {
-      if (this.$router.currentRoute.path === '/vesting' || this.$router.currentRoute.path === '/vesting-admin') {
+      if (
+          this.$router.currentRoute.path === '/staking' ||
+          this.$router.currentRoute.path === '/vesting' || 
+          this.$router.currentRoute.path === '/vesting-admin'
+        ) {
         this.$router.push({name: 'Home'});
       }
     },
