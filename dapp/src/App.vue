@@ -10,16 +10,16 @@
                     </div>
                 </div>
 
-                <div class="navbar-start">
-                    <b-navbar-item tag="router-link" :to="{ name: 'Staking' }" v-if="account">
+                <div class="navbar-start" v-if="account">
+                    <b-navbar-item tag="router-link" :to="{ name: 'Staking' }">
                         Staking
                     </b-navbar-item>
-                    <b-navbar-item tag="router-link" :to="{ name: 'Vesting' }" v-if="account">
+                    <b-navbar-item tag="router-link" :to="{ name: 'Vesting' }">
                         Vesting
                     </b-navbar-item>
-                    <!-- <b-navbar-item href="https://gov.archerdao.io" v-if="account">
+                    <b-navbar-item href="https://gov.archerdao.io" target="_blank">
                         Voting&nbsp;&nearr;
-                    </b-navbar-item> -->
+                    </b-navbar-item>
                     <b-navbar-item tag="router-link" :to="{ name: 'VestingAdmin' }" v-if="accountAdmin">
                         Admin Panel
                     </b-navbar-item>
