@@ -207,14 +207,13 @@ export default new Vuex.Store({
         }
       }
     },
-    async approve({state}) {
+    async approve({state}, stakeAmount) {
       // Approval function for EIP-712
       // Note: this solution uses provider.sent("eth_signTypedData_v4", ...)
       // instead of experimental _signTypedData.
       // See https://github.com/ethers-io/ethers.js/issues/298
       if (state.contracts && state.account) {
         const {tokenContract, votingPowerPrismContract} = state.contracts;
-        const signer = provider.getSigner();
         const chain = await provider.getNetwork();
 
         const name = await tokenContract.name(); // token name
@@ -222,7 +221,6 @@ export default new Vuex.Store({
         const chainId = chain.chainId.toString();
         const verifyingContract = ethers.utils.getAddress(tokenContract.address);
 
-        const stakeAmount = await tokenContract.balanceOf(state.account);
         const nonce = await tokenContract.nonces(state.account);
         const deadline = parseInt(Date.now() / 1000) + 1200; // now plus 20 mins
 
