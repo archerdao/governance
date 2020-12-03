@@ -18,7 +18,10 @@
                         Vesting
                     </b-navbar-item>
                     <b-navbar-item href="https://gov.archerdao.io" target="_blank">
-                        Voting&nbsp;&nearr;
+                        Voting
+                        <span class="icon is-medium">
+                            <i class="mdi mdi-arrow-top-right"></i>
+                        </span>
                     </b-navbar-item>
                     <b-navbar-item tag="router-link" :to="{ name: 'VestingAdmin' }" v-if="accountAdmin">
                         Admin Panel
@@ -28,7 +31,12 @@
                 <div class="navbar-end">
                     <div class="navbar-item" v-if="account">
                         <b-button rounded outlined type="is-primary" @click="backToHome">
-                            {{ account | shortEth }}
+                            <span class="icon">
+                                <i class="mdi mdi-ethereum"></i>
+                            </span>
+                            <span>
+                                {{ account | shortEth }}
+                            </span>
                         </b-button>
                     </div>
                 </div>
@@ -36,6 +44,12 @@
         </nav>
 
         <router-view></router-view>
+
+        <footer class="footer">
+            <div class="content has-text-centered">
+                <p>&nbsp;</p>
+            </div>
+        </footer>
 
         <nav class="navbar is-fixed-bottom">
             <div class="container py-3 is-flex is-justify-between">
@@ -95,11 +109,12 @@
     $black: #020203;
     $white: #fff;
     $gray: #D6D7DC;
+    $footer-background-color: #fff;
 
-    $dark: #1B212B;
+    // $dark: #1B212B;
 
-    $link: $gray;
-    $link-hover: $gray;
+    // $link: $gray;
+    // $link-hover: $gray;
 
     @import '~bulma';
 </style>

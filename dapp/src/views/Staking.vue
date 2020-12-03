@@ -5,21 +5,20 @@
                 <h1 class="title has-text-weight-bold is-size-1">
                     Staking
                 </h1>
-                <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
+                <!-- <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
                     Stake tokens for voting power
-                </h2>
+                </h2> -->
             </div>
         </div>
 
-        <section class="hero-body" v-if="account && (votingPower || tokenBalance)">
-            <div class="container">
-                <section class="has-text-centered">
-                    <voting-power-level 
-                      :approvedBalance="approvedBalance"
+        <section v-if="account && (votingPower || tokenBalance)">
+            <div class="container is-max-desktop">
+                <section>
+                    <voting-power 
                       :stakedBalance="stakedBalance"
                       :tokenBalance="tokenBalance"
                       :votingPower="votingPower"
-                    ></voting-power-level>
+                    ></voting-power>
                 </section>
             </div>
         </section>
@@ -38,12 +37,12 @@
 <script>
   import {mapGetters} from 'vuex';
   import Spinner from "@/components/Spinner";
-  import VotingPowerLevel from '../components/VotingPowerLevel';
+  import VotingPower from '../components/VotingPower';
 
   const POLL_RATE = 20 * 1000;
   export default {
     components: {
-      VotingPowerLevel,
+      VotingPower,
       Spinner,
     },
     computed: {
