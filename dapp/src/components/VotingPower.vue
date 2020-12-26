@@ -191,7 +191,9 @@
         this.approved = false;
       },
       onUnstakeInput(value) {
+        console.log("onUnstakeInput", value);
         this.amountToUnstake = this.inputToBigNumber(value);
+        console.log("onUnstakeInput", this.amountToUnstake);
       },
       format(value) {
         const decimal = utils.formatEther(value); // BN to string
@@ -228,7 +230,12 @@
             value = currentValue.add(amount);
           }
           else {
-            value = currentValue.sub(amount);
+            if (amount.gte(currentValue)) {
+              value = BigNumber.from("0");
+            }
+            else {
+              value = currentValue.sub(amount);
+            }
           }
           return `${this.to2DpAndCurrencyFormatted(value)}`;
         }
