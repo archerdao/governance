@@ -295,11 +295,11 @@ export default new Vuex.Store({
         }
       }
     },
-    async withdraw({state}) {
+    async withdraw({state}, unstakeAmount) {
       if (state.contracts && state.account) {
         const {votingPowerPrismContract} = state.contracts;
         try {
-          const tx = await votingPowerPrismContract.withdraw(state.stakedBalance);
+          const tx = await votingPowerPrismContract.withdraw(unstakeAmount);
           await tx.wait(1);
           return true;
         }
