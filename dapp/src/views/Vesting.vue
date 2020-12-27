@@ -13,6 +13,7 @@
                 <section class="has-text-centered">
                     <grant-level :grant="tokenGrant"></grant-level>
                     <b-button
+                            rounded
                             type="is-primary"
                             size="is-large"
                             class="mt-6"
@@ -27,11 +28,11 @@
 
         <section v-else-if="account && tokenGrant && hasNoTokenGrant">
             <div class="container has-text-centered">
-                <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
+                <h2 class="subtitle is-size-3">
                     Your account has no vesting tokens
                 </h2>
 
-                <b-button type="is-primary" size="is-large" class="mt-3 mx-2" @click="goToStaking">
+                <b-button rounded type="is-primary" size="is-large" icon-right="arrow-right" class="mt-3 mx-2" @click="goToStaking">
                     Go to Staking
                 </b-button>
             </div>

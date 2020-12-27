@@ -12,11 +12,11 @@
                 </p>
               <p class="subtitle is-5">Voting Power</p>
             </article>
-            <article class="notification is-light">
-                <p class="title is-5">What can I do with voting power?</p>
-                <div class="content is-small">
+            <article class="box is-dark">
+                <p class="subtitle is-5">What can I do with voting power?</p>
+                <div class="content is-family-secondary">
                   <p>
-                    <b-tag type="is-primary is-light">&gt;0</b-tag>
+                    <b-tag type="is-primary">&gt;0</b-tag>
                     Vote on network issues
                     <!-- <span class="icon is-small">
                       <i class="mdi mdi-arrow-top-right"></i>
@@ -24,7 +24,7 @@
                   </p>
                   <p>
                     <!-- <a href="#" target="_blank"> -->
-                    <b-tag type="is-primary is-light">10k</b-tag>
+                    <b-tag type="is-primary">10k</b-tag>
                     Access private Discord channels
                     <!-- <span class="icon is-small">
                       <i class="mdi mdi-arrow-top-right"></i>
@@ -32,7 +32,7 @@
                     <!-- </a> -->
                   </p>
                   <p>
-                    <b-tag type="is-primary is-light">20k</b-tag>
+                    <b-tag type="is-primary">20k</b-tag>
                     Propose new votes
                     <!-- <span class="icon is-small">
                       <i class="mdi mdi-arrow-top-right"></i>
@@ -43,28 +43,34 @@
             </div>
         <div class="column">
           <!-- <article class="notification"> -->
-          <b-tabs v-model="activeTab" expanded class="notification">
+          <b-tabs v-model="activeTab" expanded class="box" size="is-large">
             <b-tab-item label="Stake" component="button">
-              <p class="title is-3">Stake tokens</p>
-              <p class="subtitle is-5">Increase your voting power</p>
-              <b-field
-                grouped
-                label="Amount to stake"
-              >
+              <p class="subtitle is-4">Increase your voting power</p>
+              <b-field grouped label="Tokens to stake" class="mt-6">
                 <p class="control">
-                  <span class="button is-static is-medium">ARCH</span>
+                  <!-- <span class="button is-static is-medium">ARCH</span> -->
+                  <b-select placeholder="ARCH" size="is-medium" v-model="selectedToken" disabled>
+                      <option
+                          v-for="token in tokenList"
+                          :value="token.symbol"
+                          :key="token.symbol">
+                          {{ token.symbol }}
+                      </option>
+                  </b-select>
                 </p>
                 <b-input 
                   :value="format(amountToStake)"
+                  :autofocus="true"
                   @input="onStakeInput"
+                  placeholder="Amount"
                   type="text" 
-                  size="is-medium"
+                  size="is-medium has-text-right"
                   expanded
                 >
                 </b-input>
                 <p class="control">
                     <b-button 
-                      type="is-primary is-outlined" 
+                      type="is-info is-outlined" 
                       size="is-medium"
                       @click="setMax(true)"
                     >
@@ -72,13 +78,13 @@
                     </b-button>
                 </p>
               </b-field>
-              <b-field label="Available balance">
-                <p>{{formatTokenBalance(tokenBalance)}}</p>
+              <b-field label="Available balance" class="mt-4">
+                <p class="is-family-secondary">{{formatTokenBalance(tokenBalance)}}</p>
               </b-field>
-              <b-field label="New voting power">
-                <p>{{ getNewVotingPower(votingPower, amountToStake) }}</p>
+              <b-field label="New voting power" class="mt-4">
+                <p class="is-family-secondary">{{ getNewVotingPower(votingPower, amountToStake) }}</p>
               </b-field>
-              <div class="columns">
+              <div class="columns mt-4">
                 <div class="column">
                   <b-button
                           type="is-primary"
@@ -106,26 +112,31 @@
               </div>
             </b-tab-item>
             <b-tab-item label="Unstake">
-              <p class="title is-3">Unstake tokens</p>
-              <p class="subtitle is-5">Decrease your voting power</p>
-              <b-field
-                grouped
-                label="Amount to unstake"
-              >
+              <p class="subtitle is-4">Decrease your voting power</p>
+              <b-field grouped label="Tokens to unstake"  class="mt-6">
                 <p class="control">
-                  <span class="button is-static is-medium">ARCH</span>
+                  <!-- <span class="button is-static is-medium">ARCH</span> -->
+                  <b-select placeholder="ARCH" size="is-medium" v-model="selectedToken" disabled>
+                      <option
+                          v-for="token in tokenList"
+                          :value="token.symbol"
+                          :key="token.symbol">
+                          {{ token.symbol }}
+                      </option>
+                  </b-select>
                 </p>
                 <b-input 
                   :value="format(amountToUnstake)"
                   @input="onUnstakeInput"
+                  placeholder="Amount"
                   type="text" 
-                  size="is-medium"
+                  size="is-medium has-text-right"
                   expanded
                 >
                 </b-input>
                 <p class="control">
                     <b-button 
-                      type="is-primary is-outlined" 
+                      type="is-info is-outlined" 
                       size="is-medium"
                       @click="setMax(false)"
                     >
@@ -133,22 +144,26 @@
                     </b-button>
                 </p>
               </b-field>
-              <b-field label="Staked balance">
-                <p>{{formatTokenBalance(stakedBalance)}}</p>
+              <b-field label="Staked balance" class="mt-4">
+                <p class="is-family-secondary">{{formatTokenBalance(stakedBalance)}}</p>
               </b-field>
-              <b-field label="New voting power">
-                <p>{{ getNewVotingPower(votingPower, amountToUnstake, false) }}</p>
+              <b-field label="New voting power" class="mt-4">
+                <p class="is-family-secondary">{{ getNewVotingPower(votingPower, amountToUnstake, false) }}</p>
               </b-field>
-              <b-button
-                      type="is-danger"
-                      size="is-large"
-                      :disabled="!isAmountToUnstakeValid()" 
-                      @click="withdraw"
-                      :loading="withdrawing"
-                      expanded
-              >
-                  Unstake
-              </b-button>
+              <div class="columns mt-4">
+                <div class="column">
+                  <b-button
+                          type="is-danger"
+                          size="is-large"
+                          :disabled="!isAmountToUnstakeValid()" 
+                          @click="withdraw"
+                          :loading="withdrawing"
+                          expanded
+                  >
+                      Unstake
+                  </b-button>
+                </div>
+              </div>
             </b-tab-item>
           </b-tabs>
           <!-- </article> -->
@@ -161,6 +176,8 @@
   import AnimatedNumber from "animated-number-vue";
   import { utils, BigNumber } from "ethers";
 
+  const tokenList = [{ symbol: "ARCH" },{ symbol: "SLP" },{ symbol: "UNI" }];
+
   export default {
     components: {
       AnimatedNumber,
@@ -171,9 +188,11 @@
         approving: false,
         staking: false,
         withdrawing: false,
-        amountToStake: utils.parseEther("0"),
-        amountToUnstake: utils.parseEther("0"),
+        amountToStake: null,
+        amountToUnstake: null,
         activeTab: 0,
+        tokenList,
+        selectedToken: "ARCH"
       };
     },
     props: ['approvedBalance', 'stakedBalance', 'tokenBalance', 'votingPower'],
@@ -191,14 +210,17 @@
         this.approved = false;
       },
       onUnstakeInput(value) {
-        console.log("onUnstakeInput", value);
         this.amountToUnstake = this.inputToBigNumber(value);
-        console.log("onUnstakeInput", this.amountToUnstake);
       },
       format(value) {
-        const decimal = utils.formatEther(value); // BN to string
-        const formatted = decimal.replace(/[.]0*$/, '') // Drop trailing zeroes
-        return formatted;
+        try {
+          const decimal = utils.formatEther(value); // BN to string
+          const formatted = decimal.replace(/[.]0*$/, '') // Drop trailing zeroes
+          return formatted;
+        }
+        catch {
+          return null;
+        }
       },
       inputToBigNumber(value) {
         try {
@@ -206,7 +228,7 @@
           return utils.parseEther(validInput); // user input to BN
         }
         catch (err) {
-          return utils.parseEther("0");
+          return null;
         }
       },
       to2DpAndCurrencyFormatted(value) {
@@ -224,30 +246,35 @@
         return `${this.to2DpAndCurrencyFormatted(value)} ARCH`;
       },
       getNewVotingPower(currentValue, amount, staking=true) {
+        let value;
         if (BigNumber.isBigNumber(currentValue) && BigNumber.isBigNumber(amount)) {
-          let value;
           if (staking) {
             value = currentValue.add(amount);
           }
-          else {
-            if (amount.gte(currentValue)) {
-              value = BigNumber.from("0");
-            }
-            else {
-              value = currentValue.sub(amount);
-            }
+          else if (amount.lt(currentValue)) {
+            value = currentValue.sub(amount);
           }
-          return `${this.to2DpAndCurrencyFormatted(value)}`;
         }
         else {
-          return null;
+          value = currentValue;
         }
+        return `${this.to2DpAndCurrencyFormatted(value)}`;
       },
       isAmountToStakeValid() {
-        return this.amountToStake.gt("0") && this.amountToStake.lte(this.tokenBalance);
+        try {
+          return this.amountToStake.gt("0") && this.amountToStake.lte(this.tokenBalance);
+        }
+        catch {
+          return false;
+        }
       },
       isAmountToUnstakeValid() {
-        return this.amountToUnstake.gt("0") && this.amountToUnstake.lte(this.stakedBalance);
+        try {
+          return this.amountToUnstake.gt("0") && this.amountToUnstake.lte(this.stakedBalance);
+        }
+        catch {
+          return false;
+        }
       },
       async approve() {
         this.approving = true;
@@ -258,12 +285,14 @@
       async stake() {
         this.staking = true;
         const stakeResult = await this.$store.dispatch('stakeWithPermit');
+        this.amountToStake = null;
         this.staking = false;
         this.approved = !stakeResult;
       },
       async withdraw() {
         this.withdrawing = true;
         await this.$store.dispatch('withdraw', this.amountToUnstake);
+        this.amountToUnstake = null;
         this.withdrawing = false;
       }
     },

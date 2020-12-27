@@ -30,7 +30,7 @@
 
                 <div class="navbar-end">
                     <div class="navbar-item" v-if="account">
-                        <b-button rounded outlined type="is-primary" @click="backToHome">
+                        <b-button rounded outlined type="is-info is-family-secondary" @click="backToHome">
                             <span class="icon">
                                 <i class="mdi mdi-ethereum"></i>
                             </span>
@@ -51,22 +51,22 @@
             </div>
         </footer>
 
-        <nav class="navbar is-fixed-bottom">
+        <nav class="navbar is-fixed-bottom is-dark">
             <div class="container py-3 is-flex is-justify-between">
                 <div class="navbar-end">
-                    <b-navbar-item href="https://github.com/archerdao/governance" target="_blank">
+                    <b-navbar-item class="is-family-secondary" href="https://github.com/archerdao/governance" target="_blank">
                         <span class="icon is-medium">
                             <i class="mdi mdi-github"></i>
                         </span>
                         Github
                     </b-navbar-item>
-                    <b-navbar-item href="https://twitter.com/Archer_DAO" target="_blank">
+                    <b-navbar-item class="is-family-secondary" href="https://twitter.com/Archer_DAO" target="_blank">
                         <span class="icon is-medium">
                             <i class="mdi mdi-twitter"></i>
                         </span>
                         Twitter
                     </b-navbar-item>
-                    <b-navbar-item href="https://discord.gg/98GV73f" target="_blank">
+                    <b-navbar-item class="is-family-secondary" href="https://discord.gg/98GV73f" target="_blank">
                         <span class="icon is-medium">
                             <i class="mdi mdi-discord"></i>
                         </span>
@@ -104,17 +104,45 @@
 
 <style lang="scss">
 
-    @import "~bulma/sass/utilities/_all";
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Open+Sans&display=swap');
 
-    $black: #020203;
+    // Archer colors
+    $archer-background: #11141c;
+    $archer-primary-green: #6ab04c;
+    $archer-primary-purple: #5545bf;
+    $archer-primary-cyan: #00cec9;
+    $archer-primary-orange: #fdcb6e;
+    $archer-secondary-silver: #DEDBFF;
+    $archer-secondary-gray: #303642;
+    $archer-secondary-red: #E17055;
+    $archer-helper-box: #151926;
+
+    // $black: #020203;
     $white: #fff;
-    $gray: #D6D7DC;
-    $footer-background-color: #fff;
+    $dark: $archer-background;
+    $footer-background-color: $archer-background;
 
-    // $dark: #1B212B;
+    $family-primary: "Montserrat", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    $family-secondary: "Open Sans", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 
-    // $link: $gray;
-    // $link-hover: $gray;
+    $primary: $archer-primary-green;
+    $link: $archer-primary-cyan;
+    $info: $archer-primary-cyan;
+    $warning: $archer-primary-orange;
+    $danger: $archer-secondary-red;
 
+    $text: $archer-secondary-silver;
+    $text-light: $archer-secondary-gray;
+    $text-strong: $archer-secondary-silver;
+
+    $title-color: $archer-secondary-gray;
+
+    $size-1: 4.5rem;
+    $box-background-color: $archer-helper-box;
+
+    $scheme-main: $archer-background;
+
+    @import "~bulma/sass/utilities/_all";
     @import '~bulma';
+    @import "~buefy/src/scss/buefy";
 </style>

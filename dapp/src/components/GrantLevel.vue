@@ -5,10 +5,10 @@
                 <p class="heading">
                     <b-tooltip label="Tooltip top">START</b-tooltip>
                 </p>
-                <p class="title">
+                <p class="subtitle is-3">
                     {{ toDate(grant.startTime).fromNow() }}
                 </p>
-                <p class="mt-4">
+                <p class="mt-4 is-family-secondary">
                     {{ toDate(grant.startTime).format('MMM Do, YYYY') }}
                 </p>
             </div>
@@ -16,8 +16,8 @@
         <div class="level-item has-text-centered">
             <div>
                 <p class="heading">DAYS</p>
-                <p class="title">{{ grant.vestingDuration }}</p>
-                <p class="mt-4">
+                <p class="subtitle is-3">{{ grant.vestingDuration }}</p>
+                <p class="mt-4 is-family-secondary">
                     {{ toDate(grant.startTime).add(parseInt(grant.vestingDuration), 'days').format('MMM Do, YYYY') }}
                 </p>
             </div>
@@ -25,8 +25,8 @@
         <div class="level-item has-text-centered" v-if="parseInt(grant.vestingCliff) > 0">
             <div>
                 <p class="heading">CLIFF</p>
-                <p class="title">{{ grant.vestingCliff }}</p>
-                <p class="mt-4">
+                <p class="subtitle is-3">{{ grant.vestingCliff }}</p>
+                <p class="mt-4 is-family-secondary">
                     {{ toDate(grant.startTime).add(parseInt(grant.vestingCliff), 'days').format('MMM Do, YYYY') }}
                 </p>
             </div>
@@ -34,14 +34,14 @@
         <div class="level-item has-text-centered">
             <div>
                 <p class="heading">GRANT AMT</p>
-                <p class="title">
+                <p class="subtitle is-3">
                     <animated-number
                             :value="grant.amount"
                             :duration="1200"
                             :formatValue="to6DpAndCurrencyFormatted"
                     />
                 </p>
-                <p class="mt-4">
+                <p class="mt-4 is-family-secondary">
                     ARCH Tokens
                 </p>
             </div>
@@ -49,14 +49,14 @@
         <div class="level-item has-text-centered">
             <div>
                 <p class="heading">CLAIMED</p>
-                <p class="title">
+                <p class="subtitle is-3">
                     <animated-number
                             :value="grant.totalClaimed"
                             :duration="1200"
                             :formatValue="to6DpAndCurrencyFormatted"
                     />
                 </p>
-                <p class="mt-4">
+                <p class="mt-4 is-family-secondary">
                     {{ percentFormatted(grant.totalClaimed, grant.amount) }} claimed
                 </p>
             </div>
@@ -64,14 +64,14 @@
         <div class="level-item has-text-centered">
             <div>
                 <p class="heading">AVAILABLE</p>
-                <p class="title">
+                <p class="subtitle is-3">
                     <animated-number
                             :value="grant.totalDue"
                             :duration="1200"
                             :formatValue="to6DpAndCurrencyFormatted"
                     />
                 </p>
-                <p class="mt-4">
+                <p class="mt-4 is-family-secondary">
                     {{ percentFormatted(grant.totalDue, grant.amount) }} due
                 </p>
             </div>
