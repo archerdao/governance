@@ -13,10 +13,10 @@
               <p class="subtitle is-5">Voting Power</p>
             </article>
             <article class="box is-dark">
-                <p class="subtitle is-5">What can I do with voting power?</p>
+                <p class="title is-5">What can I do with voting power?</p>
                 <div class="content is-family-secondary">
                   <p>
-                    <b-tag type="is-primary">&gt;0</b-tag>
+                    <b-tag type="is-primary" class="mr-1">&gt;0</b-tag>
                     Vote on network issues
                     <!-- <span class="icon is-small">
                       <i class="mdi mdi-arrow-top-right"></i>
@@ -24,7 +24,7 @@
                   </p>
                   <p>
                     <!-- <a href="#" target="_blank"> -->
-                    <b-tag type="is-primary">10k</b-tag>
+                    <b-tag type="is-primary" class="mr-1">10k</b-tag>
                     Access private Discord channels
                     <!-- <span class="icon is-small">
                       <i class="mdi mdi-arrow-top-right"></i>
@@ -32,7 +32,7 @@
                     <!-- </a> -->
                   </p>
                   <p>
-                    <b-tag type="is-primary">20k</b-tag>
+                    <b-tag type="is-primary" class="mr-1">20k</b-tag>
                     Propose new votes
                     <!-- <span class="icon is-small">
                       <i class="mdi mdi-arrow-top-right"></i>
@@ -43,9 +43,9 @@
             </div>
         <div class="column">
           <!-- <article class="notification"> -->
-          <b-tabs v-model="activeTab" expanded class="box" size="is-large">
+          <b-tabs v-model="activeTab" expanded class="box" size="is-medium">
             <b-tab-item label="Stake" component="button">
-              <p class="subtitle is-4">Increase your voting power</p>
+              <p class="title is-4">Increase your voting power</p>
               <b-field grouped label="Tokens to stake" class="mt-6">
                 <p class="control">
                   <!-- <span class="button is-static is-medium">ARCH</span> -->
@@ -70,7 +70,7 @@
                 </b-input>
                 <p class="control">
                     <b-button 
-                      type="is-info is-outlined" 
+                      type="is-text" 
                       size="is-medium"
                       @click="setMax(true)"
                     >
@@ -86,8 +86,9 @@
               </b-field>
               <div class="columns mt-4">
                 <div class="column">
-                  <b-button
-                          type="is-primary"
+                  <b-button 
+                          rounded
+                          type="is-success"
                           size="is-large"
                           :disabled="approved || !isAmountToStakeValid()"
                           @click="approve"
@@ -98,8 +99,9 @@
                   </b-button>
                 </div>
                 <div class="column">
-                  <b-button
-                          type="is-primary"
+                  <b-button 
+                          rounded
+                          type="is-success"
                           size="is-large"
                           :disabled="!approved"
                           @click="stake"
@@ -112,10 +114,9 @@
               </div>
             </b-tab-item>
             <b-tab-item label="Unstake">
-              <p class="subtitle is-4">Decrease your voting power</p>
+              <p class="title is-4">Decrease your voting power</p>
               <b-field grouped label="Tokens to unstake"  class="mt-6">
                 <p class="control">
-                  <!-- <span class="button is-static is-medium">ARCH</span> -->
                   <b-select placeholder="ARCH" size="is-medium" v-model="selectedToken" disabled>
                       <option
                           v-for="token in tokenList"
@@ -136,7 +137,7 @@
                 </b-input>
                 <p class="control">
                     <b-button 
-                      type="is-info is-outlined" 
+                      type="is-text" 
                       size="is-medium"
                       @click="setMax(false)"
                     >
@@ -153,6 +154,7 @@
               <div class="columns mt-4">
                 <div class="column">
                   <b-button
+                          rounded
                           type="is-danger"
                           size="is-large"
                           :disabled="!isAmountToUnstakeValid()" 
@@ -176,7 +178,7 @@
   import AnimatedNumber from "animated-number-vue";
   import { utils, BigNumber } from "ethers";
 
-  const tokenList = [{ symbol: "ARCH" },{ symbol: "SLP" },{ symbol: "UNI" }];
+  const tokenList = [{ symbol: "ARCH" }];
 
   export default {
     components: {

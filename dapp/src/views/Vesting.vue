@@ -14,7 +14,7 @@
                     <grant-level :grant="tokenGrant"></grant-level>
                     <b-button
                             rounded
-                            type="is-primary"
+                            type="is-success"
                             size="is-large"
                             class="mt-6"
                             :disabled="parseFloat(tokenGrant.totalDue) === 0" @click="claim"
@@ -32,7 +32,7 @@
                     Your account has no vesting tokens
                 </h2>
 
-                <b-button rounded type="is-primary" size="is-large" icon-right="arrow-right" class="mt-3 mx-2" @click="goToStaking">
+                <b-button rounded type="is-success" size="is-large" icon-right="arrow-right" class="mt-3 mx-2" @click="goToStaking">
                     Go to Staking
                 </b-button>
             </div>

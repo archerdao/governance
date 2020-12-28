@@ -1,11 +1,11 @@
 <template>
     <section style="height: 100%;">
-        <nav class="navbar is-dark">
+        <nav class="navbar is-transparent">
             <div class="container py-3 is-flex is-justify-between">
                 <div class="navbar-brand">
                     <div class="navbar-item">
                         <router-link :to="{name: 'Home'}">
-                            Archer DAO
+                            <img src="@/assets/head-logo.png" alt="Archer Logo" class="mt-1" />
                         </router-link>
                     </div>
                 </div>
@@ -30,7 +30,7 @@
 
                 <div class="navbar-end">
                     <div class="navbar-item" v-if="account">
-                        <b-button rounded outlined type="is-info is-family-secondary" @click="backToHome">
+                        <b-button rounded type="is-primary" @click="backToHome">
                             <span class="icon">
                                 <i class="mdi mdi-ethereum"></i>
                             </span>
@@ -51,7 +51,7 @@
             </div>
         </footer>
 
-        <nav class="navbar is-fixed-bottom is-dark">
+        <nav class="navbar is-fixed-bottom is-transparent">
             <div class="container py-3 is-flex is-justify-between">
                 <div class="navbar-end">
                     <b-navbar-item class="is-family-secondary" href="https://github.com/archerdao/governance" target="_blank">
@@ -104,7 +104,7 @@
 
 <style lang="scss">
 
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Open+Sans&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Open+Sans;&display=swap');
 
     // Archer colors
     $archer-background: #11141c;
@@ -120,13 +120,15 @@
     // $black: #020203;
     $white: #fff;
     $dark: $archer-background;
+    $background: $archer-background;
     $footer-background-color: $archer-background;
 
     $family-primary: "Montserrat", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
     $family-secondary: "Open Sans", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 
-    $primary: $archer-primary-green;
-    $link: $archer-primary-cyan;
+    $primary: $archer-primary-purple;
+    $link: $archer-primary-green;
+    $success: $archer-primary-green;
     $info: $archer-primary-cyan;
     $warning: $archer-primary-orange;
     $danger: $archer-secondary-red;
@@ -135,10 +137,16 @@
     $text-light: $archer-secondary-gray;
     $text-strong: $archer-secondary-silver;
 
-    $title-color: $archer-secondary-gray;
+    // $title-color: $archer-secondary-gray;
+    $weight-normal: 500;
+    $weight-semibold: 700;
 
-    $size-1: 4.5rem;
+    $size-1: 4rem;
     $box-background-color: $archer-helper-box;
+    $button-text-decoration: "none";
+
+    $navbar-z: 1;
+    $navbar-fixed-z: 1;
 
     $scheme-main: $archer-background;
 

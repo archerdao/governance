@@ -10,7 +10,7 @@
                       <h2 class="subtitle is-size-3 mb-6 pt-5">
                           Connect your web3 wallet to continue
                       </h2>
-                      <b-button rounded type="is-primary" size="is-large" icon-right="arrow-right" class="mt-3" @click="connect">
+                      <b-button rounded type="is-success" size="is-large" icon-right="arrow-right" class="mt-3" @click="connect">
                           Connect
                       </b-button>
                     </div>
@@ -19,7 +19,7 @@
                           Welcome to Archer DAO
                       </h2>
                       <p>
-                      <b-button rounded type="is-primary" size="is-large" icon-right="arrow-right" class="mt-3 mx-2" @click="goToStaking">
+                      <b-button rounded type="is-success" size="is-large" icon-right="arrow-right" class="mt-3 mx-2" @click="goToStaking">
                           Go to Staking
                       </b-button>
                       </p>
