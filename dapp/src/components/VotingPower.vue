@@ -12,43 +12,58 @@
                 </p>
               <p class="subtitle is-5">Voting Power</p>
             </article>
-            <article class="box is-dark">
+            <article class="box is-hidden-mobile">
                 <p class="title is-5">What can I do with voting power?</p>
                 <div class="content is-family-secondary">
                   <p>
-                    <b-tag type="is-primary" class="mr-1">&gt;0</b-tag>
-                    Vote on network issues
-                    <!-- <span class="icon is-small">
-                      <i class="mdi mdi-arrow-top-right"></i>
-                    </span> -->
+                    <b-button type="is-text" tag="a" href="https://gov.archerdao.io/" target="_blank">
+                      <b-tag type="is-primary" class="mr-2">&gt;0</b-tag>
+                      <span>Vote on network issues</span>
+                      <span class="icon is-small ml-1">
+                        <i class="mdi mdi-arrow-top-right"></i>
+                      </span>
+                    </b-button>
+                    <b-button type="is-text" tag="a" href="https://discord.gg/98GV73f" target="_blank">
+                      <b-tag type="is-primary" class="mr-2">10k</b-tag>
+                      <span>Access private Discord channels</span>
+                      <span class="icon is-small is-link ml-1">
+                        <i class="mdi mdi-arrow-top-right"></i>
+                      </span>
+                    </b-button>
+                    <b-button type="is-text" tag="a" href="https://gov.archerdao.io/" target="_blank">
+                      <b-tag type="is-primary" class="mr-2">20k</b-tag>
+                      <span>Propose new votes</span>
+                      <span class="icon is-small ml-1">
+                        <i class="mdi mdi-arrow-top-right"></i>
+                      </span>
+                    </b-button>
                   </p>
+                </div>
+            </article>
+            <article class="box is-hidden-mobile">
+                <p class="title is-5">
+                  <b-tag type="is-success" class="mr-2">NEW</b-tag>
+                  <span>SushiSwap Onsen</span>
+                </p>
+                <div class="content is-family-secondary">
+                  <p>ARCH is now part of SushiSwap Onsen. Earn SUSHI by providing ARCH-ETH liquidity.</p>
                   <p>
-                    <!-- <a href="#" target="_blank"> -->
-                    <b-tag type="is-primary" class="mr-1">10k</b-tag>
-                    Access private Discord channels
-                    <!-- <span class="icon is-small">
-                      <i class="mdi mdi-arrow-top-right"></i>
-                    </span> -->
-                    <!-- </a> -->
-                  </p>
-                  <p>
-                    <b-tag type="is-primary" class="mr-1">20k</b-tag>
-                    Propose new votes
-                    <!-- <span class="icon is-small">
-                      <i class="mdi mdi-arrow-top-right"></i>
-                    </span> -->
+                    <b-button type="is-text" tag="a" href="https://sushiswap.fi/onsen" target="_blank">
+                      <span>Visit SushiSwap</span>
+                      <span class="icon is-small ml-1">
+                        <i class="mdi mdi-arrow-top-right"></i>
+                      </span>
+                    </b-button>
                   </p>
                 </div>
             </article>
             </div>
         <div class="column">
-          <!-- <article class="notification"> -->
           <b-tabs v-model="activeTab" expanded class="box" size="is-medium">
             <b-tab-item label="Stake" component="button">
               <p class="title is-4">Increase your voting power</p>
               <b-field grouped label="Tokens to stake" class="mt-6">
                 <p class="control">
-                  <!-- <span class="button is-static is-medium">ARCH</span> -->
                   <b-select placeholder="ARCH" size="is-medium" v-model="selectedToken" disabled>
                       <option
                           v-for="token in tokenList"
@@ -168,7 +183,6 @@
               </div>
             </b-tab-item>
           </b-tabs>
-          <!-- </article> -->
         </div>
         </div>
     </section>
