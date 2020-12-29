@@ -1,5 +1,5 @@
 [![MythXBadge](https://badgen.net/https/api.mythx.io/v1/projects/d39258a9-1656-4b0f-867d-d67d0632c976/badge/data?cache=300&icon=https://raw.githubusercontent.com/ConsenSys/mythx-github-badge/main/logo_white.svg)](https://docs.mythx.io/dashboard/github-badges)
-![Discord](https://img.shields.io/discord/761540124940697600?color=blue&label=Discord&logo=Discord)
+[![Discord](https://img.shields.io/discord/761540124940697600?color=blue&label=Discord&logo=Discord)](https://discord.com/channels/761540124940697600/761540124940697604)
 
 # Contract Overview
 
