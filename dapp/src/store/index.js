@@ -210,7 +210,8 @@ export default new Vuex.Store({
     async approve({state}, stakeAmount) {
       // Approval function for EIP-712
       // Note: this solution uses provider.sent("eth_signTypedData_v4", ...)
-      // instead of experimental _signTypedData.
+      // instead of experimental _signTypedData. This is not supported by Ledger
+      // and Trezor, so there is a fallback for normal approvals.
       // See https://github.com/ethers-io/ethers.js/issues/298
       if (state.contracts && state.account) {
         const {tokenContract, votingPowerPrismContract} = state.contracts;
@@ -276,22 +277,51 @@ export default new Vuex.Store({
           return true;
         }
         catch (err) {
+          if (err.code == -32603) {
+            // MetaMask Message Signature: Error: Not supported on this device
+            // Use on-chain approval method
+            try {
+              const votingPowerPrismContractAddress = DeployedVotingPowerPrismAddresses[chain.chainId.toString()];
+              const tx = await tokenContract.approve(votingPowerPrismContractAddress, ethers.constants.MaxUint256);
+              await tx.wait(1);
+              // updated approved amount?
+              return true;
+            }
+            catch (err) {
+              return false;
+            }
+          }
           return false;
         }
       }
     },
-    async stakeWithPermit({state}) {
-      if (state.contracts && state.account && state.stakeWithPermit) {
-        const {amount, deadline, v, r, s} = state.stakeWithPermit;
-
+    async stakeWithPermit({state}, amountToStake) {
+      if (state.contracts && state.account) {
         const {votingPowerPrismContract} = state.contracts;
-        try {
-          const tx = await votingPowerPrismContract.stakeWithPermit(amount, deadline, v, r, s);
-          await tx.wait(1);
-          return true;
+        if (state.stakeWithPermit) {
+          // Handle stake with permit
+          const {amount, deadline, v, r, s} = state.stakeWithPermit;
+  
+          try {
+            const tx = await votingPowerPrismContract.stakeWithPermit(amount, deadline, v, r, s);
+            await tx.wait(1);
+            return true;
+          }
+          catch (err) {
+            return false;
+          }
         }
-        catch (err) {
-          return false;
+        else {
+          // Handle stake
+          try {
+            const tx = await votingPowerPrismContract.stake(amountToStake);
+            await tx.wait(1);
+            // updated approved amount?
+            return true;
+          }
+          catch (err) {
+            return false;
+          }
         }
       }
     },

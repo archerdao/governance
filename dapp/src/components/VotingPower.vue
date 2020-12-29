@@ -76,6 +76,7 @@
                 <b-input 
                   :value="format(amountToStake)"
                   :autofocus="true"
+                  :disabled="approving || staking"
                   @input="onStakeInput"
                   placeholder="Amount"
                   type="text" 
@@ -85,6 +86,7 @@
                 </b-input>
                 <p class="control">
                     <b-button 
+                      :disabled="approving || staking"
                       type="is-text" 
                       size="is-medium"
                       @click="setMax(true)"
@@ -118,7 +120,7 @@
                           rounded
                           type="is-success"
                           size="is-large"
-                          :disabled="!approved"
+                          :disabled="!approved || !isAmountToStakeValid()"
                           @click="stake"
                           :loading="staking"
                           expanded
@@ -142,6 +144,7 @@
                   </b-select>
                 </p>
                 <b-input 
+                  :disabled="withdrawing"
                   :value="format(amountToUnstake)"
                   @input="onUnstakeInput"
                   placeholder="Amount"
@@ -152,6 +155,7 @@
                 </b-input>
                 <p class="control">
                     <b-button 
+                      :disabled="withdrawing"
                       type="is-text" 
                       size="is-medium"
                       @click="setMax(false)"
@@ -216,14 +220,27 @@
       setMax(staking=true) {
         if (staking) {
           this.amountToStake = this.tokenBalance;
+          this.onStakeInput(this.format(this.amountToStake));
         }
         else {
           this.amountToUnstake = this.stakedBalance;
+          this.onUnstakeInput(this.format(this.amountToUnstake));
         }
       },
       onStakeInput(value) {
         this.amountToStake = this.inputToBigNumber(value);
-        this.approved = false;
+        if (
+          this.amountToStake 
+          && this.amountToStake.gt("0") 
+          && this.approvedBalance.gte(this.amountToStake)
+        ) {
+          // Account has on-chain approval
+          this.approved = true;
+        }
+        else {
+          // No on-chain approval
+          this.approved = false;
+        }
       },
       onUnstakeInput(value) {
         this.amountToUnstake = this.inputToBigNumber(value);
@@ -294,21 +311,43 @@
       },
       async approve() {
         this.approving = true;
-        const approveResult = await this.$store.dispatch('approve', this.amountToStake);
+        let approveResult;
+        try {
+          approveResult = await this.$store.dispatch('approve', this.amountToStake);
+        }
+        catch {
+          approveResult = false;
+        }
         this.approving = false;
         this.approved = approveResult;
       },
       async stake() {
         this.staking = true;
-        const stakeResult = await this.$store.dispatch('stakeWithPermit');
-        this.amountToStake = null;
+        let stakeResult;
+        try {
+          stakeResult = await this.$store.dispatch('stakeWithPermit', this.amountToStake);
+        }
+        catch (err) {
+          stakeResult = false;
+        }
+        if (stakeResult) {
+          this.amountToStake = null;
+          this.onStakeInput(null);
+        }
         this.staking = false;
-        this.approved = !stakeResult;
       },
       async withdraw() {
         this.withdrawing = true;
-        await this.$store.dispatch('withdraw', this.amountToUnstake);
-        this.amountToUnstake = null;
+        let withdrawResult;
+        try {
+          withdrawResult = await this.$store.dispatch('withdraw', this.amountToUnstake);
+        }
+        catch {
+          withdrawResult = false;
+        }
+        if (withdrawResult) {
+          this.amountToUnstake = null;
+        }
         this.withdrawing = false;
       }
     },

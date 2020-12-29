@@ -15,6 +15,7 @@
             <div class="container is-max-desktop">
                 <section>
                     <voting-power 
+                      :approvedBalance="approvedBalance"
                       :stakedBalance="stakedBalance"
                       :tokenBalance="tokenBalance"
                       :votingPower="votingPower"
@@ -39,7 +40,7 @@
   import Spinner from "@/components/Spinner";
   import VotingPower from '../components/VotingPower';
 
-  const POLL_RATE = 20 * 1000;
+  const POLL_RATE = 15 * 1000;
   export default {
     components: {
       VotingPower,
@@ -71,7 +72,7 @@
         await this.$store.dispatch('getVotingPowerForUser');
         await this.$store.dispatch('getTokenBalanceForUser');
         await this.$store.dispatch('getStakedBalanceForUser');
-        // await this.$store.dispatch('getApprovedBalanceForUser');
+        await this.$store.dispatch('getApprovedBalanceForUser');
       },
     },
   };
