@@ -3,22 +3,31 @@
         <div>
             <div class="hero-body">
                 <div class="container has-text-centered mt-6">
-                    <h1 class="title has-text-weight-bold is-size-1 mb-5">
-                        Hello welcome to ACME Inc.
+                    <h1 class="title is-size-1 mb-5">
+                        Archer DAO
                     </h1>
-                    <h2 class="subtitle mb-6 pt-5">
-                        Connect your web3 wallet
-                    </h2>
-                    <b-button type="is-primary" size="is-large" class="mt-3" @click="connect" v-if="!account">
-                        Connect
-                    </b-button>
+                    <div v-if="!account">
+                      <h2 class="subtitle is-size-3 mb-6 pt-5">
+                          Connect your web3 wallet to continue
+                      </h2>
+                      <b-button rounded type="is-success" size="is-large" icon-right="arrow-right" class="mt-3" @click="connect">
+                          Connect
+                      </b-button>
+                    </div>
                     <div v-else>
-                        <b-button type="is-primary" outlined size="is-large" class="mt-3 mx-2" @click="disconnect">
-                            Connect to another wallet
-                        </b-button>
-                        <b-button type="is-primary" size="is-large" class="mt-3 mx-2" @click="connect">
-                           Go to Vesting
-                        </b-button>
+                      <h2 class="subtitle is-size-3 mb-6 pt-5">
+                          Welcome to Archer DAO
+                      </h2>
+                      <p>
+                      <b-button rounded type="is-success" size="is-large" icon-right="arrow-right" class="mt-3 mx-2" @click="goToStaking">
+                          Go to Staking
+                      </b-button>
+                      </p>
+                      <p>
+                      <b-button rounded outlined type="is-warning" size="is-large" class="mt-4 mx-2" @click="disconnect">
+                          Disconnect wallet
+                      </b-button>
+                      </p>
                     </div>
                 </div>
             </div>
@@ -35,19 +44,22 @@
     methods: {
       connect() {
         if (this.account && this.tokenGrant) {
-          console.log('Have account and token grant >>> Vesting');
+          // console.log('Have account and token grant >>> Vesting');
           this.$router.push({name: 'Vesting'});
           return;
         }
         this.$store.dispatch("bootstrap", {
           onSuccessCallback: () => {
-            console.log('Bootstrapped >>> Vesting');
-            this.$router.push({name: 'Vesting'});
+            // console.log('Bootstrapped >>> Staking');
+            this.$router.push({name: 'Staking'});
           },
         });
       },
       disconnect() {
         this.$store.dispatch('disconnect');
+      },
+      goToStaking() {
+        return this.$router.push({name: 'Staking'});
       },
     },
   };

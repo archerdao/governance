@@ -13,7 +13,8 @@
                 <section class="has-text-centered">
                     <grant-level :grant="tokenGrant"></grant-level>
                     <b-button
-                            type="is-primary"
+                            rounded
+                            type="is-success"
                             size="is-large"
                             class="mt-6"
                             :disabled="parseFloat(tokenGrant.totalDue) === 0" @click="claim"
@@ -27,11 +28,13 @@
 
         <section v-else-if="account && tokenGrant && hasNoTokenGrant">
             <div class="container has-text-centered">
-                <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
-                    No Token Grant Found
+                <h2 class="subtitle is-size-3">
+                    Your account has no vesting tokens
                 </h2>
 
-                <img src=" https://placekitten.com/g/600/250"/>
+                <b-button rounded type="is-success" size="is-large" icon-right="arrow-right" class="mt-3 mx-2" @click="goToStaking">
+                    Go to Staking
+                </b-button>
             </div>
         </section>
 
@@ -87,6 +90,9 @@
       async backToHome() {
         await this.$store.dispatch('disconnect');
         return this.$router.push({name: 'Home'});
+      },
+      goToStaking() {
+        return this.$router.push({name: 'Staking'});
       },
       async claim() {
         this.claiming = true;
