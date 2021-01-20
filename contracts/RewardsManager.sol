@@ -40,13 +40,13 @@ contract RewardsManager {
 
     // Info of each pool.
     struct PoolInfo {
-        IERC20 token;           // Address of token contract.
-        uint256 sushiPid;            // MasterChef pid
-        uint256 allocPoint;       // How many allocation points assigned to this pool. Reward tokens to distribute per block.
-        uint256 lastRewardBlock;  // Last block number where reward tokens were distributed.
+        IERC20 token;               // Address of token contract.
+        uint256 sushiPid;           // MasterChef pid
+        uint256 allocPoint;         // How many allocation points assigned to this pool. Reward tokens to distribute per block.
+        uint256 lastRewardBlock;    // Last block number where reward tokens were distributed.
         uint256 accRewardsPerShare; // Accumulated reward tokens per share, times 1e12. See below.
-        uint32 vestingPercent; // Percentage of rewards that vest (measured in bips: 500,000 bips = 50% of rewards)
-        uint16 vestingPeriod; // Vesting period in days for vesting rewards
+        uint32 vestingPercent;      // Percentage of rewards that vest (measured in bips: 500,000 bips = 50% of rewards)
+        uint16 vestingPeriod;       // Vesting period in days for vesting rewards
     }
 
     // ARCH token
@@ -60,6 +60,9 @@ contract RewardsManager {
 
     // Vault for vesting tokens
     IVault public vault;
+
+    // LockManager contract
+    ILockManager public lockManager;
 
     // ARCH tokens rewarded per block.
     uint256 public archPerBlock;
@@ -89,7 +92,7 @@ contract RewardsManager {
 
     constructor(
         address _owner, 
-        address _lockManager
+        address _lockManager,
         address _arch,
         address _sushiToken,
         address _masterChef,
@@ -222,7 +225,7 @@ contract RewardsManager {
 
         masterChef.deposit(pool.sushiPid, amount);
 
-        lockManager.grantVotingPower(msg.sender, pool.token, amount);
+        lockManager.grantVotingPower(msg.sender, address(pool.token), amount);
 
         if (pendingSushiTokens > 0) {
             _safeSushiTransfer(msg.sender, pendingSushiTokens);
@@ -245,13 +248,13 @@ contract RewardsManager {
 
         uint256 pendingSushiTokens = user.amount.mul(masterChef.poolInfo(pool.sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
         
-        user.amount = user.amount.sub(_amount);
+        user.amount = user.amount.sub(amount);
         user.archRewardDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
         user.sushiRewardDebt = user.amount.mul(masterChef.poolInfo(pool.sushiPid).accSushiPerShare).div(1e12);
 
         masterChef.withdraw(pool.sushiPid, amount);
 
-        lockManager.removeVotingPower(msg.sender, pool.token, amount);
+        lockManager.removeVotingPower(msg.sender, address(pool.token), amount);
 
         _safeSushiTransfer(msg.sender, pendingSushiTokens);
 
@@ -267,7 +270,7 @@ contract RewardsManager {
 
         masterChef.withdraw(pool.sushiPid, user.amount);
 
-        lockManager.removeVotingPower(msg.sender, pool.token, user.amount);
+        lockManager.removeVotingPower(msg.sender, address(pool.token), user.amount);
 
         pool.token.safeTransfer(address(msg.sender), user.amount);
 

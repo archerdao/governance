@@ -1,5 +1,16 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_lockManager",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -243,6 +254,11 @@
             "internalType": "uint256",
             "name": "amountClaimed",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "hasVotingPower",
+            "type": "bool"
           }
         ],
         "internalType": "struct Vault.Lock[]",
@@ -337,6 +353,11 @@
             "internalType": "uint256",
             "name": "amountClaimed",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "hasVotingPower",
+            "type": "bool"
           }
         ],
         "internalType": "struct Vault.Lock",
@@ -391,6 +412,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "lockManager",
+    "outputs": [
+      {
+        "internalType": "contract ILockManager",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -421,6 +455,11 @@
         "internalType": "uint16",
         "name": "lockDurationInDays",
         "type": "uint16"
+      },
+      {
+        "internalType": "bool",
+        "name": "grantVotingPower",
+        "type": "bool"
       }
     ],
     "name": "lockTokens",
@@ -459,6 +498,11 @@
         "internalType": "uint16",
         "name": "lockDurationInDays",
         "type": "uint16"
+      },
+      {
+        "internalType": "bool",
+        "name": "grantVotingPower",
+        "type": "bool"
       },
       {
         "internalType": "uint256",
@@ -538,6 +582,11 @@
         "internalType": "uint256",
         "name": "amountClaimed",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasVotingPower",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
