@@ -24,11 +24,14 @@ interface IVotingPower {
     function initialize(address _archToken, address _vestingContract) external;
     function archToken() external view returns (address);
     function vestingContract() external view returns (address);
+    function tokenRegistry() external view returns (address);
     function stake(uint256 amount) external;
     function stakeWithPermit(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function withdraw(uint256 amount) external;
     function addVotingPowerForVestingTokens(address account, uint256 amount) external;
     function removeVotingPowerForClaimedTokens(address account, uint256 amount) external;
+    function addVotingPowerForLockedTokens(address account, uint256 amount) external;
+    function removeVotingPowerForUnlockedTokens(address account, uint256 amount) external;
     function getARCHAmountStaked(address staker) external view returns (uint256);
     function getAmountStaked(address staker, address stakedToken) external view returns (uint256);
     function getARCHStake(address staker) external view returns (Stake memory);

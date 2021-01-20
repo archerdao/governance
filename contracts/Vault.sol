@@ -2,16 +2,22 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./interfaces/IUniswapV2ERC20.sol";
+import "./interfaces/IArchToken.sol";
+import "./interfaces/IERC20.sol";
+import "./interfaces/ILockManager.sol";
 import "./lib/SafeMath.sol";
+import "./lib/SafeERC20.sol";
 
 /**
  * @title Vault
  * @dev Contract for locking up tokens for set periods of time
- * Tokens locked in this contract DO NOT count towards voting power
  */
 contract Vault {
     using SafeMath for uint256;
+    using SafeERC20 for IERC20;
+
+    /// @notice lockManager contract
+    ILockManager public lockManager;
 
     /// @notice Lock definition
     struct Lock {
@@ -21,6 +27,7 @@ contract Vault {
         uint256 amount;
         uint16 duration;
         uint256 amountClaimed;
+        bool hasVotingPower;
     }
 
     /// @dev Used to translate lock periods specified in days to seconds
@@ -43,7 +50,11 @@ contract Vault {
 
     /// @notice Event emitted when lock duration extended
     event LockExtended(uint16 indexed oldDuration, uint16 indexed newDuration, uint256 startTime, uint256 lockId);
-    
+
+    constructor(address _lockManager) {
+        lockManager = ILockManager(_lockManager);
+    }
+
     /**
      * @notice Lock tokens
      * @param locker The account that is locking tokens
@@ -51,6 +62,7 @@ contract Vault {
      * @param startTime The unix timestamp when the lock period will start
      * @param amount The amount of tokens being locked
      * @param lockDurationInDays The lock period in days
+     * @param grantVotingPower if true, give user voting power from tokens
      */
     function lockTokens(
         address token,
@@ -58,31 +70,15 @@ contract Vault {
         address receiver,
         uint256 startTime,
         uint256 amount,
-        uint16 lockDurationInDays
-    ) 
+        uint16 lockDurationInDays,
+        bool grantVotingPower
+    )
         external
     {
         require(lockDurationInDays > 0, "Vault::lockTokens: duration must be > 0");
         require(lockDurationInDays <= 25*365, "Vault::lockTokens: duration more than 25 years");
         require(amount > 0, "Vault::lockTokens: amount not > 0");
-
-        // Transfer the tokens under the control of the vault contract
-        require(IUniswapV2ERC20(token).transferFrom(locker, address(this), amount), "Vault::lockTokens: transfer failed");
-
-        uint256 lockStartTime = startTime == 0 ? block.timestamp : startTime;
-
-        Lock memory lock = Lock({
-            token: token,
-            receiver: receiver,
-            startTime: lockStartTime,
-            amount: amount,
-            duration: lockDurationInDays,
-            amountClaimed: 0
-        });
-        tokenLocks[numLocks] = lock;
-        activeLocks[receiver].push(numLocks);
-        emit LockCreated(token, locker, receiver, amount, lockStartTime, lockDurationInDays, numLocks);
-        numLocks++;
+        _lockTokens(token, locker, receiver, startTime, amount, lockDurationInDays, grantVotingPower);
     }
 
     /**
@@ -93,6 +89,7 @@ contract Vault {
      * @param startTime The unix timestamp when the lock period will start
      * @param amount The amount of tokens being locked
      * @param lockDurationInDays The lock period in days
+     * @param grantVotingPower if true, give user voting power from tokens
      * @param deadline The time at which to expire the signature
      * @param v The recovery byte of the signature
      * @param r Half of the ECDSA signature pair
@@ -105,6 +102,7 @@ contract Vault {
         uint256 startTime,
         uint256 amount,
         uint16 lockDurationInDays,
+        bool grantVotingPower,
         uint256 deadline,
         uint8 v, 
         bytes32 r, 
@@ -117,25 +115,8 @@ contract Vault {
         require(amount > 0, "Vault::lockTokensWithPermit: amount not > 0");
 
         // Set approval using permit signature
-        IUniswapV2ERC20(token).permit(locker, address(this), amount, deadline, v, r, s);
-
-        // Transfer the tokens under the control of the vault contract
-        require(IUniswapV2ERC20(token).transferFrom(locker, address(this), amount), "Vault::lockTokensWithPermit: transfer failed");
-
-        uint256 lockStartTime = startTime == 0 ? block.timestamp : startTime;
-
-        Lock memory lock = Lock({
-            token: token,
-            receiver: receiver,
-            startTime: lockStartTime,
-            amount: amount,
-            duration: lockDurationInDays,
-            amountClaimed: 0
-        });
-        tokenLocks[numLocks] = lock;
-        activeLocks[receiver].push(numLocks);
-        emit LockCreated(token, locker, receiver, amount, lockStartTime, lockDurationInDays, numLocks);
-        numLocks++;
+        IArchToken(token).permit(locker, address(this), amount, deadline, v, r, s);
+        _lockTokens(token, locker, receiver, startTime, amount, lockDurationInDays, grantVotingPower);
     }
 
     /**
@@ -266,6 +247,8 @@ contract Vault {
         }
     }
 
+    // TODO: create functions to claim all unlocked tokens for a given recipient - all and specific token
+
     /**
      * @notice Allows receiver to claim all of their unlocked tokens for a given lock
      * @dev Errors if no tokens are unlocked
@@ -280,7 +263,7 @@ contract Vault {
         lock.amountClaimed = unlockedAmount;
         
         require(msg.sender == lock.receiver, "Vault::claimAllUnlockedTokens: msg.sender must be receiver");
-        require(IUniswapV2ERC20(lock.token).transfer(lock.receiver, unlockedAmount), "Vault::claimAllUnlockedTokens: transfer failed");
+        IERC20(lock.token).safeTransfer(lock.receiver, unlockedAmount);
         emit UnlockedTokensClaimed(lock.receiver, lock.token, unlockedAmount, lockId);
     }
 
@@ -299,7 +282,7 @@ contract Vault {
         lock.amountClaimed = lock.amountClaimed.add(amount);
         
         require(msg.sender == lock.receiver, "Vault::claimUnlockedTokens: msg.sender must be receiver");
-        require(IUniswapV2ERC20(lock.token).transfer(lock.receiver, amount), "Vault::claimUnlockedTokens: transfer failed");
+        IERC20(lock.token).safeTransfer(lock.receiver, amount);
         emit UnlockedTokensClaimed(lock.receiver, lock.token, amount, lockId);
     }
 
@@ -315,6 +298,40 @@ contract Vault {
         uint16 newDuration = _add16(oldDuration, daysToAdd, "Vault::extendLock: max days exceeded");
         lock.duration = newDuration;
         emit LockExtended(oldDuration, newDuration, lock.startTime, lockId);
+    }
+
+    function _lockTokens(
+        address token,
+        address locker,
+        address receiver,
+        uint256 startTime,
+        uint256 amount,
+        uint16 lockDurationInDays,
+        bool grantVotingPower
+    ) internal {
+
+        // Transfer the tokens under the control of the vault contract
+        IERC20(token).safeTransferFrom(locker, address(this), amount);
+
+        uint256 lockStartTime = startTime == 0 ? block.timestamp : startTime;
+
+        Lock memory lock = Lock({
+            token: token,
+            receiver: receiver,
+            startTime: lockStartTime,
+            amount: amount,
+            duration: lockDurationInDays,
+            amountClaimed: 0,
+            hasVotingPower: grantVotingPower
+        });
+
+        tokenLocks[numLocks] = lock;
+        activeLocks[receiver].push(numLocks);
+        emit LockCreated(token, locker, receiver, amount, lockStartTime, lockDurationInDays, numLocks);
+        numLocks++;
+        if(grantVotingPower) {
+            lockManager.grantVotingPower(receiver, token, amount);
+        }
     }
 
     /**

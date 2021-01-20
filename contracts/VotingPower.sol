@@ -3,6 +3,7 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./interfaces/IERC20.sol";
+import "./interfaces/IVotingPowerFormula.sol";
 import "./lib/SafeMath.sol";
 import "./lib/ReentrancyGuardUpgradeSafe.sol";
 import "./lib/PrismProxyImplementation.sol";
@@ -28,6 +29,12 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
 
     /// @notice An event that's emitted when an account's vote balance changes
     event VotingPowerChanged(address indexed voter, uint256 indexed previousBalance, uint256 indexed newBalance);
+
+    /// @notice restrict functions to just multisig address
+    modifier onlyMultisig {
+        require(msg.sender == 0x13d5B8Fc84F73fc5a0A5832Aa8373044371314d3, "only multisig");
+        _;
+    }
 
     /**
      * @notice Initialize VotingPower contract
@@ -72,6 +79,42 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     }
 
     /**
+     * @notice Address of token registry
+     * @return Address of token registry
+     */
+    function tokenRegistry() public view returns (address) {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        return address(app.tokenRegistry);
+    }
+
+    /**
+     * @notice Address of lockManager
+     * @return Address of lockManager
+     */
+    function lockManager() public view returns (address) {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        return app.lockManager;
+    }
+
+    /**
+     * @notice Sets token registry address
+     * @param registry Address of token registry
+     */
+    function setTokenRegistry(address registry) public onlyMultisig {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        app.tokenRegistry = ITokenRegistry(registry);
+    }
+
+    /**
+     * @notice Sets lockManager address
+     * @param newLockManager Address of lockManager
+     */
+    function setLockManager(address newLockManager) public onlyMultisig {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        app.lockManager = newLockManager;
+    }
+
+    /**
      * @notice Stake ARCH tokens using offchain approvals to unlock voting power
      * @param amount The amount to stake
      * @param deadline The time at which to expire the signature
@@ -103,6 +146,26 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     }
 
     /**
+     * @notice Stake LP tokens to unlock voting power for `msg.sender`
+     * @param token The token to stake
+     * @param amount The amount to stake
+     */
+    function stake(address token, uint256 amount) external nonReentrant {
+        IERC20 lptoken = IERC20(token);
+        require(amount > 0, "VP::stake: cannot stake 0");
+        require(lptoken.balanceOf(msg.sender) >= amount, "VP::stake: not enough tokens");
+        require(lptoken.allowance(msg.sender, address(this)) >= amount, "VP::stake: must approve tokens before staking");
+
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        address tokenFormulaAddress = app.tokenRegistry.tokenFormulas(token);
+        require(tokenFormulaAddress != address(0), "VP::stake: token not supported");
+        
+        IVotingPowerFormula tokenFormula = IVotingPowerFormula(tokenFormulaAddress);
+        uint256 votingPower = tokenFormula.convertTokensToVotingPower(amount);
+        _stake(msg.sender, token, amount, votingPower);
+    }
+
+    /**
      * @notice Count vesting ARCH tokens toward voting power for `account`
      * @param account The recipient of voting power
      * @param amount The amount of voting power to add
@@ -129,6 +192,32 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     }
 
     /**
+     * @notice Count locked tokens toward voting power for `account`
+     * @param account The recipient of voting power
+     * @param amount The amount of voting power to add
+     */
+    function addVotingPowerForLockedTokens(address account, uint256 amount) external nonReentrant {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        require(amount > 0, "VP::addVPforVT: cannot add 0 voting power");
+        require(msg.sender == app.lockManager, "VP::addVPforVT: only lockManager contract");
+
+        _increaseVotingPower(account, amount);
+    }
+
+    /**
+     * @notice Remove unlocked tokens from voting power for `account`
+     * @param account The account with voting power
+     * @param amount The amount of voting power to remove
+     */
+    function removeVotingPowerForUnlockedTokens(address account, uint256 amount) external nonReentrant {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        require(amount > 0, "VP::removeVPforVT: cannot remove 0 voting power");
+        require(msg.sender == app.lockManager, "VP::removeVPforVT: only lockManager contract");
+
+        _decreaseVotingPower(account, amount);
+    }
+
+    /**
      * @notice Withdraw staked ARCH tokens, removing voting power for `msg.sender`
      * @param amount The amount to withdraw
      */
@@ -136,6 +225,18 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
         require(amount > 0, "VP::withdraw: cannot withdraw 0");
         AppStorage storage app = VotingPowerStorage.appStorage();
         _withdraw(msg.sender, address(app.archToken), amount, amount);
+    }
+
+    /**
+     * @notice Withdraw staked LP tokens, removing voting power for `msg.sender`
+     * @param token The token to withdraw
+     * @param amount The amount to withdraw
+     */
+    function withdraw(address token, uint256 amount) external nonReentrant {
+        require(amount > 0, "VP::withdraw: cannot withdraw 0");
+        Stake memory s = getStake(msg.sender, token);
+        uint256 vpToWithdraw = amount.mul(s.votingPower).div(s.amount);
+        _withdraw(msg.sender, token, amount, vpToWithdraw);
     }
 
     /**
