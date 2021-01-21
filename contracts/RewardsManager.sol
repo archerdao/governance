@@ -20,7 +20,7 @@ contract RewardsManager {
     /// @notice Voting power contract
     IVotingPower public votingPower;
 
-    // Info of each user.
+    /// @notice Info of each user.
     struct UserInfo {
         uint256 amount;     // How many tokens the user has provided.
         uint256 archRewardDebt; // Reward debt for ARCH rewards. See explanation below.
@@ -38,7 +38,7 @@ contract RewardsManager {
         //   4. User's `rewardDebt` gets updated.
     }
 
-    // Info of each pool.
+    /// @notice Info of each pool.
     struct PoolInfo {
         IERC20 token;               // Address of token contract.
         uint256 sushiPid;           // MasterChef pid
@@ -49,31 +49,34 @@ contract RewardsManager {
         uint16 vestingPeriod;       // Vesting period in days for vesting rewards
     }
 
-    // ARCH token
+    /// @notice ARCH token
     IArchToken public archToken;
 
-    // SUSHI token
+    /// @notice SUSHI token
     IERC20 public sushiToken;
 
-    // Sushi Master Chef
+    /// @notice Sushi Master Chef
     IMasterChef public masterChef;
 
-    // Vault for vesting tokens
+    /// @notice Vault for vesting tokens
     IVault public vault;
 
-    // LockManager contract
+    /// @notice LockManager contract
     ILockManager public lockManager;
 
-    // ARCH tokens rewarded per block.
+    /// @notice ARCH tokens rewarded per block.
     uint256 public archPerBlock;
 
-    // Info of each pool.
+    /// @notice Info of each pool.
     PoolInfo[] public poolInfo;
-    // Info of each user that stakes tokens.
+    
+    /// @notice Info of each user that stakes tokens.
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
-    // Total allocation points. Must be the sum of all allocation points in all pools.
+    
+    /// @notice Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when ARCH rewards start.
+
+    /// @notice The block number when ARCH rewards start.
     uint256 public startBlock;
 
     /// @notice only owner can call function
@@ -82,12 +85,19 @@ contract RewardsManager {
         _;
     }
 
+    /// @notice Event emitted when a user deposits funds in the rewards manager
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
+
+    /// @notice Event emitted when a user withdraws their original funds + rewards from the rewards manager
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
+
+    /// @notice Event emitted when a user withdraws their original funds from the rewards manager without claiming rewards
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
+
+    /// @notice Event emitted when new pool is added to the rewards manager
     event PoolAdded(uint256 indexed pid, address indexed token, uint256 allocPoints, uint256 totalAllocPoints, uint256 rewardStartBlock, uint256 sushiPid);
     
-    /// @notice Event emitted when the owner of the vesting contract is updated
+    /// @notice Event emitted when the owner of the rewards manager contract is updated
     event ChangedOwner(address indexed oldOwner, address indexed newOwner);
 
     constructor(
@@ -109,12 +119,24 @@ contract RewardsManager {
         emit ChangedOwner(address(0), owner);
     }
 
+    /**
+     * @notice View function to see current poolInfo array length
+     * @return pool length
+     */
     function poolLength() external view returns (uint256) {
         return poolInfo.length;
     }
 
-    // Add a new reward token to the pool. Can only be called by the owner.
-    // XXX DO NOT add the same token more than once. Rewards will be messed up if you do.
+    /**
+     * @notice Add a new reward token to the pool
+     * @dev Can only be called by the owner. DO NOT add the same token more than once. Rewards will be messed up if you do.
+     * @param allocPoint Number of allocation points to allot to this token/pool
+     * @param token The token that will be staked for rewards
+     * @param sushiPid The pid of the Sushiswap pool in the Masterchef contract
+     * @param vestingPercent The percentage of rewards from this pool that will vest
+     * @param vestingPeriod The number of days for the vesting period
+     * @param withUpdate if specified, update all pools before adding new pool
+     */
     function add(
         uint256 allocPoint, 
         address token,
@@ -140,7 +162,13 @@ contract RewardsManager {
         emit PoolAdded(poolInfo.length - 1, token, allocPoint, totalAllocPoint, rewardStartBlock, sushiPid);
     }
 
-    // Update the given pool's ARCH allocation point. Can only be called by the owner.
+    /**
+     * @notice Update the given pool's ARCH allocation points
+     * @dev Can only be called by the owner
+     * @param pid The RewardManager pool id
+     * @param allocPoint New number of allocation points for pool
+     * @param withUpdate if specified, update all pools before setting allocation points
+     */
     function set(uint256 pid, uint256 allocPoint, bool withUpdate) public onlyOwner {
         if (withUpdate) {
             massUpdatePools();
@@ -149,12 +177,22 @@ contract RewardsManager {
         poolInfo[pid].allocPoint = allocPoint;
     }
 
-    // Return reward multiplier over the given _from to _to block.
+    /**
+     * @notice Return reward multiplier over the given from to to block.
+     * @param from From block number
+     * @param to To block number
+     * @return multiplier
+     */
     function getMultiplier(uint256 from, uint256 to) public pure returns (uint256) {
-        return to.sub(from);
+        return to > from ? to.sub(from) : 0;
     }
 
-    // View function to see pending ARCH on frontend.
+    /**
+     * @notice View function to see pending ARCH on frontend.
+     * @param pid pool id
+     * @param account user account to check
+     * @return pending ARCH rewards
+     */
     function pendingArch(uint256 pid, address account) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][account];
@@ -168,22 +206,33 @@ contract RewardsManager {
         return user.amount.mul(accRewardsPerShare).div(1e12).sub(user.archRewardDebt);
     }
 
-    // View function to see pending SUSHI on frontend.
+    /**
+     * @notice View function to see pending SUSHI on frontend.
+     * @param pid pool id
+     * @param account user account to check
+     * @return pending SUSHI rewards
+     */
     function pendingSushi(uint256 pid, address account) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][account];
-         // TODO: determine how to factor in lastBlockReward + tokenSupply check 
+        // TODO: determine how to factor in lastBlockReward + tokenSupply check 
         return user.amount.mul(masterChef.poolInfo(pool.sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
     }
 
-    // Update reward variables for all pools. Be careful of gas spending!
+    /**
+     * @notice Update reward variables for all pools
+     * @dev Be careful of gas spending!
+     */
     function massUpdatePools() public {
         for (uint256 pid = 0; pid < poolInfo.length; ++pid) {
             updatePool(pid);
         }
     }
 
-    // Update reward variables of the given pool to be up-to-date.
+    /**
+     * @notice Update reward variables of the given pool to be up-to-date
+     * @param pid pool id
+     */
     function updatePool(uint256 pid) public {
         PoolInfo storage pool = poolInfo[pid];
         if (block.number <= pool.lastRewardBlock) {
@@ -200,7 +249,11 @@ contract RewardsManager {
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit tokens to RewardsManager for ARCH allocation.
+    /**
+     * @notice Deposit tokens to RewardsManager for ARCH allocation.
+     * @param pid pool id
+     * @param amount number of tokens to deposit
+     */
     // TODO: Review for reentrancy issues
     function deposit(uint256 pid, uint256 amount) public {
         PoolInfo storage pool = poolInfo[pid];
@@ -212,7 +265,7 @@ contract RewardsManager {
 
         if (user.amount > 0) {
             uint256 pendingArchTokens = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.archRewardDebt);
-            _distributeArchRewards(pendingArchTokens, pool.vestingPercent, pool.vestingPeriod);
+            _distributeArchRewards(msg.sender, pendingArchTokens, pool.vestingPercent, pool.vestingPeriod);
             pendingSushiTokens = user.amount.mul(masterChef.poolInfo(pool.sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
         }
 
@@ -234,7 +287,11 @@ contract RewardsManager {
         emit Deposit(msg.sender, pid, amount);
     }
 
-    // Withdraw tokens from RewardsManager.
+    /**
+     * @notice Withdraw tokens from RewardsManager, claiming rewards.
+     * @param pid pool id
+     * @param amount number of tokens to withdraw
+     */
     // TODO: Review for reentrancy issues
     function withdraw(uint256 pid, uint256 amount) public {
         PoolInfo storage pool = poolInfo[pid];
@@ -244,7 +301,7 @@ contract RewardsManager {
         updatePool(pid);
 
         uint256 pendingArchTokens = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.archRewardDebt);
-        _distributeArchRewards(pendingArchTokens, pool.vestingPercent, pool.vestingPeriod);
+        _distributeArchRewards(msg.sender, pendingArchTokens, pool.vestingPercent, pool.vestingPeriod);
 
         uint256 pendingSushiTokens = user.amount.mul(masterChef.poolInfo(pool.sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
         
@@ -263,7 +320,10 @@ contract RewardsManager {
         emit Withdraw(msg.sender, pid, amount);
     }
 
-    // Withdraw without caring about rewards. EMERGENCY ONLY.
+    /**
+     * @notice Withdraw without caring about rewards. EMERGENCY ONLY.
+     * @param pid pool id
+     */
     function emergencyWithdraw(uint256 pid) public {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
@@ -296,13 +356,24 @@ contract RewardsManager {
         emit ChangedOwner(oldOwner, newOwner);
     }
 
-    function _distributeArchRewards(uint256 amount, uint32 vestingPercent, uint16 vestingPeriod) internal {
+    /**
+     * @notice Internal function used to distrute ARCH rewards, optionally vesting a %
+     * @param account account that is due rewards
+     * @param amount amount of ARCH to distribute
+     * @param vestingPercent percent of rewards to vest in bips
+     * @param vestingPeriod number of days over which to vest rewards
+     */
+    function _distributeArchRewards(address account, uint256 amount, uint32 vestingPercent, uint16 vestingPeriod) internal {
         uint256 vestingArch = amount.mul(vestingPercent).div(1000000);
-        vault.lockTokens(address(archToken), address(this), msg.sender, 0, vestingArch, vestingPeriod, true);
+        vault.lockTokens(address(archToken), address(this), account, 0, vestingArch, vestingPeriod, true);
         _safeArchTransfer(msg.sender, amount.sub(vestingArch));
     }
 
-    // Safe ARCH transfer function, just in case if rounding error causes pool to not have enough ARCH.
+    /**
+     * @notice Safe ARCH transfer function, just in case if rounding error causes pool to not have enough ARCH.
+     * @param to account that is receieving ARCH
+     * @param amount amount of ARCH to send
+     */
     function _safeArchTransfer(address to, uint256 amount) internal {
         uint256 archBal = archToken.balanceOf(address(this));
         if (amount > archBal) {
@@ -312,7 +383,11 @@ contract RewardsManager {
         }
     }
 
-    // Safe SUSHI transfer function, just in case if rounding error causes pool to not have enough SUSHI.
+    /**
+     * @notice Safe SUSHI transfer function, just in case if rounding error causes pool to not have enough SUSHI.
+     * @param to account that is receieving SUSHI
+     * @param amount amount of SUSHI to send
+     */
     function _safeSushiTransfer(address to, uint256 amount) internal {
         uint256 sushiBal = sushiToken.balanceOf(address(this));
         if (amount > sushiBal) {

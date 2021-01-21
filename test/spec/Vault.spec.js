@@ -39,7 +39,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
             const activeLocks = await vault.getAllActiveLocks(alice.address)
             const newLock = activeLocks[0]
             expect(newLock[0]).to.eq(archToken.address)
@@ -59,7 +59,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 0
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await expect(vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)).to.revertedWith("revert Vault::lockTokens: duration must be > 0")
+            await expect(vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)).to.revertedWith("revert Vault::lockTokens: duration must be > 0")
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
@@ -72,7 +72,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 26 * 365
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await expect(vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)).to.revertedWith("revert Vault::lockTokens: duration more than 25 years")
+            await expect(vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)).to.revertedWith("revert Vault::lockTokens: duration more than 25 years")
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
@@ -85,7 +85,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(0).mul(ethers.BigNumber.from(10).pow(decimals))
-            await expect(vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)).to.revertedWith("revert Vault::lockTokens: amount not > 0")
+            await expect(vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)).to.revertedWith("revert Vault::lockTokens: amount not > 0")
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
@@ -99,7 +99,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             let totalLocked = await archToken.balanceOf(vault.address)
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await expect(vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)).to.revertedWith("revert Arch::_transferTokens: transfer exceeds from balance")
+            await expect(vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)).to.revertedWith("revert Arch::_transferTokens: transfer exceeds from balance")
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
@@ -141,7 +141,7 @@ describe("Vault", function() {
     
             const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
             
-            await vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, deadline, v, r, s)
+            await vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false, deadline, v, r, s)
             const activeLocks = await vault.getAllActiveLocks(alice.address)
             const newLock = activeLocks[0]
             expect(newLock[0]).to.eq(archToken.address)
@@ -188,7 +188,7 @@ describe("Vault", function() {
     
             const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
             
-            await expect(vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, deadline, v, r, s)).to.revertedWith("revert Vault::lockTokensWithPermit: duration must be > 0")
+            await expect(vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false, deadline, v, r, s)).to.revertedWith("revert Vault::lockTokensWithPermit: duration must be > 0")
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
@@ -228,7 +228,7 @@ describe("Vault", function() {
     
             const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
     
-            await expect(vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, deadline, v, r, s)).to.revertedWith("revert Vault::lockTokensWithPermit: duration more than 25 years")
+            await expect(vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false, deadline, v, r, s)).to.revertedWith("revert Vault::lockTokensWithPermit: duration more than 25 years")
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
@@ -266,7 +266,7 @@ describe("Vault", function() {
             )
     
             const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), Buffer.from(DEPLOYER_PRIVATE_KEY, 'hex'))
-            await expect(vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, deadline, v, r, s)).to.revertedWith("revert Vault::lockTokensWithPermit: amount not > 0")
+            await expect(vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false, deadline, v, r, s)).to.revertedWith("revert Vault::lockTokensWithPermit: amount not > 0")
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
@@ -308,7 +308,7 @@ describe("Vault", function() {
             
             
             await archToken.transfer(bob.address, await archToken.balanceOf(deployer.address))
-            await expect(vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, deadline, v, r, s)).to.revertedWith("revert Arch::_transferTokens: transfer exceeds from balance")
+            await expect(vault.lockTokensWithPermit(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false, deadline, v, r, s)).to.revertedWith("revert Arch::_transferTokens: transfer exceeds from balance")
             expect(await archToken.balanceOf(vault.address)).to.eq(totalLocked)
             const emptyLocks = await vault.getAllActiveLocks(bob.address)
             expect(emptyLocks.length).to.eq(0)
@@ -323,7 +323,7 @@ describe("Vault", function() {
           const START_TIME = timestamp + 21600
           const DURATION_IN_DAYS = 4
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           expect(await vault.getLockedTokenBalance(ZERO_ADDRESS, bob.address)).to.eq(0)
         })
   
@@ -335,7 +335,7 @@ describe("Vault", function() {
           const DURATION_IN_DAYS = 4
           const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
           await ethers.provider.send("evm_mine")
           expect(await vault.getLockedTokenBalance(archToken.address, bob.address)).to.eq(0)
@@ -348,7 +348,7 @@ describe("Vault", function() {
           const START_TIME = timestamp + 21600
           const DURATION_IN_DAYS = 4
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           expect(await vault.getLockedTokenBalance(archToken.address, bob.address)).to.eq(lockAmount)
         })
 
@@ -359,8 +359,8 @@ describe("Vault", function() {
             const START_TIME = timestamp + 21600
             const DURATION_IN_DAYS = 4
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
             expect(await vault.getLockedTokenBalance(archToken.address, bob.address)).to.eq(lockAmount.mul(2))
         })
 
@@ -372,8 +372,8 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS * 2)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS * 2, false)
             await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
             await ethers.provider.send("evm_mine")
             expect(await vault.getLockedTokenBalance(archToken.address, bob.address)).to.eq(lockAmount)
@@ -388,7 +388,7 @@ describe("Vault", function() {
           const START_TIME = timestamp + 21600
           const DURATION_IN_DAYS = 4
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           expect(await vault.getUnlockedTokenBalance(ZERO_ADDRESS, bob.address)).to.eq(0)
         })
   
@@ -400,7 +400,7 @@ describe("Vault", function() {
           const DURATION_IN_DAYS = 4
           const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
           await ethers.provider.send("evm_mine")
           expect(await vault.getUnlockedTokenBalance(archToken.address, bob.address)).to.eq(lockAmount)
@@ -414,7 +414,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
             await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
             await ethers.provider.send("evm_mine")
             let claimAmount = ethers.BigNumber.from(100).mul(ethers.BigNumber.from(10).pow(decimals))
@@ -429,7 +429,7 @@ describe("Vault", function() {
           const START_TIME = timestamp + 21600
           const DURATION_IN_DAYS = 4
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           expect(await vault.getUnlockedTokenBalance(archToken.address, bob.address)).to.eq(0)
         })
     })
@@ -442,7 +442,7 @@ describe("Vault", function() {
           const START_TIME = timestamp + 21600
           const DURATION_IN_DAYS = 4
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           expect(await vault.getLockedBalance(1)).to.eq(0)
         })
   
@@ -454,7 +454,7 @@ describe("Vault", function() {
           const DURATION_IN_DAYS = 4
           const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
           await ethers.provider.send("evm_mine")
           expect(await vault.getLockedBalance(0)).to.eq(0)
@@ -467,7 +467,7 @@ describe("Vault", function() {
           const START_TIME = timestamp + 21600
           const DURATION_IN_DAYS = 4
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           expect(await vault.getLockedBalance(0)).to.eq(lockAmount)
         })
     })
@@ -480,7 +480,7 @@ describe("Vault", function() {
         const START_TIME = timestamp + 21600
         const DURATION_IN_DAYS = 4
         let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-        await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+        await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
         expect(await vault.getUnlockedBalance(0)).to.eq(0)
       })
 
@@ -491,7 +491,7 @@ describe("Vault", function() {
         const START_TIME = timestamp + 21600
         const DURATION_IN_DAYS = 4
         let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-        await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+        await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
         await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600])
         await ethers.provider.send("evm_mine")
         expect(await vault.getUnlockedBalance(0)).to.eq(0)
@@ -505,7 +505,7 @@ describe("Vault", function() {
         const DURATION_IN_DAYS = 4
         const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
         let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-        await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+        await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
         await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
         await ethers.provider.send("evm_mine")
         expect(await vault.getUnlockedBalance(0)).to.eq(lockAmount)
@@ -519,7 +519,7 @@ describe("Vault", function() {
         const DURATION_IN_DAYS = 4
         const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
         let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-        await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+        await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
         await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
         let claimAmount = ethers.BigNumber.from(100).mul(ethers.BigNumber.from(10).pow(decimals))
         await vault.connect(bob).claimUnlockedTokens(0, claimAmount)
@@ -535,7 +535,7 @@ describe("Vault", function() {
             const START_TIME = timestamp + 21600
             const DURATION_IN_DAYS = 4
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
             await expect(vault.connect(bob).claimUnlockedTokens(0, lockAmount)).to.revertedWith("revert Vault::claimUnlockedTokens: unlockedAmount < amount")
         })
 
@@ -547,7 +547,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
             let userTokenBalanceBefore = await archToken.balanceOf(alice.address)
             let contractTokenBalanceBefore = await archToken.balanceOf(vault.address)
             let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
@@ -566,7 +566,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
             let userTokenBalanceBefore = await archToken.balanceOf(alice.address)
             let contractTokenBalanceBefore = await archToken.balanceOf(vault.address)
             let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
@@ -596,7 +596,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
             
             let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
             await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
@@ -613,7 +613,7 @@ describe("Vault", function() {
           const START_TIME = timestamp + 21600
           const DURATION_IN_DAYS = 4
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           await expect(vault.connect(bob).claimAllUnlockedTokens(0)).to.revertedWith("revert Vault::claimAllUnlockedTokens: unlockedAmount is 0")
         })
   
@@ -625,7 +625,7 @@ describe("Vault", function() {
           const DURATION_IN_DAYS = 4
           const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
           let userTokenBalanceBefore = await archToken.balanceOf(alice.address)
           let contractTokenBalanceBefore = await archToken.balanceOf(vault.address)
           let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
@@ -644,7 +644,7 @@ describe("Vault", function() {
           const DURATION_IN_DAYS = 4
           const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-          await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+          await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
 
           let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
           await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
@@ -665,7 +665,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             const DURATION_IN_SECS = DURATION_IN_DAYS * 24 * 60 * 60
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, alice.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
             
             let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
             await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
@@ -683,7 +683,7 @@ describe("Vault", function() {
             const ORIGINAL_DURATION_IN_DAYS = 4
             const SIX_MONTHS_IN_DAYS = 6 * 30
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, ORIGINAL_DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, ORIGINAL_DURATION_IN_DAYS, false)
             let lock = await vault.getTokenLock(0)
             expect(lock.duration).to.eq(ORIGINAL_DURATION_IN_DAYS)
 
@@ -701,7 +701,7 @@ describe("Vault", function() {
             const ORIGINAL_DURATION_IN_DAYS = 4
             const SIX_MONTHS_IN_DAYS = 6 * 30
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, ORIGINAL_DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, ORIGINAL_DURATION_IN_DAYS, false)
             let lock = await vault.getTokenLock(0)
             expect(lock.duration).to.eq(ORIGINAL_DURATION_IN_DAYS)
 
@@ -718,7 +718,7 @@ describe("Vault", function() {
             const START_TIME = timestamp + 21600
             const ORIGINAL_DURATION_IN_DAYS = 4
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, ORIGINAL_DURATION_IN_DAYS)
+            await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, ORIGINAL_DURATION_IN_DAYS, false)
             let lock = await vault.getTokenLock(0)
             expect(lock.duration).to.eq(ORIGINAL_DURATION_IN_DAYS)
 

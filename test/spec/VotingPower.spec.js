@@ -80,7 +80,7 @@ describe("VotingPower", function() {
                 const totalArchStakedBefore = await votingPower.getARCHAmountStaked(deployer.address)
                 const userVotesBefore = await votingPower.balanceOf(deployer.address)
                 await archToken.approve(votingPower.address, 1000)
-                await votingPower.stake(1000)
+                await votingPower['stake(uint256)'](1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(1000))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(1000))
                 expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore.add(1000))
@@ -88,15 +88,15 @@ describe("VotingPower", function() {
             })
 
             it("does not allow a zero stake amount", async function() {
-                await expect(votingPower.stake(0)).to.revertedWith("revert VP::stake: cannot stake 0")
+                await expect(votingPower['stake(uint256)'](0)).to.revertedWith("revert VP::stake: cannot stake 0")
             })
 
             it("does not allow a user to stake more tokens than they have", async function() {
-                await expect(votingPower.connect(alice).stake(1000)).to.revertedWith("revert VP::stake: not enough tokens")
+                await expect(votingPower.connect(alice)['stake(uint256)'](1000)).to.revertedWith("revert VP::stake: not enough tokens")
             })
 
             it("does not allow a user to stake before approval", async function() {
-                await expect(votingPower.stake(1000)).to.revertedWith("revert VP::stake: must approve tokens before staking")
+                await expect(votingPower['stake(uint256)'](1000)).to.revertedWith("revert VP::stake: must approve tokens before staking")
             })
 
         })
@@ -271,13 +271,13 @@ describe("VotingPower", function() {
                 const totalArchStakedBefore = await votingPower.getARCHAmountStaked(deployer.address)
                 const userVotesBefore = await votingPower.balanceOf(deployer.address)
                 await archToken.approve(votingPower.address, 1000)
-                await votingPower.stake(1000)
+                await votingPower['stake(uint256)'](1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore.sub(1000))
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore.add(1000))
                 expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore.add(1000))
                 const userVotesAfter = await votingPower.balanceOf(deployer.address)
                 expect(userVotesAfter).to.eq(userVotesBefore.add(1000))
-                await votingPower.withdraw(1000)
+                await votingPower['withdraw(uint256)'](1000)
                 expect(await archToken.balanceOf(deployer.address)).to.eq(userBalanceBefore)
                 expect(await archToken.balanceOf(votingPower.address)).to.eq(contractBalanceBefore)
                 expect(await votingPower.getARCHAmountStaked(deployer.address)).to.eq(totalArchStakedBefore)
@@ -285,18 +285,18 @@ describe("VotingPower", function() {
             })
 
             it("does not allow a zero withdrawal amount", async function() {
-                await expect(votingPower.withdraw(0)).to.revertedWith("revert VP::withdraw: cannot withdraw 0")
+                await expect(votingPower['withdraw(uint256)'](0)).to.revertedWith("revert VP::withdraw: cannot withdraw 0")
             })
 
             it("does not allow a user to withdraw more than their current stake", async function() {
                 await archToken.approve(votingPower.address, 1000)
-                await votingPower.stake(1000)
-                await expect(votingPower.withdraw(1001)).to.revertedWith("revert VP::_withdraw: not enough tokens staked")
+                await votingPower['stake(uint256)'](1000)
+                await expect(votingPower['withdraw(uint256)'](1001)).to.revertedWith("revert VP::_withdraw: not enough tokens staked")
             })
 
             it("does not allow a user to withdraw more than they have staked when they have vesting tokens", async function() {
                 await archToken.approve(votingPower.address, 1000)
-                await votingPower.stake(1000)
+                await votingPower['stake(uint256)'](1000)
                 await vesting.setVotingPowerContract(votingPower.address)
                 await archToken.approve(vesting.address, ethers.constants.MaxUint256)
                 let decimals = await archToken.decimals()
@@ -305,7 +305,7 @@ describe("VotingPower", function() {
                 const VESTING_CLIFF_IN_DAYS = 1
                 let grantAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
                 await vesting.addTokenGrant(deployer.address, START_TIME, grantAmount, VESTING_DURATION_IN_DAYS, VESTING_CLIFF_IN_DAYS)
-                await expect(votingPower.withdraw(2000)).to.revertedWith("revert VP::_withdraw: not enough tokens staked")
+                await expect(votingPower['withdraw(uint256)'](2000)).to.revertedWith("revert VP::_withdraw: not enough tokens staked")
             })
         })
     })

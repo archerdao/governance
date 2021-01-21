@@ -45,8 +45,10 @@ const governanceFixture = deployments.createFixture(async ({deployments, getName
     const VotingPowerPrismFactory = await ethers.getContractFactory("VotingPowerPrism");
     const VotingPowerPrism = await VotingPowerPrismFactory.deploy(deployer.address);
     const VotingPower = new ethers.Contract(VotingPowerPrism.address, VotingPowerImp.interface, deployer)
+    const LockManagerFactory = await ethers.getContractFactory("LockManager");
+    const LockManager = await LockManagerFactory.deploy(VotingPowerPrism.address, deployer.address)
     const VaultFactory = await ethers.getContractFactory("Vault");
-    const Vault = await VaultFactory.deploy();
+    const Vault = await VaultFactory.deploy(LockManager.address);
 
     return {
         archToken: ArchToken,
@@ -54,6 +56,7 @@ const governanceFixture = deployments.createFixture(async ({deployments, getName
         votingPower: VotingPower,
         votingPowerImplementation: VotingPowerImp,
         votingPowerPrism: VotingPowerPrism,
+        lockManager: LockManager,
         vault: Vault,
         deployer: deployer,
         liquidityProvider: liquidityProvider,
