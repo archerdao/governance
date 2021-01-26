@@ -4,9 +4,9 @@
             <div class="container py-3 is-flex is-justify-between">
                 <div class="navbar-brand">
                     <div class="navbar-item">
-                        <router-link :to="{name: 'Home'}">
+                        <a href="https://www.archerdao.io" target="_blank">
                             <img src="@/assets/head-logo.png" alt="Archer Logo" class="mt-1" />
-                        </router-link>
+                        </a>
                     </div>
                 </div>
 
@@ -30,7 +30,7 @@
 
                 <div class="navbar-end">
                     <div class="navbar-item" v-if="account">
-                        <b-button rounded type="is-primary" @click="backToHome">
+                        <b-button rounded type="is-primary" tag="router-link" :to="{name: 'Home'}">
                             <span class="icon">
                                 <i class="mdi mdi-ethereum"></i>
                             </span>
