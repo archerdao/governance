@@ -1,16 +1,27 @@
 <template>
     <section style="height: 100%;">
-        <nav class="navbar is-transparent">
-            <div class="container py-3 is-flex is-justify-between">
-                <div class="navbar-brand">
-                    <div class="navbar-item">
-                        <a href="https://www.archerdao.io" target="_blank">
-                            <img src="@/assets/head-logo.png" alt="Archer Logo" class="mt-1" />
-                        </a>
-                    </div>
-                </div>
+        <nav class="navbar is-transparent container py-3" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <b-navbar-item href="https://www.archerdao.io" target="_blank">
+                        <img src="@/assets/head-logo.png" alt="Archer Logo" />
+                </b-navbar-item>
 
-                <div class="navbar-start" v-if="account">
+                <a 
+                    role="button" 
+                    @click="showNav = !showNav"
+                    class="navbar-burger"
+                    :class="{ 'is-active': showNav }"
+                    aria-label="menu" 
+                    aria-expanded="false" 
+                    v-if="account"
+                >
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+            <div class="navbar-menu" :class="{ 'is-active': showNav }" v-if="account">
+                <div class="navbar-start">
                     <b-navbar-item tag="router-link" :to="{ name: 'Staking' }">
                         Staking
                     </b-navbar-item>
@@ -18,7 +29,7 @@
                         Vesting
                     </b-navbar-item>
                     <b-navbar-item href="https://gov.archerdao.io" target="_blank">
-                       <span>Voting</span>
+                        <span>Voting</span>
                         <span class="icon is-medium ml-1">
                             <i class="mdi mdi-arrow-top-right"></i>
                         </span>
@@ -90,6 +101,11 @@
         return this.$router.push({name: 'Home'});
       },
     },
+    data() {
+        return {
+            showNav: false
+        }
+    },
     mounted() {
       if (
           this.$router.currentRoute.path === '/staking' ||
@@ -152,8 +168,9 @@
     $box-background-color: $archer-helper-box;
     $box-shadow: -8px 0 8px 0 #3f3f3f38, 8px 0 8x 0 #d0d0d038;
 
-    $navbar-z: 0;
+    $navbar-item-hover-background-color: transparent;
     $navbar-fixed-z: 0;
+    $navbar-z: 0;
 
     $scheme-main: $archer-background;
 
