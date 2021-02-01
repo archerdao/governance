@@ -40,7 +40,7 @@ if (FORK_URL && FORK_URL.length > 0) {
   hardhatConfig.tags.push("dev")
   // If FORK_BLOCK_NUMBER env var is set, create fork from specific block
   if (FORK_BLOCK_NUMBER && parseInt(FORK_BLOCK_NUMBER)) {
-    hardhatConfig.forking.blockNumber = FORK_BLOCK_NUMBER
+    hardhatConfig.forking.blockNumber = parseInt(FORK_BLOCK_NUMBER)
   }
 } else {
   hardhatConfig.tags.push("local")
@@ -111,6 +111,9 @@ module.exports = {
         runs: 999999
       }
     }
+  },
+  mocha: {
+    timeout: 150000
   },
   defaultNetwork: "hardhat",
   networks: {

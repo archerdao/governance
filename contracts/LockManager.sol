@@ -90,5 +90,4 @@ contract LockManager is AccessControl {
         votingPower.removeVotingPowerForUnlockedTokens(receiver, vpToWithdraw);
         emit StakeWithdrew(receiver, token, tokenAmount, vpToWithdraw);
     }
-
 }

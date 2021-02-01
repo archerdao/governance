@@ -256,11 +256,11 @@ describe("VotingPower", function() {
 
         context("removeVotingPowerForClaimedTokens", async () => {
             it("does not allow user to remove 0 voting power", async function() {
-                await expect(votingPower.removeVotingPowerForClaimedTokens(alice.address, 0)).to.revertedWith("revert VP::removeVPforVT: cannot remove 0 voting power")
+                await expect(votingPower.removeVotingPowerForClaimedTokens(alice.address, 0)).to.revertedWith("revert VP::removeVPforCT: cannot remove 0 voting power")
             })
 
             it("does not allow addresses other than the vesting contract to remove voting power", async function() {
-                await expect(votingPower.removeVotingPowerForClaimedTokens(alice.address, 1000)).to.revertedWith("revert VP::removeVPforVT: only vesting contract")
+                await expect(votingPower.removeVotingPowerForClaimedTokens(alice.address, 1000)).to.revertedWith("revert VP::removeVPforCT: only vesting contract")
             })
         })
 

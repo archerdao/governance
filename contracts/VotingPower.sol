@@ -185,8 +185,8 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
      */
     function removeVotingPowerForClaimedTokens(address account, uint256 amount) external nonReentrant {
         AppStorage storage app = VotingPowerStorage.appStorage();
-        require(amount > 0, "VP::removeVPforVT: cannot remove 0 voting power");
-        require(msg.sender == address(app.vesting), "VP::removeVPforVT: only vesting contract");
+        require(amount > 0, "VP::removeVPforCT: cannot remove 0 voting power");
+        require(msg.sender == address(app.vesting), "VP::removeVPforCT: only vesting contract");
 
         _decreaseVotingPower(account, amount);
     }
@@ -198,8 +198,8 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
      */
     function addVotingPowerForLockedTokens(address account, uint256 amount) external nonReentrant {
         AppStorage storage app = VotingPowerStorage.appStorage();
-        require(amount > 0, "VP::addVPforVT: cannot add 0 voting power");
-        require(msg.sender == app.lockManager, "VP::addVPforVT: only lockManager contract");
+        require(amount > 0, "VP::addVPforLT: cannot add 0 voting power");
+        require(msg.sender == app.lockManager, "VP::addVPforLT: only lockManager contract");
 
         _increaseVotingPower(account, amount);
     }
@@ -211,8 +211,8 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
      */
     function removeVotingPowerForUnlockedTokens(address account, uint256 amount) external nonReentrant {
         AppStorage storage app = VotingPowerStorage.appStorage();
-        require(amount > 0, "VP::removeVPforVT: cannot remove 0 voting power");
-        require(msg.sender == app.lockManager, "VP::removeVPforVT: only lockManager contract");
+        require(amount > 0, "VP::removeVPforUT: cannot remove 0 voting power");
+        require(msg.sender == app.lockManager, "VP::removeVPforUT: only lockManager contract");
 
         _decreaseVotingPower(account, amount);
     }

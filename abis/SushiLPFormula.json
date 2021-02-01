@@ -7,9 +7,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint16",
+        "internalType": "uint32",
         "name": "_cvrRate",
-        "type": "uint16"
+        "type": "uint32"
       }
     ],
     "stateMutability": "nonpayable",
@@ -39,15 +39,15 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint16",
+        "internalType": "uint32",
         "name": "oldRate",
-        "type": "uint16"
+        "type": "uint32"
       },
       {
         "indexed": false,
-        "internalType": "uint16",
+        "internalType": "uint32",
         "name": "newRate",
-        "type": "uint16"
+        "type": "uint32"
       }
     ],
     "name": "ConversionRateChanged",
@@ -71,9 +71,9 @@
     "name": "conversionRate",
     "outputs": [
       {
-        "internalType": "uint16",
+        "internalType": "uint32",
         "name": "",
-        "type": "uint16"
+        "type": "uint32"
       }
     ],
     "stateMutability": "view",
@@ -114,9 +114,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint16",
+        "internalType": "uint32",
         "name": "newConversionRate",
-        "type": "uint16"
+        "type": "uint32"
       }
     ],
     "name": "setConversionRate",

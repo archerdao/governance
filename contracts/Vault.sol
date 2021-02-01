@@ -256,6 +256,7 @@ contract Vault {
      * @param lockId The lock id for an unlocked token balance
      */
     function claimAllUnlockedTokens(uint256 lockId) external {
+        // TODO: make params an array
         uint256 unlockedAmount = getUnlockedBalance(lockId);
         require(unlockedAmount > 0, "Vault::claimAllUnlockedTokens: unlockedAmount is 0");
 
@@ -275,6 +276,7 @@ contract Vault {
      * @param amount The amount of unlocked tokens to claim
      */
     function claimUnlockedTokens(uint256 lockId, uint256 amount) external {
+        // TODO: make params an array
         uint256 unlockedAmount = getUnlockedBalance(lockId);
         require(unlockedAmount >= amount, "Vault::claimUnlockedTokens: unlockedAmount < amount");
 
