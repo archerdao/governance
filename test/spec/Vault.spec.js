@@ -418,7 +418,7 @@ describe("Vault", function() {
             await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
             await ethers.provider.send("evm_mine")
             let claimAmount = ethers.BigNumber.from(100).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.connect(bob).claimUnlockedTokens(0, claimAmount)
+            await vault.connect(bob).claimUnlockedTokens([0], [claimAmount])
             expect(await vault.getUnlockedTokenBalance(archToken.address, bob.address)).to.eq(lockAmount.sub(claimAmount))
         })
   
@@ -522,7 +522,7 @@ describe("Vault", function() {
         await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
         await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp + 21600 + DURATION_IN_SECS])
         let claimAmount = ethers.BigNumber.from(100).mul(ethers.BigNumber.from(10).pow(decimals))
-        await vault.connect(bob).claimUnlockedTokens(0, claimAmount)
+        await vault.connect(bob).claimUnlockedTokens([0], [claimAmount])
         expect(await vault.getUnlockedBalance(0)).to.eq(lockAmount.sub(claimAmount))
       })
     })
@@ -536,7 +536,7 @@ describe("Vault", function() {
             const DURATION_IN_DAYS = 4
             let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
             await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
-            await expect(vault.connect(bob).claimUnlockedTokens(0, lockAmount)).to.revertedWith("revert Vault::claimUnlockedTokens: unlockedAmount < amount")
+            await expect(vault.connect(bob).claimUnlockedTokens([0], [lockAmount])).to.revertedWith("revert Vault::claimUnlockedTokens: unlockedAmount < amount")
         })
 
         it("allows user to claim unlocked tokens once", async function() {
@@ -552,7 +552,7 @@ describe("Vault", function() {
             let contractTokenBalanceBefore = await archToken.balanceOf(vault.address)
             let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
             await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
-            await vault.connect(alice).claimUnlockedTokens(0, lockAmount)
+            await vault.connect(alice).claimUnlockedTokens([0], [lockAmount])
             expect(await vault.getUnlockedBalance(0)).to.eq(0)
             expect(await archToken.balanceOf(alice.address)).to.eq(userTokenBalanceBefore.add(lockAmount))
             expect(await archToken.balanceOf(vault.address)).to.eq(contractTokenBalanceBefore.sub(lockAmount))
@@ -572,17 +572,17 @@ describe("Vault", function() {
             let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
             await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
             let claimAmount = ethers.BigNumber.from(100).mul(ethers.BigNumber.from(10).pow(decimals))
-            await vault.connect(alice).claimUnlockedTokens(0, claimAmount)
+            await vault.connect(alice).claimUnlockedTokens([0], [claimAmount])
             expect(await vault.getUnlockedBalance(0)).to.eq(lockAmount.sub(claimAmount))
             expect(await archToken.balanceOf(alice.address)).to.eq(userTokenBalanceBefore.add(claimAmount))
             expect(await archToken.balanceOf(vault.address)).to.eq(contractTokenBalanceBefore.sub(claimAmount))
             
-            await vault.connect(alice).claimUnlockedTokens(0, claimAmount)
+            await vault.connect(alice).claimUnlockedTokens([0], [claimAmount])
             expect(await vault.getUnlockedBalance(0)).to.eq(lockAmount.sub(claimAmount.mul(2)))
             expect(await archToken.balanceOf(alice.address)).to.eq(userTokenBalanceBefore.add(claimAmount.mul(2)))
             expect(await archToken.balanceOf(vault.address)).to.eq(contractTokenBalanceBefore.sub(claimAmount.mul(2)))
             
-            await vault.connect(alice).claimUnlockedTokens(0, lockAmount.sub(claimAmount.mul(2)))
+            await vault.connect(alice).claimUnlockedTokens([0], [lockAmount.sub(claimAmount.mul(2))])
             expect(await vault.getUnlockedBalance(0)).to.eq(0)
             expect(await archToken.balanceOf(alice.address)).to.eq(lockAmount)
             expect(await archToken.balanceOf(vault.address)).to.eq(0)
@@ -601,7 +601,7 @@ describe("Vault", function() {
             let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
             await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
         
-            await expect(vault.claimUnlockedTokens(0, lockAmount)).to.revertedWith("revert Vault::claimUnlockedTokens: msg.sender must be receiver")
+            await expect(vault.claimUnlockedTokens([0], [lockAmount])).to.revertedWith("revert Vault::claimUnlockedTokens: msg.sender must be receiver")
         })
     })
 
@@ -614,7 +614,7 @@ describe("Vault", function() {
           const DURATION_IN_DAYS = 4
           let lockAmount = ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(decimals))
           await vault.lockTokens(archToken.address, deployer.address, bob.address, START_TIME, lockAmount, DURATION_IN_DAYS, false)
-          await expect(vault.connect(bob).claimAllUnlockedTokens(0)).to.revertedWith("revert Vault::claimAllUnlockedTokens: unlockedAmount is 0")
+          await expect(vault.connect(bob).claimAllUnlockedTokens([0])).to.revertedWith("revert Vault::claimAllUnlockedTokens: unlockedAmount is 0")
         })
   
         it("allows user to claim unlocked tokens once", async function() {
@@ -630,7 +630,7 @@ describe("Vault", function() {
           let contractTokenBalanceBefore = await archToken.balanceOf(vault.address)
           let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
           await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
-          await vault.connect(alice).claimAllUnlockedTokens(0)
+          await vault.connect(alice).claimAllUnlockedTokens([0])
           expect(await vault.getUnlockedBalance(0)).to.eq(0)
           expect(await archToken.balanceOf(alice.address)).to.eq(userTokenBalanceBefore.add(lockAmount))
           expect(await archToken.balanceOf(vault.address)).to.eq(contractTokenBalanceBefore.sub(lockAmount))
@@ -649,12 +649,12 @@ describe("Vault", function() {
           let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
           await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
         
-          await vault.connect(alice).claimAllUnlockedTokens(0)
+          await vault.connect(alice).claimAllUnlockedTokens([0])
           expect(await vault.getUnlockedBalance(0)).to.eq(0)
           expect(await archToken.balanceOf(alice.address)).to.eq(lockAmount)
           expect(await archToken.balanceOf(vault.address)).to.eq(0)
 
-          await expect(vault.connect(alice).claimAllUnlockedTokens(0)).to.revertedWith("revert Vault::claimAllUnlockedTokens: unlockedAmount is 0")
+          await expect(vault.connect(alice).claimAllUnlockedTokens([0])).to.revertedWith("revert Vault::claimAllUnlockedTokens: unlockedAmount is 0")
         })
 
         it("does not allow user to claim unlocked tokens on behalf of someone else", async function() {
@@ -670,7 +670,7 @@ describe("Vault", function() {
             let newTime = timestamp + 21600 + DURATION_IN_SECS + 60
             await ethers.provider.send("evm_setNextBlockTimestamp", [newTime])
           
-            await expect(vault.claimAllUnlockedTokens(0)).to.revertedWith("revert Vault::claimAllUnlockedTokens: msg.sender must be receiver")
+            await expect(vault.claimAllUnlockedTokens([0])).to.revertedWith("revert Vault::claimAllUnlockedTokens: msg.sender must be receiver")
         })
     })
 

@@ -1,8 +1,9 @@
 const { ethers, deployments, getNamedAccounts, getUnnamedAccounts } = require("hardhat");
 
 const ARCH_TOKEN_ADDRESS = process.env.ARCH_TOKEN_ADDRESS
-const ARCH_ABI = require("../abis/ArchToken.json")
+const ARCH_ABI = require("./abis/ArchToken.json")
 const SUSHI_ADDRESS = process.env.SUSHI_ADDRESS
+const SUSHI_ABI = require("./abis/ERC20.json")
 const MASTERCHEF_ADDRESS = process.env.MASTERCHEF_ADDRESS
 const MASTERCHEF_ABI = require("./abis/MasterChef.json")
 const SUSHI_FACTORY_ADDRESS = process.env.SUSHI_FACTORY_ADDRESS
@@ -17,6 +18,7 @@ const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const INITIAL_ARCH_REWARDS_BALANCE = process.env.INITIAL_ARCH_REWARDS_BALANCE
 const ARCH_REWARDS_PER_BLOCK = process.env.ARCH_REWARDS_PER_BLOCK
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
+const BLOCKS_PER_MONTH = 200000
 
 const tokenFixture = deployments.createFixture(async ({deployments, getNamedAccounts, getUnnamedAccounts, ethers}, options) => {
     const accounts = await ethers.getSigners();
@@ -110,6 +112,7 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
     const SushiFactory = new ethers.Contract(SUSHI_FACTORY_ADDRESS, SUSHI_FACTORY_ABI, deployer)
     const SUSHI_POOL_ADDRESS = await SushiFactory.getPair(WETH_ADDRESS, ArchToken.address)
     const SushiPool = new ethers.Contract(SUSHI_POOL_ADDRESS, SUSHI_POOL_ABI, deployer)
+    const SushiToken = new ethers.Contract(SUSHI_ADDRESS, SUSHI_ABI, deployer)
 
     const ArchFormulaFactory = await ethers.getContractFactory("ArchFormula");
     const ArchFormula = await ArchFormulaFactory.deploy()
@@ -126,8 +129,8 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
     const VaultFactory = await ethers.getContractFactory("Vault");
     const Vault = await VaultFactory.deploy(LockManager.address);
     const RewardsManagerFactory = await ethers.getContractFactory("RewardsManager");
-    const RewardsManager = await RewardsManagerFactory.deploy(ADMIN_ADDRESS, LockManager.address, Vault.address, ArchToken.address, SUSHI_ADDRESS, MASTERCHEF_ADDRESS, ARCH_REWARDS_PER_BLOCK, 0)
-    await ArchToken.transfer(RewardsManager.address, INITIAL_ARCH_REWARDS_BALANCE)
+    const currentBlock = await ethers.provider.getBlockNumber()
+    const RewardsManager = await RewardsManagerFactory.deploy(ADMIN_ADDRESS, LockManager.address, Vault.address, ArchToken.address, SUSHI_ADDRESS, MASTERCHEF_ADDRESS, ARCH_REWARDS_PER_BLOCK, 0, ethers.BigNumber.from(currentBlock).add(BLOCKS_PER_MONTH))
 
     return {
         archToken: ArchToken,
@@ -138,6 +141,7 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
         masterChef: MasterChef,
         sushiPool: SushiPool,
         sushiRouter: SushiRouter,
+        sushiToken: SushiToken,
         deployer: deployer,
         admin: admin,
         alice: alice,

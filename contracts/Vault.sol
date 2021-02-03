@@ -247,45 +247,46 @@ contract Vault {
         }
     }
 
-    // TODO: create functions to claim all unlocked tokens for a given recipient - all and specific token
-
     /**
-     * @notice Allows receiver to claim all of their unlocked tokens for a given lock
+     * @notice Allows receiver to claim all of their unlocked tokens for a set of locks
      * @dev Errors if no tokens are unlocked
      * @dev It is advised receivers check they are entitled to claim via `getUnlockedBalance` before calling this
-     * @param lockId The lock id for an unlocked token balance
+     * @param lockIds The lock ids for unlocked token balances
      */
-    function claimAllUnlockedTokens(uint256 lockId) external {
-        // TODO: make params an array
-        uint256 unlockedAmount = getUnlockedBalance(lockId);
-        require(unlockedAmount > 0, "Vault::claimAllUnlockedTokens: unlockedAmount is 0");
+    function claimAllUnlockedTokens(uint256[] memory lockIds) external {
+        for (uint i = 0; i < lockIds.length; i++) {
+            uint256 unlockedAmount = getUnlockedBalance(lockIds[i]);
+            require(unlockedAmount > 0, "Vault::claimAllUnlockedTokens: unlockedAmount is 0");
 
-        Lock storage lock = tokenLocks[lockId];
-        lock.amountClaimed = unlockedAmount;
-        
-        require(msg.sender == lock.receiver, "Vault::claimAllUnlockedTokens: msg.sender must be receiver");
-        IERC20(lock.token).safeTransfer(lock.receiver, unlockedAmount);
-        emit UnlockedTokensClaimed(lock.receiver, lock.token, unlockedAmount, lockId);
+            Lock storage lock = tokenLocks[lockIds[i]];
+            lock.amountClaimed = unlockedAmount;
+            
+            require(msg.sender == lock.receiver, "Vault::claimAllUnlockedTokens: msg.sender must be receiver");
+            IERC20(lock.token).safeTransfer(lock.receiver, unlockedAmount);
+            emit UnlockedTokensClaimed(lock.receiver, lock.token, unlockedAmount, lockIds[i]);
+        }
     }
 
     /**
      * @notice Allows receiver to claim a portion of their unlocked tokens for a given lock
      * @dev Errors if no tokens are unlocked
      * @dev It is advised receivers check they are entitled to claim via `getUnlockedBalance` before calling this
-     * @param lockId The lock id for an unlocked token balance
-     * @param amount The amount of unlocked tokens to claim
+     * @param lockIds The lock ids for unlocked token balances
+     * @param amounts The amount of each unlocked token to claim
      */
-    function claimUnlockedTokens(uint256 lockId, uint256 amount) external {
-        // TODO: make params an array
-        uint256 unlockedAmount = getUnlockedBalance(lockId);
-        require(unlockedAmount >= amount, "Vault::claimUnlockedTokens: unlockedAmount < amount");
+    function claimUnlockedTokens(uint256[] memory lockIds, uint256[] memory amounts) external {
+        require(lockIds.length == amounts.length, "Vault::claimUnlockedTokens: arrays must be same length");
+        for (uint i = 0; i < lockIds.length; i++) {
+            uint256 unlockedAmount = getUnlockedBalance(lockIds[i]);
+            require(unlockedAmount >= amounts[i], "Vault::claimUnlockedTokens: unlockedAmount < amount");
 
-        Lock storage lock = tokenLocks[lockId];
-        lock.amountClaimed = lock.amountClaimed.add(amount);
-        
-        require(msg.sender == lock.receiver, "Vault::claimUnlockedTokens: msg.sender must be receiver");
-        IERC20(lock.token).safeTransfer(lock.receiver, amount);
-        emit UnlockedTokensClaimed(lock.receiver, lock.token, amount, lockId);
+            Lock storage lock = tokenLocks[lockIds[i]];
+            lock.amountClaimed = lock.amountClaimed.add(amounts[i]);
+            
+            require(msg.sender == lock.receiver, "Vault::claimUnlockedTokens: msg.sender must be receiver");
+            IERC20(lock.token).safeTransfer(lock.receiver, amounts[i]);
+            emit UnlockedTokensClaimed(lock.receiver, lock.token, amounts[i], lockIds[i]);
+        }
     }
 
     /**

@@ -2,21 +2,21 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./interfaces/IArchToken.sol";
 import "./interfaces/IVotingPower.sol";
 import "./interfaces/IMasterChef.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/ILockManager.sol";
 import "./lib/SafeMath.sol";
 import "./lib/SafeERC20.sol";
+import "./lib/ReentrancyGuard.sol";
 
 import "hardhat/console.sol";
 
 /**
  * @title RewardsManager
- * @dev Controls rewards distribution for ARCH network
+ * @dev Controls rewards distribution for network
  */
-contract RewardsManager {
+contract RewardsManager is ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -29,7 +29,7 @@ contract RewardsManager {
     /// @notice Info of each user.
     struct UserInfo {
         uint256 amount;     // How many tokens the user has provided.
-        uint256 archRewardDebt; // Reward debt for ARCH rewards. See explanation below.
+        uint256 rewardTokenDebt; // Reward debt for reward token. See explanation below.
         uint256 sushiRewardDebt; // Reward debt for Sushi rewards. See explanation below.
         //
         // We do some fancy math here. Basically, any point in time, the amount of reward tokens
@@ -55,8 +55,8 @@ contract RewardsManager {
         uint256 totalStaked;        // Total amount of token staked via Rewards Manager
     }
 
-    /// @notice ARCH token
-    IArchToken public archToken;
+    /// @notice Reward token
+    IERC20 public rewardToken;
 
     /// @notice SUSHI token
     IERC20 public sushiToken;
@@ -70,8 +70,8 @@ contract RewardsManager {
     /// @notice LockManager contract
     ILockManager public lockManager;
 
-    /// @notice ARCH tokens rewarded per block.
-    uint256 public archPerBlock;
+    /// @notice Reward tokens rewarded per block.
+    uint256 public rewardTokensPerBlock;
 
     /// @notice Info of each pool.
     PoolInfo[] public poolInfo;
@@ -85,11 +85,11 @@ contract RewardsManager {
     /// @notice Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
 
-    /// @notice The block number when ARCH rewards start.
+    /// @notice The block number when rewards start.
     uint256 public startBlock;
 
-    /// @notice If true, distribute ARCH rewards on deposits and withdrawals
-    bool public rewardsEnabled = true;
+    /// @notice The block number when rewards end.
+    uint256 public endBlock;
 
     /// @notice only owner can call function
     modifier onlyOwner {
@@ -112,29 +112,38 @@ contract RewardsManager {
     /// @notice Event emitted when the owner of the rewards manager contract is updated
     event ChangedOwner(address indexed oldOwner, address indexed newOwner);
 
+    /// @notice Event emitted when the amount of reward tokens per block is updated
+    event ChangedRewardTokensPerBlock(uint256 indexed oldRewardTokensPerBlock, uint256 indexed newRewardTokensPerBlock);
+
+    /// @notice Event emitted when the rewards end block is updated
+    event ChangedRewardsEndBlock(uint256 indexed oldEndBlock, uint256 indexed newEndBlock);
+
+    /// @notice Event emitted when token address is changed
+    event ChangedAddress(address indexed oldToken, address indexed newToken);
+
     constructor(
         address _owner, 
         address _lockManager,
         address _vault,
-        address _arch,
+        address _rewardToken,
         address _sushiToken,
         address _masterChef,
-        uint256 _archPerBlock,
-        uint256 _startBlock
+        uint256 _rewardTokensPerBlock,
+        uint256 _startBlock,
+        uint256 _endBlock
     ) {
-        archToken = IArchToken(_arch);
+        rewardToken = IERC20(_rewardToken);
         sushiToken = IERC20(_sushiToken);
         masterChef = IMasterChef(_masterChef);
         lockManager = ILockManager(_lockManager);
         vault = IVault(_vault);
-        archPerBlock = _archPerBlock;
+        rewardTokensPerBlock = _rewardTokensPerBlock;
         startBlock = _startBlock;
+        endBlock = _endBlock;
         owner = _owner;
-        archToken.approve(address(vault), uint256(-1));
+        rewardToken.safeIncreaseAllowance(address(vault), uint256(-1));
         emit ChangedOwner(address(0), owner);
     }
-
-    // TODO: Add setter for archPerBlock
 
     /**
      * @notice View function to see current poolInfo array length
@@ -185,7 +194,7 @@ contract RewardsManager {
     }
 
     /**
-     * @notice Update the given pool's ARCH allocation points
+     * @notice Update the given pool's allocation points
      * @dev Can only be called by the owner
      * @param pid The RewardManager pool id
      * @param allocPoint New number of allocation points for pool
@@ -199,18 +208,8 @@ contract RewardsManager {
         poolInfo[pid].allocPoint = allocPoint;
     }
 
-    /**
-     * @notice Turn ARCH rewards on and off
-     * @dev Can only be called by the owner
-     * @return Rewards state after calling function
-     */
-    function toggleRewards() public onlyOwner returns (bool) {
-        rewardsEnabled ? rewardsEnabled = false : rewardsEnabled = true;
-        return rewardsEnabled;
-    }
-
     function rewardsActive() public view returns (bool) {
-        if (rewardsEnabled && archToken.balanceOf(address(this)) > 0) {
+        if (block.number >= startBlock && rewardTokensPerBlock > 0 && rewardToken.balanceOf(address(this)) > 0) {
             return true;
         }
         return false;
@@ -222,17 +221,20 @@ contract RewardsManager {
      * @param to To block number
      * @return multiplier
      */
-    function getMultiplier(uint256 from, uint256 to) public pure returns (uint256) {
+    function getMultiplier(uint256 from, uint256 to) public view returns (uint256) {
+        if (to > endBlock) {
+            return to.sub(endBlock);
+        }
         return to > from ? to.sub(from) : 0;
     }
 
     /**
-     * @notice View function to see pending ARCH on frontend.
+     * @notice View function to see pending reward tokens on frontend.
      * @param pid pool id
      * @param account user account to check
-     * @return pending ARCH rewards
+     * @return pending rewards
      */
-    function pendingArch(uint256 pid, address account) external view returns (uint256) {
+    function pendingRewardTokens(uint256 pid, address account) external view returns (uint256) {
         if (!rewardsActive()) {
             return 0;
         }
@@ -242,10 +244,10 @@ contract RewardsManager {
         uint256 tokenSupply = pool.totalStaked;
         if (block.number > pool.lastRewardBlock && tokenSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 archReward = multiplier.mul(archPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accRewardsPerShare = accRewardsPerShare.add(archReward.mul(1e12).div(tokenSupply));
+            uint256 totalReward = multiplier.mul(rewardTokensPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            accRewardsPerShare = accRewardsPerShare.add(totalReward.mul(1e12).div(tokenSupply));
         }
-        return user.amount.mul(accRewardsPerShare).div(1e12).sub(user.archRewardDebt);
+        return user.amount.mul(accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
     }
 
     /**
@@ -272,8 +274,6 @@ contract RewardsManager {
             accSushiPerShare = accSushiPerShare.add(sushiReward.mul(1e12).div(lpSupply));
         }
         return user.amount.mul(accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
-        // TODO: determine if logic is correct - check sushiRewardDebt user vs contract 
-        // return user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
     }
 
     /**
@@ -301,18 +301,17 @@ contract RewardsManager {
             return;
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 archReward = multiplier.mul(archPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        pool.accRewardsPerShare = pool.accRewardsPerShare.add(archReward.mul(1e12).div(tokenSupply));
+        uint256 totalReward = multiplier.mul(rewardTokensPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        pool.accRewardsPerShare = pool.accRewardsPerShare.add(totalReward.mul(1e12).div(tokenSupply));
         pool.lastRewardBlock = block.number;
     }
 
     /**
-     * @notice Deposit tokens to RewardsManager for ARCH allocation.
+     * @notice Deposit tokens to RewardsManager for rewards allocation.
      * @param pid pool id
      * @param amount number of tokens to deposit
      */
-    // TODO: Review for reentrancy issues
-    function deposit(uint256 pid, uint256 amount) public {
+    function deposit(uint256 pid, uint256 amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
         uint256 sushiPid = sushiPools[address(pool.token)];
@@ -323,11 +322,12 @@ contract RewardsManager {
 
         if (user.amount > 0) {
             if(rewardsActive()) {
-                uint256 pendingArchTokens = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.archRewardDebt);
-                _distributeArchRewards(msg.sender, pendingArchTokens, pool.vestingPercent, pool.vestingPeriod);
+                uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
+                _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod);
             }
 
             if (sushiPid != uint256(0)) {
+                masterChef.updatePool(sushiPid);
                 pendingSushiTokens = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
             }
         }
@@ -336,14 +336,16 @@ contract RewardsManager {
         pool.totalStaked = pool.totalStaked.add(amount);
 
         user.amount = user.amount.add(amount);
-        user.archRewardDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
+        user.rewardTokenDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
         if (sushiPid != uint256(0)) {
             masterChef.updatePool(sushiPid);
             user.sushiRewardDebt = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12);
             masterChef.deposit(sushiPid, amount);
         }
 
-        lockManager.grantVotingPower(msg.sender, address(pool.token), amount);
+        if (amount > 0) {
+            lockManager.grantVotingPower(msg.sender, address(pool.token), amount);
+        }
 
         if (pendingSushiTokens > 0) {
             _safeSushiTransfer(msg.sender, pendingSushiTokens);
@@ -357,8 +359,9 @@ contract RewardsManager {
      * @param pid pool id
      * @param amount number of tokens to withdraw
      */
-    // TODO: Review for reentrancy issues
-    function withdraw(uint256 pid, uint256 amount) public {
+    function withdraw(uint256 pid, uint256 amount) public nonReentrant {
+        require(amount > 0, "RM::withdraw: amount must be > 0");
+        
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
         require(user.amount >= amount, "RM::withdraw: amount > user balance");
@@ -369,22 +372,19 @@ contract RewardsManager {
         updatePool(pid);
 
         if (rewardsActive()) {
-            uint256 pendingArchTokens = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.archRewardDebt);
-            _distributeArchRewards(msg.sender, pendingArchTokens, pool.vestingPercent, pool.vestingPeriod);
+            uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
+            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod);
         }
     
         if (sushiPid != uint256(0)) {
-            console.log("accSushiPerShare before: ", masterChef.poolInfo(sushiPid).accSushiPerShare);
             masterChef.updatePool(sushiPid);
-            console.log("accSushiPerShare after update: ", masterChef.poolInfo(sushiPid).accSushiPerShare);
             pendingSushiTokens = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
             user.sushiRewardDebt = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12);
             masterChef.withdraw(sushiPid, amount);
-            console.log("accSushiPerShare after withdrawal: ", masterChef.poolInfo(sushiPid).accSushiPerShare);
         }
         
         user.amount = user.amount.sub(amount);
-        user.archRewardDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
+        user.rewardTokenDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
 
         lockManager.removeVotingPower(msg.sender, address(pool.token), amount);
 
@@ -402,7 +402,7 @@ contract RewardsManager {
      * @notice Withdraw without caring about rewards. EMERGENCY ONLY.
      * @param pid pool id
      */
-    function emergencyWithdraw(uint256 pid) public {
+    function emergencyWithdraw(uint256 pid) public nonReentrant {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
 
@@ -420,13 +420,127 @@ contract RewardsManager {
         emit EmergencyWithdraw(msg.sender, pid, user.amount);
 
         user.amount = 0;
-        user.archRewardDebt = 0;
+        user.rewardTokenDebt = 0;
         user.sushiRewardDebt = 0;
     }
 
-    // TODO: add ability to harvest rewards without depositing or withdrawing
-    // TODO: add ability for owner to rescue tokens stuck in the contract
-    // TODO: add setters for contract storage vars
+    /// @notice Set approvals for external addresses to use contract tokens
+    /// @param tokensToApprove the tokens to approve
+    /// @param approvalAmounts the token approval amounts
+    /// @param spender the address to allow spending of token
+    function tokenAllow(
+        address[] memory tokensToApprove, 
+        uint256[] memory approvalAmounts, 
+        address spender
+    ) external onlyOwner {
+        require(tokensToApprove.length == approvalAmounts.length, "RM::tokenAllow: not same length");
+        for(uint i = 0; i < tokensToApprove.length; i++) {
+            IERC20 token = IERC20(tokensToApprove[i]);
+            if (token.allowance(address(this), spender) != uint256(-1)) {
+                token.safeApprove(spender, approvalAmounts[i]);
+            }
+        }
+    }
+
+    /// @notice Rescue (withdraw) tokens from the smart contract
+    /// @param tokens the tokens to withdraw
+    /// @param amounts the amount of each token to withdraw.  If zero, withdraws the maximum allowed amount for each token
+    function rescueTokens(address[] calldata tokens, uint256[] calldata amounts) external onlyOwner {
+        require(tokens.length == amounts.length, "RM::rescueTokens: arrays must be same length");
+        for (uint i = 0; i < tokens.length; i++) {
+            IERC20 token = IERC20(tokens[i]);
+            uint256 withdrawalAmount;
+            uint256 tokenBalance = token.balanceOf(address(this));
+            uint256 tokenAllowance = token.allowance(address(this), msg.sender);
+            if (amounts[i] == 0) {
+                if (tokenBalance > tokenAllowance) {
+                    withdrawalAmount = tokenAllowance;
+                } else {
+                    withdrawalAmount = tokenBalance;
+                }
+            } else {
+                require(tokenBalance >= amounts[i], "Contract balance too low");
+                require(tokenAllowance >= amounts[i], "Increase token allowance");
+                withdrawalAmount = amounts[i];
+            }
+            token.safeTransferFrom(address(this), msg.sender, withdrawalAmount);
+        }
+    }
+
+    /**
+     * @notice Set voting power contract address
+     * @param newAddress New voting power contract address
+     */
+    function setVotingPowerContract(address newAddress) 
+        external onlyOwner
+    {
+        require(newAddress != address(0) && newAddress != address(this) && newAddress != address(rewardToken), "RM::setVotingPowerContract: not valid contract");
+        emit ChangedAddress(address(votingPower), newAddress);
+        votingPower = IVotingPower(newAddress);
+    }
+
+    /**
+     * @notice Set new rewards per block
+     * @param newRewardTokensPerBlock new amount of reward token to reward each block
+     */
+    function setRewardsPerBlock(uint256 newRewardTokensPerBlock) external onlyOwner {
+        emit ChangedRewardTokensPerBlock(rewardTokensPerBlock, newRewardTokensPerBlock);
+        rewardTokensPerBlock = newRewardTokensPerBlock;
+    }
+
+    /**
+     * @notice Set new rewards end block
+     * @param newEndBlock new rewards end block
+     */
+    function setRewardsEndBlock(uint256 newEndBlock) external onlyOwner {
+        emit ChangedRewardsEndBlock(endBlock, newEndBlock);
+        endBlock = newEndBlock;
+    }
+
+    /**
+     * @notice Set new reward token address
+     * @param newToken address of new reward token
+     */
+    function setRewardToken(address newToken) external onlyOwner {
+        emit ChangedAddress(address(rewardToken), newToken);
+        rewardToken = IERC20(newToken);
+    }
+
+    /**
+     * @notice Set new SUSHI token address
+     * @param newToken address of new SUSHI token
+     */
+    function setSushiToken(address newToken) external onlyOwner {
+        emit ChangedAddress(address(sushiToken), newToken);
+        sushiToken = IERC20(newToken);
+    }
+
+    /**
+     * @notice Set new MasterChef address
+     * @param newAddress address of new MasterChef
+     */
+    function setMasterChef(address newAddress) external onlyOwner {
+        emit ChangedAddress(address(masterChef), newAddress);
+        masterChef = IMasterChef(newAddress);
+    }
+        
+    /**
+     * @notice Set new Vault address
+     * @param newAddress address of new Vault
+     */
+    function setVault(address newAddress) external onlyOwner {
+        emit ChangedAddress(address(vault), newAddress);
+        vault = IVault(newAddress);
+    }
+
+    /**
+     * @notice Set new LockManager address
+     * @param newAddress address of new LockManager
+     */
+    function setLockManager(address newAddress) external onlyOwner {
+        emit ChangedAddress(address(lockManager), newAddress);
+        lockManager = ILockManager(newAddress);
+    }
 
     /**
      * @notice Change owner of vesting contract
@@ -444,30 +558,30 @@ contract RewardsManager {
     }
 
     /**
-     * @notice Internal function used to distrute ARCH rewards, optionally vesting a %
+     * @notice Internal function used to distrute rewards, optionally vesting a %
      * @param account account that is due rewards
-     * @param amount amount of ARCH to distribute
+     * @param amount amount of rewards to distribute
      * @param vestingPercent percent of rewards to vest in bips
      * @param vestingPeriod number of days over which to vest rewards
      */
-    function _distributeArchRewards(address account, uint256 amount, uint32 vestingPercent, uint16 vestingPeriod) internal {
-        require(archToken.balanceOf(address(this)) >= amount, "RM::_distributeArchRewards: not enough ARCH in contract");
-        uint256 vestingArch = amount.mul(vestingPercent).div(1000000);
-        vault.lockTokens(address(archToken), address(this), account, 0, vestingArch, vestingPeriod, true);
-        _safeArchTransfer(msg.sender, amount.sub(vestingArch));
+    function _distributeRewards(address account, uint256 amount, uint32 vestingPercent, uint16 vestingPeriod) internal {
+        require(rewardToken.balanceOf(address(this)) >= amount, "RM::_distributeRewards: not enough reward token in contract");
+        uint256 vestingRewards = amount.mul(vestingPercent).div(1000000);
+        vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, true);
+        _safeRewardsTransfer(msg.sender, amount.sub(vestingRewards));
     }
 
     /**
-     * @notice Safe ARCH transfer function, just in case if rounding error causes pool to not have enough ARCH.
-     * @param to account that is receieving ARCH
-     * @param amount amount of ARCH to send
+     * @notice Safe reward transfer function, just in case if rounding error causes pool to not have enough reward token.
+     * @param to account that is receieving rewards
+     * @param amount amount of rewards to send
      */
-    function _safeArchTransfer(address to, uint256 amount) internal {
-        uint256 archBal = archToken.balanceOf(address(this));
-        if (amount > archBal) {
-            archToken.transfer(to, archBal);
+    function _safeRewardsTransfer(address to, uint256 amount) internal {
+        uint256 rewardTokenBalance = rewardToken.balanceOf(address(this));
+        if (amount > rewardTokenBalance) {
+            rewardToken.safeTransfer(to, rewardTokenBalance);
         } else {
-            archToken.transfer(to, amount);
+            rewardToken.safeTransfer(to, amount);
         }
     }
 
@@ -477,9 +591,9 @@ contract RewardsManager {
      * @param amount amount of SUSHI to send
      */
     function _safeSushiTransfer(address to, uint256 amount) internal {
-        uint256 sushiBal = sushiToken.balanceOf(address(this));
-        if (amount > sushiBal) {
-            sushiToken.transfer(to, sushiBal);
+        uint256 sushiBalance = sushiToken.balanceOf(address(this));
+        if (amount > sushiBalance) {
+            sushiToken.transfer(to, sushiBalance);
         } else {
             sushiToken.transfer(to, amount);
         }

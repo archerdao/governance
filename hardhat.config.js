@@ -113,7 +113,7 @@ module.exports = {
     }
   },
   mocha: {
-    timeout: 150000
+    timeout: 350000
   },
   defaultNetwork: "hardhat",
   networks: {

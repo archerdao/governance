@@ -18,7 +18,7 @@
       },
       {
         "internalType": "address",
-        "name": "_arch",
+        "name": "_rewardToken",
         "type": "address"
       },
       {
@@ -33,17 +33,41 @@
       },
       {
         "internalType": "uint256",
-        "name": "_archPerBlock",
+        "name": "_rewardTokensPerBlock",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
         "name": "_startBlock",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_endBlock",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldToken",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newToken",
+        "type": "address"
+      }
+    ],
+    "name": "ChangedAddress",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -62,6 +86,44 @@
       }
     ],
     "name": "ChangedOwner",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "oldRewardTokensPerBlock",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "newRewardTokensPerBlock",
+        "type": "uint256"
+      }
+    ],
+    "name": "ChangedRewardTokensPerBlock",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "oldEndBlock",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "newEndBlock",
+        "type": "uint256"
+      }
+    ],
+    "name": "ChangedRewardsEndBlock",
     "type": "event"
   },
   {
@@ -221,32 +283,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "archPerBlock",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "archToken",
-    "outputs": [
-      {
-        "internalType": "contract IArchToken",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -291,6 +327,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "endBlock",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -311,7 +360,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -373,7 +422,7 @@
         "type": "address"
       }
     ],
-    "name": "pendingArch",
+    "name": "pendingRewardTokens",
     "outputs": [
       {
         "internalType": "uint256",
@@ -471,13 +520,31 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "tokens",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "rescueTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
-    "name": "rewardsActive",
+    "name": "rewardToken",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "contract IERC20",
         "name": "",
-        "type": "bool"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -485,7 +552,20 @@
   },
   {
     "inputs": [],
-    "name": "rewardsEnabled",
+    "name": "rewardTokensPerBlock",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rewardsActive",
     "outputs": [
       {
         "internalType": "bool",
@@ -515,6 +595,110 @@
       }
     ],
     "name": "set",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setLockManager",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setMasterChef",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newToken",
+        "type": "address"
+      }
+    ],
+    "name": "setRewardToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newEndBlock",
+        "type": "uint256"
+      }
+    ],
+    "name": "setRewardsEndBlock",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newRewardTokensPerBlock",
+        "type": "uint256"
+      }
+    ],
+    "name": "setRewardsPerBlock",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newToken",
+        "type": "address"
+      }
+    ],
+    "name": "setSushiToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setVault",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setVotingPowerContract",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -565,15 +749,25 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "toggleRewards",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
+        "internalType": "address[]",
+        "name": "tokensToApprove",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "approvalAmounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
       }
     ],
+    "name": "tokenAllow",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -625,7 +819,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "archRewardDebt",
+        "name": "rewardTokenDebt",
         "type": "uint256"
       },
       {
