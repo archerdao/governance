@@ -424,10 +424,12 @@ contract RewardsManager is ReentrancyGuard {
         user.sushiRewardDebt = 0;
     }
 
-    /// @notice Set approvals for external addresses to use contract tokens
-    /// @param tokensToApprove the tokens to approve
-    /// @param approvalAmounts the token approval amounts
-    /// @param spender the address to allow spending of token
+    /**
+     * @notice Set approvals for external addresses to use contract tokens
+     * @param tokensToApprove the tokens to approve
+     * @param approvalAmounts the token approval amounts
+     * @param spender the address to allow spending of token
+     */
     function tokenAllow(
         address[] memory tokensToApprove, 
         uint256[] memory approvalAmounts, 
@@ -442,16 +444,19 @@ contract RewardsManager is ReentrancyGuard {
         }
     }
 
-    /// @notice Rescue (withdraw) tokens from the smart contract
-    /// @param tokens the tokens to withdraw
-    /// @param amounts the amount of each token to withdraw.  If zero, withdraws the maximum allowed amount for each token
-    function rescueTokens(address[] calldata tokens, uint256[] calldata amounts) external onlyOwner {
+    /**
+     * @notice Rescue (withdraw) tokens from the smart contract
+     * @param tokens the tokens to withdraw
+     * @param amounts the amount of each token to withdraw.  If zero, withdraws the maximum allowed amount for each token
+     * @param receiver the address that will receive the tokens
+     */
+    function rescueTokens(address[] calldata tokens, uint256[] calldata amounts, address receiver) external onlyOwner {
         require(tokens.length == amounts.length, "RM::rescueTokens: arrays must be same length");
         for (uint i = 0; i < tokens.length; i++) {
             IERC20 token = IERC20(tokens[i]);
             uint256 withdrawalAmount;
             uint256 tokenBalance = token.balanceOf(address(this));
-            uint256 tokenAllowance = token.allowance(address(this), msg.sender);
+            uint256 tokenAllowance = token.allowance(address(this), receiver);
             if (amounts[i] == 0) {
                 if (tokenBalance > tokenAllowance) {
                     withdrawalAmount = tokenAllowance;
@@ -459,11 +464,11 @@ contract RewardsManager is ReentrancyGuard {
                     withdrawalAmount = tokenBalance;
                 }
             } else {
-                require(tokenBalance >= amounts[i], "Contract balance too low");
-                require(tokenAllowance >= amounts[i], "Increase token allowance");
+                require(tokenBalance >= amounts[i], "RM::rescueTokens: contract balance too low");
+                require(tokenAllowance >= amounts[i], "RM::rescueTokens: increase token allowance");
                 withdrawalAmount = amounts[i];
             }
-            token.safeTransferFrom(address(this), msg.sender, withdrawalAmount);
+            token.safeTransferFrom(address(this), receiver, withdrawalAmount);
         }
     }
 

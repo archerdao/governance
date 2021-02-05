@@ -85,9 +85,6 @@ contract LockManager is AccessControl {
     function removeVotingPower(address receiver, address token, uint256 tokenAmount) public onlyLockers {
         require(lockedStakes[receiver][token].amount >= tokenAmount, "LM::removeVotingPower: not enough tokens staked");
         LockedStake memory s = getStake(receiver, token);
-        console.log("ta:", tokenAmount);
-        console.log("vp:", s.votingPower);
-        console.log("am:", s.amount);
         uint256 vpToWithdraw = tokenAmount.mul(s.votingPower).div(s.amount);
         lockedStakes[receiver][token].amount = lockedStakes[receiver][token].amount.sub(tokenAmount);
         lockedStakes[receiver][token].votingPower = lockedStakes[receiver][token].votingPower.add(vpToWithdraw);

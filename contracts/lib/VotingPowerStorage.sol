@@ -18,6 +18,9 @@ struct AppStorage {
     // Vesting contract
     IVesting vesting;
 
+    // Voting Power owner
+    address owner;
+    
     // lockManager contract
     address lockManager;
 

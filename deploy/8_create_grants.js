@@ -16,24 +16,10 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
 };
 
 module.exports.skip = async function({ deployments }) {
-    const { log, read } = deployments
-    const { readGrantsFromFile } = require("../scripts/readGrantsFromFile")
-    const grants = readGrantsFromFile()
-    if (grants.length > 0) {
-        for (const grant of grants) {
-            const activeGrant = await read("Vesting", "getTokenGrant", grant.recipient)
-            if (activeGrant && activeGrant.amount && activeGrant.amount.gt(0)) {
-                log(`8) Create Grants`)
-                log(`- Skipping step, grants already created`)
-                return true
-            }
-        }
-        return false
-    } else {
-        log(`8) Create Grants`)
-        log(`- Skipping step, could not find grants`)
-        return true
-    }
+    const { log } = deployments
+    log(`8) Create Grants`)
+    log(`- Skipping step, grants already created`)
+    return true
 }
 
 module.exports.tags = ["8", "CreateGrants"]

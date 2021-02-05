@@ -30,9 +30,13 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     /// @notice An event that's emitted when an account's vote balance changes
     event VotingPowerChanged(address indexed voter, uint256 indexed previousBalance, uint256 indexed newBalance);
 
-    /// @notice restrict functions to just multisig address
-    modifier onlyMultisig {
-        require(msg.sender == 0x13d5B8Fc84F73fc5a0A5832Aa8373044371314d3, "only multisig");
+    /// @notice Event emitted when the owner of the voting power contract is updated
+    event ChangedOwner(address indexed oldOwner, address indexed newOwner);
+
+    /// @notice restrict functions to just owner address
+    modifier onlyOwner {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        require(app.owner == address(0) || msg.sender == app.owner, "only owner");
         _;
     }
 
@@ -100,7 +104,7 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
      * @notice Sets token registry address
      * @param registry Address of token registry
      */
-    function setTokenRegistry(address registry) public onlyMultisig {
+    function setTokenRegistry(address registry) public onlyOwner {
         AppStorage storage app = VotingPowerStorage.appStorage();
         app.tokenRegistry = ITokenRegistry(registry);
     }
@@ -109,9 +113,20 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
      * @notice Sets lockManager address
      * @param newLockManager Address of lockManager
      */
-    function setLockManager(address newLockManager) public onlyMultisig {
+    function setLockManager(address newLockManager) public onlyOwner {
         AppStorage storage app = VotingPowerStorage.appStorage();
         app.lockManager = newLockManager;
+    }
+
+    /**
+     * @notice Change owner of vesting contract
+     * @param newOwner New owner address
+     */
+    function changeOwner(address newOwner) external onlyOwner {
+        require(newOwner != address(0) && newOwner != address(this), "VP::changeOwner: not valid address");
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        emit ChangedOwner(app.owner, newOwner);
+        app.owner = newOwner;   
     }
 
     /**

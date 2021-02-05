@@ -11,6 +11,7 @@ const SUSHI_FACTORY_ABI = require("./abis/SushiFactory.json")
 const SUSHI_POOL_ABI = require("./abis/SushiPool.json")
 const SUSHI_ROUTER_ADDRESS = process.env.SUSHI_ROUTER_ADDRESS
 const SUSHI_ROUTER_ABI = require("./abis/SushiRouter.json")
+const SUSHI_LP_VP_CVR = process.env.SUSHI_LP_VP_CVR
 const VOTING_POWER_ADDRESS = process.env.VOTING_POWER_ADDRESS
 const VOTING_POWER_ABI = require("./abis/VotingPower.json")
 const DAO_TREASURY_ADDRESS = process.env.DAO_TREASURY_ADDRESS
@@ -117,7 +118,7 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
     const ArchFormulaFactory = await ethers.getContractFactory("ArchFormula");
     const ArchFormula = await ArchFormulaFactory.deploy()
     const SushiFormulaFactory = await ethers.getContractFactory("SushiLPFormula")
-    const SushiFormula = await SushiFormulaFactory.deploy(ADMIN_ADDRESS, 800000)
+    const SushiFormula = await SushiFormulaFactory.deploy(ADMIN_ADDRESS, SUSHI_LP_VP_CVR)
     const TokenRegistryFactory = await ethers.getContractFactory("TokenRegistry");
     const TokenRegistry = await TokenRegistryFactory.deploy(ADMIN_ADDRESS, [ARCH_TOKEN_ADDRESS, SUSHI_POOL_ADDRESS], [ArchFormula.address, SushiFormula.address])
     await VotingPower.connect(admin).setTokenRegistry(TokenRegistry.address)
