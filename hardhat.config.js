@@ -45,7 +45,7 @@ if (FORK_URL && FORK_URL.length > 0) {
   hardhatConfig.forking = {}
   hardhatConfig.forking.url = FORK_URL
   hardhatConfig.tags.push("dev")
-  // localhostConfig.chainId = 31337
+  localhostConfig.chainId = 1
   localhostConfig.forking = {}
   localhostConfig.forking.url = FORK_URL
   localhostConfig.tags.push("dev")
@@ -79,19 +79,19 @@ if (DEPLOYER_PRIVATE_KEY && DEPLOYER_PRIVATE_KEY.length > 0) {
   rinkebyConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   mainnetConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   if (LIQUIDITY_PROVIDER_PRIVATE_KEY && LIQUIDITY_PROVIDER_PRIVATE_KEY.length > 0) {
-    localhostConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
+    // localhostConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
     rinkebyConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
     mainnetConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
   }
 
   if (VP_DEPLOYER_PRIVATE_KEY && VP_DEPLOYER_PRIVATE_KEY.length > 0) {
-    localhostConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
+    // localhostConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
     rinkebyConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
     mainnetConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
   }
 
   if (STAKER_PRIVATE_KEY && STAKER_PRIVATE_KEY.length > 0) {
-    localhostConfig.accounts.push(STAKER_PRIVATE_KEY)
+    // localhostConfig.accounts.push(STAKER_PRIVATE_KEY)
     rinkebyConfig.accounts.push(STAKER_PRIVATE_KEY)
     mainnetConfig.accounts.push(STAKER_PRIVATE_KEY)
   }
