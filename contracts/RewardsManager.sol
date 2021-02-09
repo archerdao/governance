@@ -434,7 +434,7 @@ contract RewardsManager is ReentrancyGuard {
         lockManager.removeVotingPower(msg.sender, address(pool.token), user.amount);
 
         pool.totalStaked = pool.totalStaked.sub(user.amount);
-        pool.token.safeTransfer(address(msg.sender), user.amount);
+        pool.token.safeTransfer(msg.sender, user.amount);
 
         emit EmergencyWithdraw(msg.sender, pid, user.amount);
 
@@ -570,7 +570,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param amount amount of tokens to add
      */
     function addRewardsBalance(uint256 amount) external onlyOwner {
-        rewardToken.transferFrom(msg.sender, address(this), amount);
+        rewardToken.safeTransferFrom(msg.sender, address(this), amount);
         _setRewardsEndBlock();
     }
 
@@ -633,9 +633,9 @@ contract RewardsManager is ReentrancyGuard {
     function _safeSushiTransfer(address to, uint256 amount) internal {
         uint256 sushiBalance = sushiToken.balanceOf(address(this));
         if (amount > sushiBalance) {
-            sushiToken.transfer(to, sushiBalance);
+            sushiToken.safeTransfer(to, sushiBalance);
         } else {
-            sushiToken.transfer(to, amount);
+            sushiToken.safeTransfer(to, amount);
         }
     }
 
