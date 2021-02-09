@@ -35,8 +35,12 @@ contract TokenRegistry {
      * @param _tokens initially supported tokens
      * @param _formulas formula contracts for initial tokens
      */
-    constructor(address _owner, address[] memory _tokens, address[] memory _formulas) {
-        require(_tokens.length == _formulas.length, "arrays must be same length");
+    constructor(
+        address _owner, 
+        address[] memory _tokens, 
+        address[] memory _formulas
+    ) {
+        require(_tokens.length == _formulas.length, "TR::constructor: not same length");
         for (uint i = 0; i < _tokens.length; i++) {
             tokenFormulas[_tokens[i]] = _formulas[i];
             emit TokenFormulaUpdated(_tokens[i], _formulas[i]);

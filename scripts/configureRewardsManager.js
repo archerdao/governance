@@ -27,14 +27,15 @@ async function configureRewardsManager() {
         const VotingPower = new ethers.Contract(VotingPowerPrismDeployment.address, VotingPowerImpDeployment.abi, admin)
 
         await deployerSigner.sendTransaction({ to: DAO_TREASURY_ADDRESS, value: ethers.utils.parseEther("0.05")})
-        await ArchToken.connect(treasury).transfer(deployer, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE).mul(2));
+        await ArchToken.connect(treasury).transfer(ADMIN_ADDRESS, INITIAL_ARCH_REWARDS_BALANCE);
         await ethers.provider.send('hardhat_stopImpersonatingAccount', [DAO_TREASURY_ADDRESS]);
         await deployerSigner.sendTransaction({ to: ADMIN_ADDRESS, value: ethers.utils.parseEther("0.05")})
         await VotingPowerPrism.setPendingProxyImplementation(VotingPowerImpDeployment.address);
         await VotingPowerImp.become(VotingPowerPrism.address);    
         await VotingPower.setLockManager(LockManager.address)
         await VotingPower.setTokenRegistry(TokenRegistry.address)
-        await ArchToken.transfer(RewardsManager.address, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE))
+        await ArchToken.connect(admin).approve(RewardsManager.address, INITIAL_ARCH_REWARDS_BALANCE)
+        await RewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
     } else {
         log("Must configure manually using multi-sig")
     }

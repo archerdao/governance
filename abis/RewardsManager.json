@@ -33,17 +33,12 @@
       },
       {
         "internalType": "uint256",
-        "name": "_rewardTokensPerBlock",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "_startBlock",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_endBlock",
+        "name": "_rewardTokensPerBlock",
         "type": "uint256"
       }
     ],
@@ -56,13 +51,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "oldToken",
+        "name": "oldAddress",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "newToken",
+        "name": "newAddress",
         "type": "address"
       }
     ],
@@ -224,6 +219,19 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "startBlock",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetRewardsStartBlock",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -278,6 +286,19 @@
       }
     ],
     "name": "add",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "addRewardsBalance",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -544,6 +565,13 @@
   },
   {
     "inputs": [],
+    "name": "resetRewardsEndBlock",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "rewardToken",
     "outputs": [
       {
@@ -636,22 +664,14 @@
         "internalType": "address",
         "name": "newToken",
         "type": "address"
-      }
-    ],
-    "name": "setRewardToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "uint256",
-        "name": "newEndBlock",
+        "name": "newRewardTokensPerBlock",
         "type": "uint256"
       }
     ],
-    "name": "setRewardsEndBlock",
+    "name": "setRewardToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

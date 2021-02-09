@@ -8,6 +8,8 @@ const UNI_POOL_ADDRESS = process.env.UNI_POOL_ADDRESS
 const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const ARCH_REWARDS_PER_BLOCK = process.env.ARCH_REWARDS_PER_BLOCK
 const FACTOR = ethers.BigNumber.from("10").pow("12")
+const FORK_URL = process.env.FORK_URL
+const FORK_BLOCK_NUMBER = parseInt(process.env.FORK_BLOCK_NUMBER)
 const BLOCKS_PER_MONTH = 200000
 
 
@@ -43,23 +45,39 @@ describe('RewardsManager', () => {
         alice = fix.alice
         bob = fix.bob
     })
+
+    context('rewardsActive', async () => {
+        it('returns true if rewards period is active', async () => {
+            expect(await rewardsManager.rewardsActive()).to.eq(false)
+            await rewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
+            expect(await rewardsManager.rewardsActive()).to.eq(true)
+        })
+    })
   
     context('add', async () => {
+        beforeEach(async () => {
+            await rewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
+        })
         it('successfully adds a valid sushi pool', async () => {
             const ALLOC_POINTS = "10"
             const VESTING_PERCENT = "500000"
             const VESTING_PERIOD = "180"
             const numPools = await rewardsManager.poolLength()
             const numTotalAllocPoints = await rewardsManager.totalAllocPoint()
+            const blockNumber = await ethers.provider.getBlockNumber()
+            const txBlock = ethers.BigNumber.from(blockNumber).add(1)
             await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)
             expect(await rewardsManager.poolLength()).to.eq(numPools.add(1))
             expect(await rewardsManager.totalAllocPoint()).to.eq(numTotalAllocPoints.add(ALLOC_POINTS))
             expect(await rewardsManager.sushiPools(sushiPool.address)).to.eq(MASTERCHEF_POOL_ID)
+            const contractBal = await archToken.balanceOf(rewardsManager.address)
+            const rewardsPerBlock = await rewardsManager.rewardTokensPerBlock()
             const newPool = await rewardsManager.poolInfo(numPools)
             expect(newPool.token).to.eq(sushiPool.address)
             expect(newPool.allocPoint).to.eq(ALLOC_POINTS)
             expect(newPool.vestingPercent.toString()).to.eq(VESTING_PERCENT)
             expect(newPool.vestingPeriod.toString()).to.eq(VESTING_PERIOD)
+            expect(await rewardsManager.endBlock()).to.eq(txBlock.add(contractBal.div(rewardsPerBlock)))
         })
 
         it('successfully adds a valid uni pool', async () => {
@@ -92,6 +110,7 @@ describe('RewardsManager', () => {
             const ALLOC_POINTS = "10"
             const VESTING_PERCENT = "500000"
             const VESTING_PERIOD = "180"
+            await rewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
             await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)
         })
 
@@ -112,16 +131,6 @@ describe('RewardsManager', () => {
         })
     })
 
-    context('rewardsActive', async () => {
-        it('returns true if rewards enabled and balance of ARCH in contract', async () => {
-            expect(await rewardsManager.rewardsActive()).to.eq(false)
-            await archToken.transfer(rewardsManager.address, INITIAL_ARCH_REWARDS_BALANCE)
-            expect(await rewardsManager.rewardsActive()).to.eq(true)
-            await rewardsManager.connect(admin).setRewardsPerBlock(0)
-            expect(await rewardsManager.rewardsActive()).to.eq(false)
-        })
-    })
-
     context('deposit', async () => {
         beforeEach(async () => {
             const ALLOC_POINTS = "10"
@@ -129,14 +138,14 @@ describe('RewardsManager', () => {
             const VESTING_PERIOD = "180"
             const TOKEN_LIQUIDITY = "100000000000000000000"
             const ETH_LIQUIDITY = "500000000000000000"
+            await rewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
             await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)
             await lockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), rewardsManager.address)
             await lockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), vault.address)
-            await archToken.transfer(rewardsManager.address, INITIAL_ARCH_REWARDS_BALANCE)
             await archToken.approve(sushiRouter.address, TOKEN_LIQUIDITY)
             await sushiRouter.addLiquidityETH(archToken.address, TOKEN_LIQUIDITY, "0", "0", deployer.address, ethers.constants.MaxUint256, { from: deployer.address, value: ETH_LIQUIDITY, gasLimit: 6000000 })
         })
-        xit('creates a valid deposit for a sushi pool', async () => {
+        it('creates a valid deposit for a sushi pool', async () => {
             const numPools = await rewardsManager.poolLength()
             const poolIndex = numPools.sub(1)
             const slpBalance = await sushiPool.balanceOf(deployer.address)
@@ -261,8 +270,8 @@ describe('RewardsManager', () => {
             const expectedVotingPower = baseVotingPower.add(vestingArch)
             expect(await votingPower.balanceOf(deployer.address)).to.eq(expectedVotingPower)
             expect(await archToken.balanceOf(deployer.address)).to.eq(deployerArchBalanceBefore.add(pendingArch.sub(vestingArch)))
+            expect(await sushiToken.balanceOf(rewardsManager.address)).to.eq(0)
             const sushiBalance = await sushiToken.balanceOf(deployer.address)
-            console.log("Sushi balance:", sushiBalance.toString())
             expect(sushiBalance).to.eq(pendingSushi)
         })
     })
@@ -274,10 +283,10 @@ describe('RewardsManager', () => {
             const VESTING_PERIOD = "180"
             const TOKEN_LIQUIDITY = "100000000000000000000"
             const ETH_LIQUIDITY = "500000000000000000"
+            await rewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
             await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)
             await lockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), rewardsManager.address)
             await lockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), vault.address)
-            await archToken.transfer(rewardsManager.address, INITIAL_ARCH_REWARDS_BALANCE)
             await archToken.approve(sushiRouter.address, TOKEN_LIQUIDITY)
             await sushiRouter.addLiquidityETH(archToken.address, TOKEN_LIQUIDITY, "0", "0", deployer.address, ethers.constants.MaxUint256, { from: deployer.address, value: ETH_LIQUIDITY, gasLimit: 6000000 })
         })
@@ -288,15 +297,15 @@ describe('RewardsManager', () => {
             const numPools = await rewardsManager.poolLength()
             const poolIndex = numPools.sub(1)
             const slpBalance = await sushiPool.balanceOf(deployer.address)
-            let masterChefSLPBalanceBefore = await sushiPool.balanceOf(masterChef.address)
             const sushiPerBlock = await masterChef.sushiPerBlock()
             const masterChefTotalAlloc = await masterChef.totalAllocPoint()
             await sushiPool.approve(rewardsManager.address, slpBalance)
+            let masterChefSLPBalanceBefore = await sushiPool.balanceOf(masterChef.address)
             let blockNumber = await ethers.provider.getBlockNumber()
             let masterChefPool = await masterChef.poolInfo(MASTERCHEF_POOL_ID)
             let masterChefPoolAlloc = masterChefPool.allocPoint
             let masterChefLastRewardBlock = masterChefPool.lastRewardBlock
-            const multiplier = ethers.BigNumber.from(blockNumber).add(1).sub(masterChefLastRewardBlock)
+            const multiplier = ethers.BigNumber.from(blockNumber).sub(masterChefLastRewardBlock)
             const sushiReward = multiplier.mul(sushiPerBlock).mul(masterChefPoolAlloc).div(masterChefTotalAlloc)
             const accSushiPerShare = masterChefPool.accSushiPerShare.add(sushiReward.mul(FACTOR).div(masterChefSLPBalanceBefore))
             await rewardsManager.deposit(poolIndex, slpBalance)
@@ -313,17 +322,13 @@ describe('RewardsManager', () => {
                 await ethers.provider.send("evm_mine")
             }
             await rewardsManager.withdraw(poolIndex, slpBalance)
-            const sushiBalance = await sushiToken.balanceOf(deployer.address)
-            console.log("Sushi balance deployer:", sushiBalance.toString())
+            expect(await sushiToken.balanceOf(rewardsManager.address)).to.eq(0)
             const deployerArchBalanceAfter = await archToken.balanceOf(deployer.address)
-            console.log("ARCH balance deployer:", deployerArchBalanceAfter.toString())
-            console.log("ARCH difference deployer:", deployerArchBalanceAfter.sub(deployerArchBalanceBefore).toString())
             const vaultArchBalanceAfter = await archToken.balanceOf(vault.address)
-            console.log("ARCH balance vault:", vaultArchBalanceAfter.toString())
-            console.log("ARCH difference total:", deployerArchBalanceAfter.add(vaultArchBalanceAfter).sub(deployerArchBalanceBefore).toString())
+            const totalArchDistributed = deployerArchBalanceAfter.add(vaultArchBalanceAfter).sub(deployerArchBalanceBefore)
             const rmArchBalanceAfter = await archToken.balanceOf(rewardsManager.address)
-            console.log("ARCH balance rm:", rmArchBalanceAfter.toString())
-            console.log("ARCH difference rm:", rmArchBalanceAfter.sub(rmArchBalanceBefore).toString())
+            const totalArchRemoved = rmArchBalanceAfter.sub(rmArchBalanceBefore)
+            expect(totalArchDistributed.add(totalArchRemoved)).to.eq(0)
         })
 
         xit('allows a user to withdraw all rewards if reward period is over', async () => {
@@ -349,7 +354,6 @@ describe('RewardsManager', () => {
             expect(pool.totalStaked).to.eq(slpBalance)
             expect(user.amount).to.eq(slpBalance)
             expect(user.rewardTokenDebt).to.eq(0)
-            // commented out due to Hardhat block number bug
             // expect(user.sushiRewardDebt).to.eq(slpBalance.mul(accSushiPerShare).div(FACTOR))
             expect(await lockManager.getAmountStaked(deployer.address, sushiPool.address)).to.eq(slpBalance)
             expect(await sushiPool.balanceOf(masterChef.address)).to.eq(masterChefSLPBalanceBefore.add(slpBalance))
@@ -358,17 +362,13 @@ describe('RewardsManager', () => {
                 await ethers.provider.send("evm_mine")
             }
             await rewardsManager.withdraw(poolIndex, slpBalance)
-            const sushiBalance = await sushiToken.balanceOf(deployer.address)
-            console.log("Sushi balance deployer:", sushiBalance.toString())
+            expect(await sushiToken.balanceOf(rewardsManager.address)).to.eq(0)
             const deployerArchBalanceAfter = await archToken.balanceOf(deployer.address)
-            console.log("ARCH balance deployer:", deployerArchBalanceAfter.toString())
-            console.log("ARCH difference deployer:", deployerArchBalanceAfter.sub(deployerArchBalanceBefore).toString())
             const vaultArchBalanceAfter = await archToken.balanceOf(vault.address)
-            console.log("ARCH balance vault:", vaultArchBalanceAfter.toString())
-            console.log("ARCH difference total:", deployerArchBalanceAfter.add(vaultArchBalanceAfter).sub(deployerArchBalanceBefore).toString())
+            const totalArchDistributed = deployerArchBalanceAfter.add(vaultArchBalanceAfter).sub(deployerArchBalanceBefore)
             const rmArchBalanceAfter = await archToken.balanceOf(rewardsManager.address)
-            console.log("ARCH balance rm:", rmArchBalanceAfter.toString())
-            console.log("ARCH difference rm:", rmArchBalanceAfter.sub(rmArchBalanceBefore).toString())
+            const totalArchRemoved = rmArchBalanceAfter.sub(rmArchBalanceBefore)
+            expect(totalArchDistributed.add(totalArchRemoved)).to.eq(0)
         })
     })
   })

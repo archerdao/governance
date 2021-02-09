@@ -19,7 +19,6 @@ const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const INITIAL_ARCH_REWARDS_BALANCE = process.env.INITIAL_ARCH_REWARDS_BALANCE
 const ARCH_REWARDS_PER_BLOCK = process.env.ARCH_REWARDS_PER_BLOCK
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
-const BLOCKS_PER_MONTH = 200000
 
 const tokenFixture = deployments.createFixture(async ({deployments, getNamedAccounts, getUnnamedAccounts, ethers}, options) => {
     const accounts = await ethers.getSigners();
@@ -96,7 +95,8 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
     const treasury = await ethers.provider.getSigner(DAO_TREASURY_ADDRESS)
     const ArchToken = new ethers.Contract(ARCH_TOKEN_ADDRESS, ARCH_ABI, deployer)
     await deployer.sendTransaction({ to: DAO_TREASURY_ADDRESS, value: ethers.utils.parseEther("0.5")})
-    await ArchToken.connect(treasury).transfer(deployer.address, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE).mul(2))
+    await ArchToken.connect(treasury).transfer(ADMIN_ADDRESS, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE))
+    await ArchToken.connect(treasury).transfer(deployer.address, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE))
     await ethers.provider.send('hardhat_stopImpersonatingAccount', [DAO_TREASURY_ADDRESS]);
     await ethers.provider.send('hardhat_impersonateAccount', [ADMIN_ADDRESS]);
     
@@ -130,8 +130,8 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
     const VaultFactory = await ethers.getContractFactory("Vault");
     const Vault = await VaultFactory.deploy(LockManager.address);
     const RewardsManagerFactory = await ethers.getContractFactory("RewardsManager");
-    const currentBlock = await ethers.provider.getBlockNumber()
-    const RewardsManager = await RewardsManagerFactory.deploy(ADMIN_ADDRESS, LockManager.address, Vault.address, ArchToken.address, SUSHI_ADDRESS, MASTERCHEF_ADDRESS, ARCH_REWARDS_PER_BLOCK, 0, ethers.BigNumber.from(currentBlock).add(BLOCKS_PER_MONTH))
+    const RewardsManager = await RewardsManagerFactory.deploy(ADMIN_ADDRESS, LockManager.address, Vault.address, ArchToken.address, SUSHI_ADDRESS, MASTERCHEF_ADDRESS, 0, ARCH_REWARDS_PER_BLOCK)
+    await ArchToken.connect(admin).approve(RewardsManager.address, INITIAL_ARCH_REWARDS_BALANCE)
 
     return {
         archToken: ArchToken,

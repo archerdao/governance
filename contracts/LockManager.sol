@@ -7,8 +7,11 @@ import "./interfaces/ITokenRegistry.sol";
 import "./interfaces/IVotingPowerFormula.sol";
 import "./lib/AccessControl.sol";
 import "./lib/SafeMath.sol";
-import "hardhat/console.sol";
 
+/**
+ * @title LockManager
+ * @dev Manages voting power for stakes that are locked within the Archer ecosystem, but not in the Voting Power prism
+ */
 contract LockManager is AccessControl {
     using SafeMath for uint256;
 
@@ -37,8 +40,13 @@ contract LockManager is AccessControl {
     event StakeLocked(address indexed user, address indexed token, uint256 indexed amount, uint256 votingPower);
 
     /// @notice An event that's emitted when a user's staked balance decreases
-    event StakeWithdrew(address indexed user, address indexed token, uint256 indexed amount, uint256 votingPower);
+    event StakeUnlocked(address indexed user, address indexed token, uint256 indexed amount, uint256 votingPower);
 
+    /**
+     * @notice Create new LockManager contract
+     * @param _votingPower VotingPower prism contract
+     * @param _roleManager address that is in charge of assigning roles
+     */
     constructor(address _votingPower, address _roleManager) {
         votingPower = IVotingPower(_votingPower);
         _setupRole(DEFAULT_ADMIN_ROLE, _roleManager);
@@ -64,6 +72,12 @@ contract LockManager is AccessControl {
         return lockedStakes[staker][stakedToken];
     }
 
+    /**
+     * @notice Calculate the voting power that will result from locking `amount` of `token`
+     * @param token token that will be locked
+     * @param amount amount of token that will be locked
+     * @return resulting voting power
+     */
     function calculateVotingPower(address token, uint256 amount) public view returns (uint256) {
         address registry = votingPower.tokenRegistry();
         require(registry != address(0), "LM::calculateVotingPower: registry not set");
@@ -74,6 +88,12 @@ contract LockManager is AccessControl {
         return tokenFormula.convertTokensToVotingPower(amount);
     }
 
+    /**
+     * @notice Grant voting power from locked `tokenAmount` of `token`
+     * @param receiver recipient of voting power
+     * @param token token that is locked
+     * @param tokenAmount amount of token that is locked
+     */
     function grantVotingPower(address receiver, address token, uint256 tokenAmount) public onlyLockers {
         uint256 vpToAdd = calculateVotingPower(token, tokenAmount);
         lockedStakes[receiver][token].amount = lockedStakes[receiver][token].amount.add(tokenAmount);
@@ -82,13 +102,19 @@ contract LockManager is AccessControl {
         emit StakeLocked(receiver, token, tokenAmount, vpToAdd);
     }
 
+    /**
+     * @notice Remove voting power by unlocking `tokenAmount` of `token`
+     * @param receiver holder of voting power
+     * @param token token that is being unlocked
+     * @param tokenAmount amount of token that is being unlocked
+     */
     function removeVotingPower(address receiver, address token, uint256 tokenAmount) public onlyLockers {
         require(lockedStakes[receiver][token].amount >= tokenAmount, "LM::removeVotingPower: not enough tokens staked");
         LockedStake memory s = getStake(receiver, token);
         uint256 vpToWithdraw = tokenAmount.mul(s.votingPower).div(s.amount);
         lockedStakes[receiver][token].amount = lockedStakes[receiver][token].amount.sub(tokenAmount);
-        lockedStakes[receiver][token].votingPower = lockedStakes[receiver][token].votingPower.add(vpToWithdraw);
+        lockedStakes[receiver][token].votingPower = lockedStakes[receiver][token].votingPower.sub(vpToWithdraw);
         votingPower.removeVotingPowerForUnlockedTokens(receiver, vpToWithdraw);
-        emit StakeWithdrew(receiver, token, tokenAmount, vpToWithdraw);
+        emit StakeUnlocked(receiver, token, tokenAmount, vpToWithdraw);
     }
 }

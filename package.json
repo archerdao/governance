@@ -6,7 +6,7 @@
   "author": "Chris Piatt (@chpiatt)",
   "scripts": {
     "hardhat": "npx hardhat node --no-deploy --show-accounts",
-    "fork": "npx hardhat node --no-deploy --show-accounts --fork $FORK_URL --fork-block-number $FORK_BLOCK_NUMBER",
+    "fork": "export HARDHAT_NETWORK='hardhat' && npx hardhat node --no-deploy --show-accounts --fork $FORK_URL --fork-block-number $FORK_BLOCK_NUMBER",
     "accounts": "npx hardhat accounts",
     "compile": "npx hardhat compile",
     "script": "sh -c 'npx ./scripts/${0}.js'",

@@ -75,7 +75,7 @@ let mainnetConfig = {
 }
 
 if (DEPLOYER_PRIVATE_KEY && DEPLOYER_PRIVATE_KEY.length > 0) {
-  localhostConfig.accounts = [DEPLOYER_PRIVATE_KEY]
+  localhostConfig.forking.accounts = [DEPLOYER_PRIVATE_KEY]
   rinkebyConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   mainnetConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   if (LIQUIDITY_PROVIDER_PRIVATE_KEY && LIQUIDITY_PROVIDER_PRIVATE_KEY.length > 0) {

@@ -10,8 +10,6 @@ import "./lib/SafeMath.sol";
 import "./lib/SafeERC20.sol";
 import "./lib/ReentrancyGuard.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title RewardsManager
  * @dev Controls rewards distribution for network
@@ -83,7 +81,7 @@ contract RewardsManager is ReentrancyGuard {
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
     
     /// @notice Total allocation points. Must be the sum of all allocation points in all pools.
-    uint256 public totalAllocPoint = 0;
+    uint256 public totalAllocPoint;
 
     /// @notice The block number when rewards start.
     uint256 public startBlock;
@@ -115,12 +113,26 @@ contract RewardsManager is ReentrancyGuard {
     /// @notice Event emitted when the amount of reward tokens per block is updated
     event ChangedRewardTokensPerBlock(uint256 indexed oldRewardTokensPerBlock, uint256 indexed newRewardTokensPerBlock);
 
+    /// @notice Event emitted when the rewards start block is set
+    event SetRewardsStartBlock(uint256 indexed startBlock);
+
     /// @notice Event emitted when the rewards end block is updated
     event ChangedRewardsEndBlock(uint256 indexed oldEndBlock, uint256 indexed newEndBlock);
 
-    /// @notice Event emitted when token address is changed
-    event ChangedAddress(address indexed oldToken, address indexed newToken);
+    /// @notice Event emitted when contract address is changed
+    event ChangedAddress(address indexed oldAddress, address indexed newAddress);
 
+    /**
+     * @notice Create a new Rewards Manager contract
+     * @param _owner owner of contract
+     * @param _lockManager address of LockManager contract
+     * @param _vault address of Vault contract
+     * @param _rewardToken address of token that is being offered as a reward
+     * @param _sushiToken address of SUSHI token
+     * @param _masterChef address of SushiSwap MasterChef contract
+     * @param _startBlock block number when rewards will start
+     * @param _rewardTokensPerBlock initial amount of reward tokens to be distributed per block
+     */
     constructor(
         address _owner, 
         address _lockManager,
@@ -128,21 +140,34 @@ contract RewardsManager is ReentrancyGuard {
         address _rewardToken,
         address _sushiToken,
         address _masterChef,
-        uint256 _rewardTokensPerBlock,
         uint256 _startBlock,
-        uint256 _endBlock
+        uint256 _rewardTokensPerBlock
     ) {
-        rewardToken = IERC20(_rewardToken);
-        sushiToken = IERC20(_sushiToken);
-        masterChef = IMasterChef(_masterChef);
-        lockManager = ILockManager(_lockManager);
-        vault = IVault(_vault);
-        rewardTokensPerBlock = _rewardTokensPerBlock;
-        startBlock = _startBlock;
-        endBlock = _endBlock;
         owner = _owner;
+        emit ChangedOwner(address(0), _owner);
+
+        lockManager = ILockManager(_lockManager);
+        emit ChangedAddress(address(0), _lockManager);
+
+        vault = IVault(_vault);
+        emit ChangedAddress(address(0), _vault);
+
+        rewardToken = IERC20(_rewardToken);
+        emit ChangedAddress(address(0), _rewardToken);
+
+        sushiToken = IERC20(_sushiToken);
+        emit ChangedAddress(address(0), _sushiToken);
+
+        masterChef = IMasterChef(_masterChef);
+        emit ChangedAddress(address(0), _masterChef);
+
+        startBlock = _startBlock == 0 ? block.number : _startBlock;
+        emit SetRewardsStartBlock(startBlock);
+
+        rewardTokensPerBlock = _rewardTokensPerBlock;
+        emit ChangedRewardTokensPerBlock(0, _rewardTokensPerBlock);
+
         rewardToken.safeIncreaseAllowance(address(vault), uint256(-1));
-        emit ChangedOwner(address(0), owner);
     }
 
     /**
@@ -175,6 +200,9 @@ contract RewardsManager is ReentrancyGuard {
             massUpdatePools();
         }
         uint256 rewardStartBlock = block.number > startBlock ? block.number : startBlock;
+        if (totalAllocPoint == 0) {
+            _setRewardsEndBlock();
+        }
         totalAllocPoint = totalAllocPoint.add(allocPoint);
         poolInfo.push(PoolInfo({
             token: IERC20(token),
@@ -208,11 +236,11 @@ contract RewardsManager is ReentrancyGuard {
         poolInfo[pid].allocPoint = allocPoint;
     }
 
+    /**
+     * @notice Returns true if rewards are actively being accumulated
+     */
     function rewardsActive() public view returns (bool) {
-        if (block.number >= startBlock && rewardTokensPerBlock > 0 && rewardToken.balanceOf(address(this)) > 0) {
-            return true;
-        }
-        return false;
+        return block.number >= startBlock && block.number <= endBlock ? true : false;
     }
 
     /**
@@ -222,10 +250,8 @@ contract RewardsManager is ReentrancyGuard {
      * @return multiplier
      */
     function getMultiplier(uint256 from, uint256 to) public view returns (uint256) {
-        if (to > endBlock) {
-            return to.sub(endBlock);
-        }
-        return to > from ? to.sub(from) : 0;
+        uint256 toBlock = to > endBlock ? endBlock : to;
+        return toBlock > from ? toBlock.sub(from) : 0;
     }
 
     /**
@@ -235,9 +261,6 @@ contract RewardsManager is ReentrancyGuard {
      * @return pending rewards
      */
     function pendingRewardTokens(uint256 pid, address account) external view returns (uint256) {
-        if (!rewardsActive()) {
-            return 0;
-        }
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][account];
         uint256 accRewardsPerShare = pool.accRewardsPerShare;
@@ -321,10 +344,8 @@ contract RewardsManager is ReentrancyGuard {
         uint256 pendingSushiTokens = 0;
 
         if (user.amount > 0) {
-            if(rewardsActive()) {
-                uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
-                _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod);
-            }
+            uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
+            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod);
 
             if (sushiPid != uint256(0)) {
                 masterChef.updatePool(sushiPid);
@@ -371,10 +392,8 @@ contract RewardsManager is ReentrancyGuard {
 
         updatePool(pid);
 
-        if (rewardsActive()) {
-            uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
-            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod);
-        }
+        uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
+        _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod);
     
         if (sushiPid != uint256(0)) {
             masterChef.updatePool(sushiPid);
@@ -450,8 +469,12 @@ contract RewardsManager is ReentrancyGuard {
      * @param amounts the amount of each token to withdraw.  If zero, withdraws the maximum allowed amount for each token
      * @param receiver the address that will receive the tokens
      */
-    function rescueTokens(address[] calldata tokens, uint256[] calldata amounts, address receiver) external onlyOwner {
-        require(tokens.length == amounts.length, "RM::rescueTokens: arrays must be same length");
+    function rescueTokens(
+        address[] calldata tokens, 
+        uint256[] calldata amounts, 
+        address receiver
+    ) external onlyOwner {
+        require(tokens.length == amounts.length, "RM::rescueTokens: not same length");
         for (uint i = 0; i < tokens.length; i++) {
             IERC20 token = IERC20(tokens[i]);
             uint256 withdrawalAmount;
@@ -491,24 +514,19 @@ contract RewardsManager is ReentrancyGuard {
     function setRewardsPerBlock(uint256 newRewardTokensPerBlock) external onlyOwner {
         emit ChangedRewardTokensPerBlock(rewardTokensPerBlock, newRewardTokensPerBlock);
         rewardTokensPerBlock = newRewardTokensPerBlock;
-    }
-
-    /**
-     * @notice Set new rewards end block
-     * @param newEndBlock new rewards end block
-     */
-    function setRewardsEndBlock(uint256 newEndBlock) external onlyOwner {
-        emit ChangedRewardsEndBlock(endBlock, newEndBlock);
-        endBlock = newEndBlock;
+        _setRewardsEndBlock();
     }
 
     /**
      * @notice Set new reward token address
      * @param newToken address of new reward token
+     * @param newRewardTokensPerBlock new amount of reward token to reward each block
      */
-    function setRewardToken(address newToken) external onlyOwner {
+    function setRewardToken(address newToken, uint256 newRewardTokensPerBlock) external onlyOwner {
         emit ChangedAddress(address(rewardToken), newToken);
         rewardToken = IERC20(newToken);
+        rewardTokensPerBlock = newRewardTokensPerBlock;
+        _setRewardsEndBlock();
     }
 
     /**
@@ -548,6 +566,22 @@ contract RewardsManager is ReentrancyGuard {
     }
 
     /**
+     * @notice Add rewards to contract
+     * @param amount amount of tokens to add
+     */
+    function addRewardsBalance(uint256 amount) external onlyOwner {
+        rewardToken.transferFrom(msg.sender, address(this), amount);
+        _setRewardsEndBlock();
+    }
+
+    /**
+     * @notice Reset rewards end block manually based on new balances
+     */
+    function resetRewardsEndBlock() external onlyOwner {
+        _setRewardsEndBlock();
+    }
+
+    /**
      * @notice Change owner of vesting contract
      * @param newOwner New owner address
      */
@@ -563,22 +597,23 @@ contract RewardsManager is ReentrancyGuard {
     }
 
     /**
-     * @notice Internal function used to distrute rewards, optionally vesting a %
+     * @notice Internal function used to distribute rewards, optionally vesting a %
      * @param account account that is due rewards
      * @param amount amount of rewards to distribute
      * @param vestingPercent percent of rewards to vest in bips
      * @param vestingPeriod number of days over which to vest rewards
      */
     function _distributeRewards(address account, uint256 amount, uint32 vestingPercent, uint16 vestingPeriod) internal {
-        require(rewardToken.balanceOf(address(this)) >= amount, "RM::_distributeRewards: not enough reward token in contract");
-        uint256 vestingRewards = amount.mul(vestingPercent).div(1000000);
+        uint256 rewardAmount = amount > rewardToken.balanceOf(address(this)) ? rewardToken.balanceOf(address(this)) : amount;
+        uint256 vestingRewards = rewardAmount.mul(vestingPercent).div(1000000);
         vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, true);
-        _safeRewardsTransfer(msg.sender, amount.sub(vestingRewards));
+        _safeRewardsTransfer(msg.sender, rewardAmount.sub(vestingRewards));
+        _setRewardsEndBlock();
     }
 
     /**
      * @notice Safe reward transfer function, just in case if rounding error causes pool to not have enough reward token.
-     * @param to account that is receieving rewards
+     * @param to account that is receiving rewards
      * @param amount amount of rewards to send
      */
     function _safeRewardsTransfer(address to, uint256 amount) internal {
@@ -592,7 +627,7 @@ contract RewardsManager is ReentrancyGuard {
 
     /**
      * @notice Safe SUSHI transfer function, just in case if rounding error causes pool to not have enough SUSHI.
-     * @param to account that is receieving SUSHI
+     * @param to account that is receiving SUSHI
      * @param amount amount of SUSHI to send
      */
     function _safeSushiTransfer(address to, uint256 amount) internal {
@@ -601,6 +636,20 @@ contract RewardsManager is ReentrancyGuard {
             sushiToken.transfer(to, sushiBalance);
         } else {
             sushiToken.transfer(to, amount);
+        }
+    }
+
+    /**
+     * @notice Internal function that updates rewards end block based on tokens per block and the token balance of the contract
+     */
+    function _setRewardsEndBlock() internal {
+        uint256 rewardFromBlock = block.number >= startBlock ? block.number : startBlock;
+        if(rewardTokensPerBlock > 0) {
+            uint256 newEndBlock = rewardFromBlock.add(rewardToken.balanceOf(address(this)).div(rewardTokensPerBlock));
+            if(newEndBlock != endBlock) {
+                emit ChangedRewardsEndBlock(endBlock, newEndBlock);
+                endBlock = newEndBlock;
+            }
         }
     }
 }
