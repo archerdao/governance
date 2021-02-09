@@ -643,10 +643,10 @@ contract RewardsManager is ReentrancyGuard {
      * @notice Internal function that updates rewards end block based on tokens per block and the token balance of the contract
      */
     function _setRewardsEndBlock() internal {
-        uint256 rewardFromBlock = block.number >= startBlock ? block.number : startBlock;
         if(rewardTokensPerBlock > 0) {
+            uint256 rewardFromBlock = block.number >= startBlock ? block.number : startBlock;
             uint256 newEndBlock = rewardFromBlock.add(rewardToken.balanceOf(address(this)).div(rewardTokensPerBlock));
-            if(newEndBlock != endBlock) {
+            if(newEndBlock > rewardFromBlock && newEndBlock != endBlock) {
                 emit ChangedRewardsEndBlock(endBlock, newEndBlock);
                 endBlock = newEndBlock;
             }
