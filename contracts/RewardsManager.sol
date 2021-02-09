@@ -492,6 +492,9 @@ contract RewardsManager is ReentrancyGuard {
                 withdrawalAmount = amounts[i];
             }
             token.safeTransferFrom(address(this), receiver, withdrawalAmount);
+            if (token == rewardToken) {
+                _setRewardsEndBlock();
+            }
         }
     }
 
