@@ -97,6 +97,38 @@ describe('RewardsManager', () => {
             expect(newPool.vestingPeriod.toString()).to.eq(VESTING_PERIOD)
         })
 
+        it('successfully adds a valid sushi pool w/o voting power', async () => {
+            const ALLOC_POINTS = "10"
+            const VESTING_PERCENT = "500000"
+            const VESTING_PERIOD = "180"
+            const TOKEN_LIQUIDITY = "100000000000000000000"
+            const ETH_LIQUIDITY = "500000000000000000"
+            let numPools = await rewardsManager.poolLength()
+            const numTotalAllocPoints = await rewardsManager.totalAllocPoint()
+            const blockNumber = await ethers.provider.getBlockNumber()
+            const txBlock = ethers.BigNumber.from(blockNumber).add(1)
+            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID, false, false)
+            expect(await rewardsManager.poolLength()).to.eq(numPools.add(1))
+            expect(await rewardsManager.totalAllocPoint()).to.eq(numTotalAllocPoints.add(ALLOC_POINTS))
+            expect(await rewardsManager.sushiPools(sushiPool.address)).to.eq(MASTERCHEF_POOL_ID)
+            const contractBal = await archToken.balanceOf(rewardsManager.address)
+            const rewardsPerBlock = await rewardsManager.rewardTokensPerBlock()
+            const newPool = await rewardsManager.poolInfo(numPools)
+            expect(newPool.token).to.eq(sushiPool.address)
+            expect(newPool.allocPoint).to.eq(ALLOC_POINTS)
+            expect(newPool.vestingPercent.toString()).to.eq(VESTING_PERCENT)
+            expect(newPool.vestingPeriod.toString()).to.eq(VESTING_PERIOD)
+            expect(await rewardsManager.endBlock()).to.eq(txBlock.add(contractBal.div(rewardsPerBlock)))
+            await archToken.approve(sushiRouter.address, TOKEN_LIQUIDITY)
+            await sushiRouter.addLiquidityETH(archToken.address, TOKEN_LIQUIDITY, "0", "0", deployer.address, ethers.constants.MaxUint256, { from: deployer.address, value: ETH_LIQUIDITY, gasLimit: 6000000 })
+            numPools = await rewardsManager.poolLength()
+            const poolIndex = numPools.sub(1)
+            const slpBalance = await sushiPool.balanceOf(deployer.address)
+            await sushiPool.approve(rewardsManager.address, slpBalance)
+            await rewardsManager.deposit(poolIndex, slpBalance)
+            expect(await votingPower.balanceOf(deployer.address)).to.eq(0)
+        })
+
         it('does not allow non-owner to add sushi pool', async () => {
             const ALLOC_POINTS = "10"
             const VESTING_PERCENT = "500000"

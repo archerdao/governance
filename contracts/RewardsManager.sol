@@ -2,7 +2,6 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./interfaces/IVotingPower.sol";
 import "./interfaces/IMasterChef.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/ILockManager.sol";
@@ -20,9 +19,6 @@ contract RewardsManager is ReentrancyGuard {
 
     /// @notice Current owner of this contract
     address public owner;
-
-    /// @notice Voting power contract
-    IVotingPower public votingPower;
 
     /// @notice Info of each user.
     struct UserInfo {
@@ -109,6 +105,9 @@ contract RewardsManager is ReentrancyGuard {
     /// @notice Event emitted when new pool is added to the rewards manager
     event PoolAdded(uint256 indexed pid, address indexed token, uint256 allocPoints, uint256 totalAllocPoints, uint256 rewardStartBlock, uint256 sushiPid, bool vpForDeposit, bool vpForVesting);
     
+    /// @notice Event emitted when pool allocation points are updated
+    event PoolUpdated(uint256 indexed pid, uint256 oldAllocPoints, uint256 newAllocPoints, uint256 newTotalAllocPoints);
+
     /// @notice Event emitted when the owner of the rewards manager contract is updated
     event ChangedOwner(address indexed oldOwner, address indexed newOwner);
 
@@ -122,7 +121,7 @@ contract RewardsManager is ReentrancyGuard {
     event ChangedRewardsEndBlock(uint256 indexed oldEndBlock, uint256 indexed newEndBlock);
 
     /// @notice Event emitted when contract address is changed
-    event ChangedAddress(address indexed oldAddress, address indexed newAddress);
+    event ChangedAddress(string indexed addressType, address indexed oldAddress, address indexed newAddress);
 
     /**
      * @notice Create a new Rewards Manager contract
@@ -149,19 +148,19 @@ contract RewardsManager is ReentrancyGuard {
         emit ChangedOwner(address(0), _owner);
 
         lockManager = ILockManager(_lockManager);
-        emit ChangedAddress(address(0), _lockManager);
+        emit ChangedAddress("LOCK_MANAGER", address(0), _lockManager);
 
         vault = IVault(_vault);
-        emit ChangedAddress(address(0), _vault);
+        emit ChangedAddress("VAULT", address(0), _vault);
 
         rewardToken = IERC20(_rewardToken);
-        emit ChangedAddress(address(0), _rewardToken);
+        emit ChangedAddress("REWARD_TOKEN", address(0), _rewardToken);
 
         sushiToken = IERC20(_sushiToken);
-        emit ChangedAddress(address(0), _sushiToken);
+        emit ChangedAddress("SUSHI_TOKEN", address(0), _sushiToken);
 
         masterChef = IMasterChef(_masterChef);
-        emit ChangedAddress(address(0), _masterChef);
+        emit ChangedAddress("MASTER_CHEF", address(0), _masterChef);
 
         startBlock = _startBlock == 0 ? block.number : _startBlock;
         emit SetRewardsStartBlock(startBlock);
@@ -241,6 +240,7 @@ contract RewardsManager is ReentrancyGuard {
             massUpdatePools();
         }
         totalAllocPoint = totalAllocPoint.sub(poolInfo[pid].allocPoint).add(allocPoint);
+        emit PoolUpdated(pid, poolInfo[pid].allocPoint, allocPoint, totalAllocPoint);
         poolInfo[pid].allocPoint = allocPoint;
     }
 
@@ -511,18 +511,6 @@ contract RewardsManager is ReentrancyGuard {
     }
 
     /**
-     * @notice Set voting power contract address
-     * @param newAddress New voting power contract address
-     */
-    function setVotingPowerContract(address newAddress) 
-        external onlyOwner
-    {
-        require(newAddress != address(0) && newAddress != address(this) && newAddress != address(rewardToken), "RM::setVotingPowerContract: not valid contract");
-        emit ChangedAddress(address(votingPower), newAddress);
-        votingPower = IVotingPower(newAddress);
-    }
-
-    /**
      * @notice Set new rewards per block
      * @param newRewardTokensPerBlock new amount of reward token to reward each block
      */
@@ -538,7 +526,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param newRewardTokensPerBlock new amount of reward token to reward each block
      */
     function setRewardToken(address newToken, uint256 newRewardTokensPerBlock) external onlyOwner {
-        emit ChangedAddress(address(rewardToken), newToken);
+        emit ChangedAddress("REWARD_TOKEN", address(rewardToken), newToken);
         rewardToken = IERC20(newToken);
         rewardTokensPerBlock = newRewardTokensPerBlock;
         _setRewardsEndBlock();
@@ -549,7 +537,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param newToken address of new SUSHI token
      */
     function setSushiToken(address newToken) external onlyOwner {
-        emit ChangedAddress(address(sushiToken), newToken);
+        emit ChangedAddress("SUSHI_TOKEN", address(sushiToken), newToken);
         sushiToken = IERC20(newToken);
     }
 
@@ -558,7 +546,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param newAddress address of new MasterChef
      */
     function setMasterChef(address newAddress) external onlyOwner {
-        emit ChangedAddress(address(masterChef), newAddress);
+        emit ChangedAddress("MASTER_CHEF", address(masterChef), newAddress);
         masterChef = IMasterChef(newAddress);
     }
         
@@ -567,7 +555,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param newAddress address of new Vault
      */
     function setVault(address newAddress) external onlyOwner {
-        emit ChangedAddress(address(vault), newAddress);
+        emit ChangedAddress("VAULT", address(vault), newAddress);
         vault = IVault(newAddress);
     }
 
@@ -576,7 +564,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param newAddress address of new LockManager
      */
     function setLockManager(address newAddress) external onlyOwner {
-        emit ChangedAddress(address(lockManager), newAddress);
+        emit ChangedAddress("LOCK_MANAGER", address(lockManager), newAddress);
         lockManager = ILockManager(newAddress);
     }
 
@@ -601,14 +589,11 @@ contract RewardsManager is ReentrancyGuard {
      * @param newOwner New owner address
      */
     function changeOwner(address newOwner) 
-        external
+        external onlyOwner
     {
-        require(msg.sender == owner, "RM::changeOwner: not owner");
         require(newOwner != address(0) && newOwner != address(this), "RM::changeOwner: not valid address");
-
-        address oldOwner = owner;
+        emit ChangedOwner(owner, newOwner);
         owner = newOwner;
-        emit ChangedOwner(oldOwner, newOwner);
     }
 
     /**
@@ -617,18 +602,18 @@ contract RewardsManager is ReentrancyGuard {
      * @param amount amount of rewards to distribute
      * @param vestingPercent percent of rewards to vest in bips
      * @param vestingPeriod number of days over which to vest rewards
-     * @param provideVotingPower if true, grant voting power for vesting balance
+     * @param vestingVotingPower if true, grant voting power for vesting balance
      */
     function _distributeRewards(
         address account, 
         uint256 amount, 
         uint32 vestingPercent, 
         uint16 vestingPeriod, 
-        bool provideVotingPower
+        bool vestingVotingPower
     ) internal {
         uint256 rewardAmount = amount > rewardToken.balanceOf(address(this)) ? rewardToken.balanceOf(address(this)) : amount;
         uint256 vestingRewards = rewardAmount.mul(vestingPercent).div(1000000);
-        vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, provideVotingPower);
+        vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, vestingVotingPower);
         _safeRewardsTransfer(msg.sender, rewardAmount.sub(vestingRewards));
         _setRewardsEndBlock();
     }
