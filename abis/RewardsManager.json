@@ -209,6 +209,18 @@
         "internalType": "uint256",
         "name": "sushiPid",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "vpForDeposit",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "vpForVesting",
+        "type": "bool"
       }
     ],
     "name": "PoolAdded",
@@ -283,6 +295,16 @@
         "internalType": "uint256",
         "name": "sushiPid",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "vpForDeposit",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "vpForVesting",
+        "type": "bool"
       }
     ],
     "name": "add",
@@ -522,6 +544,16 @@
         "internalType": "uint256",
         "name": "totalStaked",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "vpForDeposit",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "vpForVesting",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",

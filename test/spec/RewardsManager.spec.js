@@ -66,7 +66,7 @@ describe('RewardsManager', () => {
             const numTotalAllocPoints = await rewardsManager.totalAllocPoint()
             const blockNumber = await ethers.provider.getBlockNumber()
             const txBlock = ethers.BigNumber.from(blockNumber).add(1)
-            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)
+            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID, true, true)
             expect(await rewardsManager.poolLength()).to.eq(numPools.add(1))
             expect(await rewardsManager.totalAllocPoint()).to.eq(numTotalAllocPoints.add(ALLOC_POINTS))
             expect(await rewardsManager.sushiPools(sushiPool.address)).to.eq(MASTERCHEF_POOL_ID)
@@ -86,7 +86,7 @@ describe('RewardsManager', () => {
             const VESTING_PERIOD = "180"
             const numPools = await rewardsManager.poolLength()
             const numTotalAllocPoints = await rewardsManager.totalAllocPoint()
-            await rewardsManager.connect(admin).add(ALLOC_POINTS, UNI_POOL_ADDRESS, VESTING_PERCENT, VESTING_PERIOD, true, 0)
+            await rewardsManager.connect(admin).add(ALLOC_POINTS, UNI_POOL_ADDRESS, VESTING_PERCENT, VESTING_PERIOD, true, 0, true, true)
             expect(await rewardsManager.poolLength()).to.eq(numPools.add(1))
             expect(await rewardsManager.totalAllocPoint()).to.eq(numTotalAllocPoints.add(ALLOC_POINTS))
             expect(await rewardsManager.sushiPools(UNI_POOL_ADDRESS)).to.eq(0)
@@ -101,7 +101,7 @@ describe('RewardsManager', () => {
             const ALLOC_POINTS = "10"
             const VESTING_PERCENT = "500000"
             const VESTING_PERIOD = "180"
-            await expect(rewardsManager.add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)).to.revertedWith("not owner")
+            await expect(rewardsManager.add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID, true, true)).to.revertedWith("not owner")
         })
     })
 
@@ -111,7 +111,7 @@ describe('RewardsManager', () => {
             const VESTING_PERCENT = "500000"
             const VESTING_PERIOD = "180"
             await rewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
-            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)
+            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID, true, true)
         })
 
         it('allows owner to set alloc points for pool', async () => {
@@ -139,7 +139,7 @@ describe('RewardsManager', () => {
             const TOKEN_LIQUIDITY = "100000000000000000000"
             const ETH_LIQUIDITY = "500000000000000000"
             await rewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
-            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)
+            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID, true, true)
             await lockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), rewardsManager.address)
             await lockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), vault.address)
             await archToken.approve(sushiRouter.address, TOKEN_LIQUIDITY)
@@ -220,7 +220,6 @@ describe('RewardsManager', () => {
             expect(await votingPower.balanceOf(deployer.address)).to.eq(expectedVotingPower)
             expect(await archToken.balanceOf(deployer.address)).to.eq(deployerArchBalanceBefore.add(pendingArch.sub(vestingArch)))
             const sushiBalance = await sushiToken.balanceOf(deployer.address)
-            console.log("Sushi balance:", sushiBalance.toString())
             expect(sushiBalance).to.eq(pendingSushi)
         })
 
@@ -284,7 +283,7 @@ describe('RewardsManager', () => {
             const TOKEN_LIQUIDITY = "100000000000000000000"
             const ETH_LIQUIDITY = "500000000000000000"
             await rewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
-            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID)
+            await rewardsManager.connect(admin).add(ALLOC_POINTS, sushiPool.address, VESTING_PERCENT, VESTING_PERIOD, true, MASTERCHEF_POOL_ID, true, true)
             await lockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), rewardsManager.address)
             await lockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), vault.address)
             await archToken.approve(sushiRouter.address, TOKEN_LIQUIDITY)

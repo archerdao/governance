@@ -51,6 +51,8 @@ contract RewardsManager is ReentrancyGuard {
         uint32 vestingPercent;      // Percentage of rewards that vest (measured in bips: 500,000 bips = 50% of rewards)
         uint16 vestingPeriod;       // Vesting period in days for vesting rewards
         uint256 totalStaked;        // Total amount of token staked via Rewards Manager
+        bool vpForDeposit;          // Do users get voting power for deposits of this token?
+        bool vpForVesting;          // Do users get voting power for vesting balances?
     }
 
     /// @notice Reward token
@@ -105,7 +107,7 @@ contract RewardsManager is ReentrancyGuard {
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
     /// @notice Event emitted when new pool is added to the rewards manager
-    event PoolAdded(uint256 indexed pid, address indexed token, uint256 allocPoints, uint256 totalAllocPoints, uint256 rewardStartBlock, uint256 sushiPid);
+    event PoolAdded(uint256 indexed pid, address indexed token, uint256 allocPoints, uint256 totalAllocPoints, uint256 rewardStartBlock, uint256 sushiPid, bool vpForDeposit, bool vpForVesting);
     
     /// @notice Event emitted when the owner of the rewards manager contract is updated
     event ChangedOwner(address indexed oldOwner, address indexed newOwner);
@@ -187,6 +189,8 @@ contract RewardsManager is ReentrancyGuard {
      * @param vestingPeriod The number of days for the vesting period
      * @param withUpdate if specified, update all pools before adding new pool
      * @param sushiPid The pid of the Sushiswap pool in the Masterchef contract (if exists, otherwise provide zero)
+     * @param vpForDeposit If true, users get voting power for deposits
+     * @param vpForVesting If true, users get voting power for vesting balances
      */
     function add(
         uint256 allocPoint, 
@@ -194,7 +198,9 @@ contract RewardsManager is ReentrancyGuard {
         uint32 vestingPercent,
         uint16 vestingPeriod,
         bool withUpdate,
-        uint256 sushiPid
+        uint256 sushiPid,
+        bool vpForDeposit,
+        bool vpForVesting
     ) public onlyOwner {
         if (withUpdate) {
             massUpdatePools();
@@ -211,14 +217,16 @@ contract RewardsManager is ReentrancyGuard {
             accRewardsPerShare: 0,
             vestingPercent: vestingPercent,
             vestingPeriod: vestingPeriod,
-            totalStaked: 0
+            totalStaked: 0,
+            vpForDeposit: vpForDeposit,
+            vpForVesting: vpForVesting
         }));
         if (sushiPid != uint256(0)) {
             sushiPools[token] = sushiPid;
             IERC20(token).safeIncreaseAllowance(address(masterChef), uint256(-1));
         }
         IERC20(token).safeIncreaseAllowance(address(vault), uint256(-1));
-        emit PoolAdded(poolInfo.length - 1, token, allocPoint, totalAllocPoint, rewardStartBlock, sushiPid);
+        emit PoolAdded(poolInfo.length - 1, token, allocPoint, totalAllocPoint, rewardStartBlock, sushiPid, vpForDeposit, vpForVesting);
     }
 
     /**
@@ -345,7 +353,7 @@ contract RewardsManager is ReentrancyGuard {
 
         if (user.amount > 0) {
             uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
-            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod);
+            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
 
             if (sushiPid != uint256(0)) {
                 masterChef.updatePool(sushiPid);
@@ -364,7 +372,7 @@ contract RewardsManager is ReentrancyGuard {
             masterChef.deposit(sushiPid, amount);
         }
 
-        if (amount > 0) {
+        if (amount > 0 && pool.vpForDeposit) {
             lockManager.grantVotingPower(msg.sender, address(pool.token), amount);
         }
 
@@ -393,7 +401,7 @@ contract RewardsManager is ReentrancyGuard {
         updatePool(pid);
 
         uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
-        _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod);
+        _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
     
         if (sushiPid != uint256(0)) {
             masterChef.updatePool(sushiPid);
@@ -405,7 +413,9 @@ contract RewardsManager is ReentrancyGuard {
         user.amount = user.amount.sub(amount);
         user.rewardTokenDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
 
-        lockManager.removeVotingPower(msg.sender, address(pool.token), amount);
+        if (pool.vpForDeposit) {
+            lockManager.removeVotingPower(msg.sender, address(pool.token), amount);
+        }
 
         if (pendingSushiTokens > 0) {
             _safeSushiTransfer(msg.sender, pendingSushiTokens);
@@ -431,7 +441,9 @@ contract RewardsManager is ReentrancyGuard {
             masterChef.withdraw(sushiPid, user.amount);
         }
 
-        lockManager.removeVotingPower(msg.sender, address(pool.token), user.amount);
+        if (pool.vpForDeposit) {
+            lockManager.removeVotingPower(msg.sender, address(pool.token), user.amount);
+        }
 
         pool.totalStaked = pool.totalStaked.sub(user.amount);
         pool.token.safeTransfer(msg.sender, user.amount);
@@ -605,11 +617,18 @@ contract RewardsManager is ReentrancyGuard {
      * @param amount amount of rewards to distribute
      * @param vestingPercent percent of rewards to vest in bips
      * @param vestingPeriod number of days over which to vest rewards
+     * @param provideVotingPower if true, grant voting power for vesting balance
      */
-    function _distributeRewards(address account, uint256 amount, uint32 vestingPercent, uint16 vestingPeriod) internal {
+    function _distributeRewards(
+        address account, 
+        uint256 amount, 
+        uint32 vestingPercent, 
+        uint16 vestingPeriod, 
+        bool provideVotingPower
+    ) internal {
         uint256 rewardAmount = amount > rewardToken.balanceOf(address(this)) ? rewardToken.balanceOf(address(this)) : amount;
         uint256 vestingRewards = rewardAmount.mul(vestingPercent).div(1000000);
-        vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, true);
+        vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, provideVotingPower);
         _safeRewardsTransfer(msg.sender, rewardAmount.sub(vestingRewards));
         _setRewardsEndBlock();
     }
