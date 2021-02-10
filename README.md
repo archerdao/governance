@@ -86,4 +86,18 @@ Multisend is a simple contract that allows the sender to transfer multiple token
 
 ## Vault
 
-Vaults are used to lock up tokens without providing any voting power (unlike Vesting)
+Vaults are used to lock up multiple token balances per user for a given period of time - optionally providing voting power
+
+## Token Registry
+
+The Token Registry contract maintains a list of "Token Formula" contracts that are used to convert token amounts to their corresponding voting power within Archer DAO
+
+## Lock Manager
+
+Lock Manager keeps track of tokens that are locked up within the Archer ecosystem (somewhere other than in the Voting Power Prism) and the resulting voting power from these locked balances.
+
+Special contracts with the "LOCKER_ROLE" role are in charge of maintaining these locked balances and calling the functions to add or remove voting power
+
+## Rewards Manager
+
+The Rewards Manager is responsible for distributing ARCH (and optionally, SUSHI) rewards to users who provide ARCH liquidity to approved markets or otherwise benefit the  Archer Network as decided by the DAO
