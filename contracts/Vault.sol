@@ -10,7 +10,8 @@ import "./lib/SafeERC20.sol";
 
 /**
  * @title Vault
- * @dev Contract for locking up tokens for set periods of time
+ * @dev Contract for locking up tokens for set periods of time 
+ * + optionally providing locked tokens with voting power
  */
 contract Vault {
     using SafeMath for uint256;
@@ -51,6 +52,9 @@ contract Vault {
     /// @notice Event emitted when lock duration extended
     event LockExtended(uint16 indexed oldDuration, uint16 indexed newDuration, uint256 startTime, uint256 lockId);
 
+    /**
+     * @notice Create a new Vault contract
+     */
     constructor(address _lockManager) {
         lockManager = ILockManager(_lockManager);
     }

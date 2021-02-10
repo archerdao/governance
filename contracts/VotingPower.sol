@@ -101,6 +101,15 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     }
 
     /**
+     * @notice Address of owner
+     * @return Address of owner
+     */
+    function owner() public view returns (address) {
+        AppStorage storage app = VotingPowerStorage.appStorage();
+        return app.owner;
+    }
+
+    /**
      * @notice Sets token registry address
      * @param registry Address of token registry
      */

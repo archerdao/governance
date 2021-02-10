@@ -22,9 +22,14 @@ interface IVotingPower {
     function proxyImplementationVersion() external view returns (uint8);
     function become(PrismProxy prism) external;
     function initialize(address _archToken, address _vestingContract) external;
+    function owner() external view returns (address);
     function archToken() external view returns (address);
     function vestingContract() external view returns (address);
     function tokenRegistry() external view returns (address);
+    function lockManager() external view returns (address);
+    function changeOwner(address newOwner) external;
+    function setTokenRegistry(address registry) external;
+    function setLockManager(address newLockManager) external;
     function stake(uint256 amount) external;
     function stakeWithPermit(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external;
     function withdraw(uint256 amount) external;

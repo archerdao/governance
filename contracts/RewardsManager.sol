@@ -22,7 +22,7 @@ contract RewardsManager is ReentrancyGuard {
 
     /// @notice Info of each user.
     struct UserInfo {
-        uint256 amount;     // How many tokens the user has provided.
+        uint256 amount;          // How many tokens the user has provided.
         uint256 rewardTokenDebt; // Reward debt for reward token. See explanation below.
         uint256 sushiRewardDebt; // Reward debt for Sushi rewards. See explanation below.
         //
@@ -457,6 +457,7 @@ contract RewardsManager is ReentrancyGuard {
 
     /**
      * @notice Set approvals for external addresses to use contract tokens
+     * @dev Can only be called by the owner
      * @param tokensToApprove the tokens to approve
      * @param approvalAmounts the token approval amounts
      * @param spender the address to allow spending of token
@@ -477,6 +478,7 @@ contract RewardsManager is ReentrancyGuard {
 
     /**
      * @notice Rescue (withdraw) tokens from the smart contract
+     * @dev Can only be called by the owner
      * @param tokens the tokens to withdraw
      * @param amounts the amount of each token to withdraw.  If zero, withdraws the maximum allowed amount for each token
      * @param receiver the address that will receive the tokens
@@ -512,6 +514,7 @@ contract RewardsManager is ReentrancyGuard {
 
     /**
      * @notice Set new rewards per block
+     * @dev Can only be called by the owner
      * @param newRewardTokensPerBlock new amount of reward token to reward each block
      */
     function setRewardsPerBlock(uint256 newRewardTokensPerBlock) external onlyOwner {
@@ -534,6 +537,7 @@ contract RewardsManager is ReentrancyGuard {
 
     /**
      * @notice Set new SUSHI token address
+     * @dev Can only be called by the owner
      * @param newToken address of new SUSHI token
      */
     function setSushiToken(address newToken) external onlyOwner {
@@ -543,6 +547,7 @@ contract RewardsManager is ReentrancyGuard {
 
     /**
      * @notice Set new MasterChef address
+     * @dev Can only be called by the owner
      * @param newAddress address of new MasterChef
      */
     function setMasterChef(address newAddress) external onlyOwner {
@@ -570,6 +575,7 @@ contract RewardsManager is ReentrancyGuard {
 
     /**
      * @notice Add rewards to contract
+     * @dev Can only be called by the owner
      * @param amount amount of tokens to add
      */
     function addRewardsBalance(uint256 amount) external onlyOwner {
@@ -586,11 +592,10 @@ contract RewardsManager is ReentrancyGuard {
 
     /**
      * @notice Change owner of vesting contract
+     * @dev Can only be called by the owner
      * @param newOwner New owner address
      */
-    function changeOwner(address newOwner) 
-        external onlyOwner
-    {
+    function changeOwner(address newOwner) external onlyOwner {
         require(newOwner != address(0) && newOwner != address(this), "RM::changeOwner: not valid address");
         emit ChangedOwner(owner, newOwner);
         owner = newOwner;
