@@ -297,6 +297,19 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "changeOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "staker",
         "type": "address"
       }
@@ -423,6 +436,32 @@
   },
   {
     "inputs": [],
+    "name": "lockManager",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "pendingProxyAdmin",
     "outputs": [
       {
@@ -526,6 +565,19 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "newLockManager",
+        "type": "address"
+      }
+    ],
+    "name": "setLockManager",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "newPendingAdmin",
         "type": "address"
       }
@@ -557,6 +609,19 @@
         "type": "bool"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "registry",
+        "type": "address"
+      }
+    ],
+    "name": "setTokenRegistry",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

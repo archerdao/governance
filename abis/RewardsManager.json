@@ -50,6 +50,12 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "string",
+        "name": "addressType",
+        "type": "string"
+      },
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "oldAddress",
         "type": "address"
@@ -224,6 +230,37 @@
       }
     ],
     "name": "PoolAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "pid",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldAllocPoints",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newAllocPoints",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newTotalAllocPoints",
+        "type": "uint256"
+      }
+    ],
+    "name": "PoolUpdated",
     "type": "event"
   },
   {
@@ -748,19 +785,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setVotingPowerContract",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "startBlock",
     "outputs": [
@@ -894,19 +918,6 @@
     "outputs": [
       {
         "internalType": "contract IVault",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "votingPower",
-    "outputs": [
-      {
-        "internalType": "contract IVotingPower",
         "name": "",
         "type": "address"
       }
