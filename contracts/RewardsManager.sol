@@ -353,7 +353,10 @@ contract RewardsManager is ReentrancyGuard {
 
         if (user.amount > 0) {
             uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
-            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
+
+            if (pendingRewards > 0) {
+                _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
+            }
 
             if (sushiPid != uint256(0)) {
                 masterChef.updatePool(sushiPid);
@@ -401,7 +404,10 @@ contract RewardsManager is ReentrancyGuard {
         updatePool(pid);
 
         uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
-        _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
+        
+        if (pendingRewards > 0) {
+            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
+        }
     
         if (sushiPid != uint256(0)) {
             masterChef.updatePool(sushiPid);
@@ -435,24 +441,25 @@ contract RewardsManager is ReentrancyGuard {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
 
-        uint256 sushiPid = sushiPools[address(pool.token)];
+        if (user.amount > 0) {
+            uint256 sushiPid = sushiPools[address(pool.token)];
+            if (sushiPid != uint256(0)) {
+                masterChef.withdraw(sushiPid, user.amount);
+            }
 
-        if (sushiPid != uint256(0)) {
-            masterChef.withdraw(sushiPid, user.amount);
+            if (pool.vpForDeposit) {
+                lockManager.removeVotingPower(msg.sender, address(pool.token), user.amount);
+            }
+
+            pool.totalStaked = pool.totalStaked.sub(user.amount);
+            pool.token.safeTransfer(msg.sender, user.amount);
+
+            emit EmergencyWithdraw(msg.sender, pid, user.amount);
+
+            user.amount = 0;
+            user.rewardTokenDebt = 0;
+            user.sushiRewardDebt = 0;
         }
-
-        if (pool.vpForDeposit) {
-            lockManager.removeVotingPower(msg.sender, address(pool.token), user.amount);
-        }
-
-        pool.totalStaked = pool.totalStaked.sub(user.amount);
-        pool.token.safeTransfer(msg.sender, user.amount);
-
-        emit EmergencyWithdraw(msg.sender, pid, user.amount);
-
-        user.amount = 0;
-        user.rewardTokenDebt = 0;
-        user.sushiRewardDebt = 0;
     }
 
     /**
