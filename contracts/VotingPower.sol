@@ -259,6 +259,7 @@ contract VotingPower is PrismProxyImplementation, ReentrancyGuardUpgradeSafe {
     function withdraw(address token, uint256 amount) external nonReentrant {
         require(amount > 0, "VP::withdraw: cannot withdraw 0");
         Stake memory s = getStake(msg.sender, token);
+        require(s.amount >= amount, "VP::withdraw: amount > staked amount");
         uint256 vpToWithdraw = amount.mul(s.votingPower).div(s.amount);
         _withdraw(msg.sender, token, amount, vpToWithdraw);
     }
