@@ -31,13 +31,13 @@ async function configureRewardsManager() {
         await ArchToken.connect(treasury).transfer(ADMIN_ADDRESS, INITIAL_ARCH_REWARDS_BALANCE);
         await ethers.provider.send('hardhat_stopImpersonatingAccount', [DAO_TREASURY_ADDRESS]);
         await deployer.sendTransaction({ to: ADMIN_ADDRESS, value: ethers.utils.parseEther("0.05")})
-        await VotingPowerPrism.setPendingProxyImplementation(VotingPowerImpDeployment.address);
-        await VotingPowerImp.become(VotingPowerPrism.address);
-        await VotingPower.changeOwner(DEPLOYER_ADDRESS)
-        await VotingPower.setLockManager(LockManager.address)
-        await VotingPower.setTokenRegistry(TokenRegistry.address)
-        await LockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), RewardsManager.address)
-        await LockManager.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), Vault.address)
+        await VotingPowerPrism.connect(admin).setPendingProxyImplementation(VotingPowerImpDeployment.address);
+        await VotingPowerImp.connect(admin).become(VotingPowerPrism.address);
+        await VotingPower.changeOwner(ADMIN_ADDRESS)
+        await VotingPower.connect(admin).setLockManager(LockManager.address)
+        await VotingPower.connect(admin).setTokenRegistry(TokenRegistry.address)
+        await LockManager.connect(admin).grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), RewardsManager.address)
+        await LockManager.connect(admin).grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")), Vault.address)
         await ArchToken.connect(admin).approve(RewardsManager.address, INITIAL_ARCH_REWARDS_BALANCE)
         await RewardsManager.connect(admin).addRewardsBalance(INITIAL_ARCH_REWARDS_BALANCE)
     } else {
