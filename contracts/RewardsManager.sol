@@ -278,7 +278,14 @@ contract RewardsManager is ReentrancyGuard {
             uint256 totalReward = multiplier.mul(rewardTokensPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
             accRewardsPerShare = accRewardsPerShare.add(totalReward.mul(1e12).div(tokenSupply));
         }
-        return user.amount.mul(accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
+
+        uint256 accumulatedRewards = user.amount.mul(accRewardsPerShare).div(1e12);
+        
+        if (accumulatedRewards < user.rewardTokenDebt) {
+            return 0;
+        }
+
+        return accumulatedRewards.sub(user.rewardTokenDebt);
     }
 
     /**
@@ -304,7 +311,15 @@ contract RewardsManager is ReentrancyGuard {
             uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(sushiPool.allocPoint).div(totalSushiAllocPoint);
             accSushiPerShare = accSushiPerShare.add(sushiReward.mul(1e12).div(lpSupply));
         }
-        return user.amount.mul(accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
+        
+        uint256 accumulatedSushi = user.amount.mul(accSushiPerShare).div(1e12);
+        
+        if (accumulatedSushi < user.sushiRewardDebt) {
+            return 0;
+        }
+
+        return accumulatedSushi.sub(user.sushiRewardDebt);
+        
     }
 
     /**
@@ -326,6 +341,7 @@ contract RewardsManager is ReentrancyGuard {
         if (block.number <= pool.lastRewardBlock) {
             return;
         }
+
         uint256 tokenSupply = pool.totalStaked;
         if (tokenSupply == 0) {
             pool.lastRewardBlock = block.number;
@@ -345,45 +361,31 @@ contract RewardsManager is ReentrancyGuard {
     function deposit(uint256 pid, uint256 amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
-        uint256 sushiPid = sushiPools[address(pool.token)];
+        _deposit(pid, amount, pool, user);
+    }
 
-        updatePool(pid);
-
-        uint256 pendingSushiTokens = 0;
-
-        if (user.amount > 0) {
-            uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
-
-            if (pendingRewards > 0) {
-                _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
-            }
-
-            if (sushiPid != uint256(0)) {
-                masterChef.updatePool(sushiPid);
-                pendingSushiTokens = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
-            }
-        }
-       
-        pool.token.safeTransferFrom(msg.sender, address(this), amount);
-        pool.totalStaked = pool.totalStaked.add(amount);
-
-        user.amount = user.amount.add(amount);
-        user.rewardTokenDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
-        if (sushiPid != uint256(0)) {
-            masterChef.updatePool(sushiPid);
-            user.sushiRewardDebt = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12);
-            masterChef.deposit(sushiPid, amount);
-        }
-
-        if (amount > 0 && pool.vpForDeposit) {
-            lockManager.grantVotingPower(msg.sender, address(pool.token), amount);
-        }
-
-        if (pendingSushiTokens > 0) {
-            _safeSushiTransfer(msg.sender, pendingSushiTokens);
-        }
-
-        emit Deposit(msg.sender, pid, amount);
+    /**
+     * @notice Deposit tokens to RewardsManager for rewards allocation, using permit for approval
+     * @dev It is up to the frontend developer to ensure the pool token implements permit - otherwise this will fail
+     * @param pid pool id
+     * @param amount number of tokens to deposit
+     * @param deadline The time at which to expire the signature
+     * @param v The recovery byte of the signature
+     * @param r Half of the ECDSA signature pair
+     * @param s Half of the ECDSA signature pair
+     */
+    function depositWithPermit(
+        uint256 pid, 
+        uint256 amount,
+        uint256 deadline, 
+        uint8 v, 
+        bytes32 r, 
+        bytes32 s
+    ) public nonReentrant {
+        PoolInfo storage pool = poolInfo[pid];
+        UserInfo storage user = userInfo[pid][msg.sender];
+        pool.token.permit(msg.sender, address(this), amount, deadline, v, r, s);
+        _deposit(pid, amount, pool, user);
     }
 
     /**
@@ -393,44 +395,9 @@ contract RewardsManager is ReentrancyGuard {
      */
     function withdraw(uint256 pid, uint256 amount) public nonReentrant {
         require(amount > 0, "RM::withdraw: amount must be > 0");
-        
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
-        require(user.amount >= amount, "RM::withdraw: amount > user balance");
-
-        uint256 sushiPid = sushiPools[address(pool.token)];
-        uint256 pendingSushiTokens = 0;
-
-        updatePool(pid);
-
-        uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
-        
-        if (pendingRewards > 0) {
-            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
-        }
-    
-        if (sushiPid != uint256(0)) {
-            masterChef.updatePool(sushiPid);
-            pendingSushiTokens = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
-            user.sushiRewardDebt = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12);
-            masterChef.withdraw(sushiPid, amount);
-        }
-        
-        user.amount = user.amount.sub(amount);
-        user.rewardTokenDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
-
-        if (pool.vpForDeposit) {
-            lockManager.removeVotingPower(msg.sender, address(pool.token), amount);
-        }
-
-        if (pendingSushiTokens > 0) {
-            _safeSushiTransfer(msg.sender, pendingSushiTokens);
-        }
-
-        pool.totalStaked = pool.totalStaked.sub(amount);
-        pool.token.safeTransfer(msg.sender, amount);
-
-        emit Withdraw(msg.sender, pid, amount);
+        _withdraw(pid, amount, pool, user);
     }
 
     /**
@@ -489,11 +456,13 @@ contract RewardsManager is ReentrancyGuard {
      * @param tokens the tokens to withdraw
      * @param amounts the amount of each token to withdraw.  If zero, withdraws the maximum allowed amount for each token
      * @param receiver the address that will receive the tokens
+     * @param updateRewardsEndBlock if true, update the rewards end block after performing transfers
      */
     function rescueTokens(
         address[] calldata tokens, 
         uint256[] calldata amounts, 
-        address receiver
+        address receiver,
+        bool updateRewardsEndBlock
     ) external onlyOwner {
         require(tokens.length == amounts.length, "RM::rescueTokens: not same length");
         for (uint i = 0; i < tokens.length; i++) {
@@ -513,9 +482,10 @@ contract RewardsManager is ReentrancyGuard {
                 withdrawalAmount = amounts[i];
             }
             token.safeTransferFrom(address(this), receiver, withdrawalAmount);
-            if (token == rewardToken) {
-                _setRewardsEndBlock();
-            }
+        }
+
+        if (updateRewardsEndBlock) {
+            _setRewardsEndBlock();
         }
     }
 
@@ -609,6 +579,106 @@ contract RewardsManager is ReentrancyGuard {
     }
 
     /**
+     * @notice Internal implementation of deposit
+     * @param pid pool id
+     * @param amount number of tokens to deposit
+     * @param pool the pool info
+     * @param user the user info 
+     */
+    function _deposit(
+        uint256 pid, 
+        uint256 amount, 
+        PoolInfo storage pool, 
+        UserInfo storage user
+    ) internal {
+        updatePool(pid);
+
+        uint256 sushiPid = sushiPools[address(pool.token)];
+        uint256 pendingSushiTokens = 0;
+
+        if (user.amount > 0) {
+            uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
+
+            if (pendingRewards > 0) {
+                _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
+            }
+
+            if (sushiPid != uint256(0)) {
+                masterChef.updatePool(sushiPid);
+                pendingSushiTokens = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
+            }
+        }
+       
+        pool.token.safeTransferFrom(msg.sender, address(this), amount);
+        pool.totalStaked = pool.totalStaked.add(amount);
+        user.amount = user.amount.add(amount);
+        user.rewardTokenDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
+
+        if (sushiPid != uint256(0)) {
+            masterChef.updatePool(sushiPid);
+            user.sushiRewardDebt = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12);
+            masterChef.deposit(sushiPid, amount);
+        }
+
+        if (amount > 0 && pool.vpForDeposit) {
+            lockManager.grantVotingPower(msg.sender, address(pool.token), amount);
+        }
+
+        if (pendingSushiTokens > 0) {
+            _safeSushiTransfer(msg.sender, pendingSushiTokens);
+        }
+
+        emit Deposit(msg.sender, pid, amount);
+    }
+
+    /**
+     * @notice Internal implementation of withdraw
+     * @param pid pool id
+     * @param amount number of tokens to withdraw
+     * @param pool the pool info
+     * @param user the user info 
+     */
+    function _withdraw(
+        uint256 pid, 
+        uint256 amount,
+        PoolInfo storage pool, 
+        UserInfo storage user
+    ) internal {
+        require(user.amount >= amount, "RM::_withdraw: amount > user balance");
+
+        updatePool(pid);
+
+        uint256 sushiPid = sushiPools[address(pool.token)];
+
+        if (sushiPid != uint256(0)) {
+            masterChef.updatePool(sushiPid);
+            uint256 pendingSushiTokens = user.amount.mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12).sub(user.sushiRewardDebt);
+            masterChef.withdraw(sushiPid, amount);
+            user.sushiRewardDebt = user.amount.sub(amount).mul(masterChef.poolInfo(sushiPid).accSushiPerShare).div(1e12);
+            if (pendingSushiTokens > 0) {
+                _safeSushiTransfer(msg.sender, pendingSushiTokens);
+            }
+        }
+
+        uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
+        user.amount = user.amount.sub(amount);
+        user.rewardTokenDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
+
+        if (pendingRewards > 0) {
+            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
+        }
+        
+        if (pool.vpForDeposit) {
+            lockManager.removeVotingPower(msg.sender, address(pool.token), amount);
+        }
+
+        pool.totalStaked = pool.totalStaked.sub(amount);
+        pool.token.safeTransfer(msg.sender, amount);
+
+        emit Withdraw(msg.sender, pid, amount);
+    }
+
+    /**
      * @notice Internal function used to distribute rewards, optionally vesting a %
      * @param account account that is due rewards
      * @param amount amount of rewards to distribute
@@ -627,7 +697,6 @@ contract RewardsManager is ReentrancyGuard {
         uint256 vestingRewards = rewardAmount.mul(vestingPercent).div(1000000);
         vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, vestingVotingPower);
         _safeRewardsTransfer(msg.sender, rewardAmount.sub(vestingRewards));
-        _setRewardsEndBlock();
     }
 
     /**

@@ -2,7 +2,6 @@
 pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./interfaces/IArchToken.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/ILockManager.sol";
 import "./lib/SafeMath.sol";
@@ -86,7 +85,8 @@ contract Vault {
     }
 
     /**
-     * @notice Lock tokens
+     * @notice Lock tokens, using permit for approval
+     * @dev It is up to the frontend developer to ensure the token implements permit - otherwise this will fail
      * @param token Address of token to lock
      * @param locker The account that is locking tokens
      * @param receiver The account that will be able to retrieve unlocked tokens
@@ -119,7 +119,7 @@ contract Vault {
         require(amount > 0, "Vault::lockTokensWithPermit: amount not > 0");
 
         // Set approval using permit signature
-        IArchToken(token).permit(locker, address(this), amount, deadline, v, r, s);
+        IERC20(token).permit(locker, address(this), amount, deadline, v, r, s);
         _lockTokens(token, locker, receiver, startTime, amount, lockDurationInDays, grantVotingPower);
     }
 

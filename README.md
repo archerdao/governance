@@ -20,6 +20,9 @@ The initial set of smart contracts deployed for Archer DAO:
 - Voting Power Implementation Contract
 - Multisend
 - Vault
+- Token Registry
+- Lock Manager
+- Rewards Manager
 
 
 ## ARCH Token

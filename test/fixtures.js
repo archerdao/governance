@@ -18,6 +18,7 @@ const DAO_TREASURY_ADDRESS = process.env.DAO_TREASURY_ADDRESS
 const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const INITIAL_ARCH_REWARDS_BALANCE = process.env.INITIAL_ARCH_REWARDS_BALANCE
 const ARCH_REWARDS_PER_BLOCK = process.env.ARCH_REWARDS_PER_BLOCK
+const TOKEN_LIQUIDITY = "100000000000000000000"
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 const tokenFixture = deployments.createFixture(async ({deployments, getNamedAccounts, getUnnamedAccounts, ethers}, options) => {
@@ -96,14 +97,18 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
     const ArchToken = new ethers.Contract(ARCH_TOKEN_ADDRESS, ARCH_ABI, deployer)
     await deployer.sendTransaction({ to: DAO_TREASURY_ADDRESS, value: ethers.utils.parseEther("0.5")})
     await ArchToken.connect(treasury).transfer(ADMIN_ADDRESS, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE))
-    await ArchToken.connect(treasury).transfer(deployer.address, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE))
+    await ArchToken.connect(treasury).transfer(deployer.address, ethers.BigNumber.from(TOKEN_LIQUIDITY))
+    await ArchToken.connect(treasury).transfer(alice.address, ethers.BigNumber.from(TOKEN_LIQUIDITY))
+    await ArchToken.connect(treasury).transfer(bob.address, ethers.BigNumber.from(TOKEN_LIQUIDITY))
+    await deployer.sendTransaction({ to: ADMIN_ADDRESS, value: ethers.utils.parseEther("1.0")})
+    await deployer.sendTransaction({ to: alice.address, value: ethers.utils.parseEther("1.0")})
+    await deployer.sendTransaction({ to: bob.address, value: ethers.utils.parseEther("1.0")})
     await ethers.provider.send('hardhat_stopImpersonatingAccount', [DAO_TREASURY_ADDRESS]);
     await ethers.provider.send('hardhat_impersonateAccount', [ADMIN_ADDRESS]);
     
     const VotingPower = new ethers.Contract(VOTING_POWER_ADDRESS, VOTING_POWER_ABI, deployer)
     const VotingPowerFactory = await ethers.getContractFactory("VotingPower");
     const VotingPowerImp = await VotingPowerFactory.deploy();
-    await deployer.sendTransaction({ to: ADMIN_ADDRESS, value: ethers.utils.parseEther("1.0")})
     await VotingPower.connect(admin).setPendingProxyImplementation(VotingPowerImp.address)
     await VotingPowerImp.connect(admin).become(VotingPower.address)
 
