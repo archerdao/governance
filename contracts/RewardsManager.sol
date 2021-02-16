@@ -200,7 +200,7 @@ contract RewardsManager is ReentrancyGuard {
         uint256 sushiPid,
         bool vpForDeposit,
         bool vpForVesting
-    ) public onlyOwner {
+    ) external onlyOwner {
         if (withUpdate) {
             massUpdatePools();
         }
@@ -235,7 +235,11 @@ contract RewardsManager is ReentrancyGuard {
      * @param allocPoint New number of allocation points for pool
      * @param withUpdate if specified, update all pools before setting allocation points
      */
-    function set(uint256 pid, uint256 allocPoint, bool withUpdate) public onlyOwner {
+    function set(
+        uint256 pid, 
+        uint256 allocPoint, 
+        bool withUpdate
+    ) external onlyOwner {
         if (withUpdate) {
             massUpdatePools();
         }
@@ -358,7 +362,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param pid pool id
      * @param amount number of tokens to deposit
      */
-    function deposit(uint256 pid, uint256 amount) public nonReentrant {
+    function deposit(uint256 pid, uint256 amount) external nonReentrant {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
         _deposit(pid, amount, pool, user);
@@ -381,7 +385,7 @@ contract RewardsManager is ReentrancyGuard {
         uint8 v, 
         bytes32 r, 
         bytes32 s
-    ) public nonReentrant {
+    ) external nonReentrant {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
         pool.token.permit(msg.sender, address(this), amount, deadline, v, r, s);
@@ -393,7 +397,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param pid pool id
      * @param amount number of tokens to withdraw
      */
-    function withdraw(uint256 pid, uint256 amount) public nonReentrant {
+    function withdraw(uint256 pid, uint256 amount) external nonReentrant {
         require(amount > 0, "RM::withdraw: amount must be > 0");
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
@@ -404,7 +408,7 @@ contract RewardsManager is ReentrancyGuard {
      * @notice Withdraw without caring about rewards. EMERGENCY ONLY.
      * @param pid pool id
      */
-    function emergencyWithdraw(uint256 pid) public nonReentrant {
+    function emergencyWithdraw(uint256 pid) external nonReentrant {
         PoolInfo storage pool = poolInfo[pid];
         UserInfo storage user = userInfo[pid][msg.sender];
 

@@ -496,9 +496,9 @@ describe('RewardsManager', () => {
             let alicePendingSushi = await rewardsManager.pendingSushi(0, alice.address)
             let bobPendingRewards = await rewardsManager.pendingRewardTokens(0, bob.address)
             let bobPendingSushi = await rewardsManager.pendingSushi(0, bob.address)
+            
             await rewardsManager.withdraw(poolIndex, deployerSlpBalance)
-            // TODO: calculate exact amount of sushi contract should have
-            // expect(await sushiToken.balanceOf(rewardsManager.address)).to.eq(0)
+            
             let rmSushiBalanceAfter = await sushiToken.balanceOf(rewardsManager.address)
             const deployerArchBalanceAfter = await archToken.balanceOf(deployer.address)
             let vaultArchBalanceAfter = await archToken.balanceOf(vault.address)
@@ -517,10 +517,8 @@ describe('RewardsManager', () => {
             bobPendingRewards = await rewardsManager.pendingRewardTokens(0, bob.address)
             bobPendingSushi = await rewardsManager.pendingSushi(0, bob.address)
 
-
             await rewardsManager.connect(alice).withdraw(poolIndex, aliceSlpBalance)
-            // TODO: calculate exact amount of sushi contract should have
-            // expect(await sushiToken.balanceOf(rewardsManager.address)).to.eq(0)
+
             rmSushiBalanceAfter = await sushiToken.balanceOf(rewardsManager.address)
             const aliceArchBalanceAfter = await archToken.balanceOf(alice.address)
             vaultArchBalance = vaultArchBalanceAfter
