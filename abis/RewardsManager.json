@@ -324,6 +324,11 @@
         "type": "uint16"
       },
       {
+        "internalType": "uint16",
+        "name": "vestingCliff",
+        "type": "uint16"
+      },
+      {
         "internalType": "bool",
         "name": "withUpdate",
         "type": "bool"
@@ -613,6 +618,11 @@
       {
         "internalType": "uint16",
         "name": "vestingPeriod",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "vestingCliff",
         "type": "uint16"
       },
       {

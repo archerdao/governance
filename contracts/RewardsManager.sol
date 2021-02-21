@@ -46,6 +46,7 @@ contract RewardsManager is ReentrancyGuard {
         uint256 accRewardsPerShare; // Accumulated reward tokens per share, times 1e12. See below.
         uint32 vestingPercent;      // Percentage of rewards that vest (measured in bips: 500,000 bips = 50% of rewards)
         uint16 vestingPeriod;       // Vesting period in days for vesting rewards
+        uint16 vestingCliff;        // Vesting cliff in days for vesting rewards
         uint256 totalStaked;        // Total amount of token staked via Rewards Manager
         bool vpForDeposit;          // Do users get voting power for deposits of this token?
         bool vpForVesting;          // Do users get voting power for vesting balances?
@@ -186,6 +187,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param token The token that will be staked for rewards
      * @param vestingPercent The percentage of rewards from this pool that will vest
      * @param vestingPeriod The number of days for the vesting period
+     * @param vestingCliff The number of days for the vesting cliff
      * @param withUpdate if specified, update all pools before adding new pool
      * @param sushiPid The pid of the Sushiswap pool in the Masterchef contract (if exists, otherwise provide zero)
      * @param vpForDeposit If true, users get voting power for deposits
@@ -196,6 +198,7 @@ contract RewardsManager is ReentrancyGuard {
         address token,
         uint32 vestingPercent,
         uint16 vestingPeriod,
+        uint16 vestingCliff,
         bool withUpdate,
         uint256 sushiPid,
         bool vpForDeposit,
@@ -216,6 +219,7 @@ contract RewardsManager is ReentrancyGuard {
             accRewardsPerShare: 0,
             vestingPercent: vestingPercent,
             vestingPeriod: vestingPeriod,
+            vestingCliff: vestingCliff,
             totalStaked: 0,
             vpForDeposit: vpForDeposit,
             vpForVesting: vpForVesting
@@ -604,7 +608,7 @@ contract RewardsManager is ReentrancyGuard {
             uint256 pendingRewards = user.amount.mul(pool.accRewardsPerShare).div(1e12).sub(user.rewardTokenDebt);
 
             if (pendingRewards > 0) {
-                _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
+                _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vestingCliff, pool.vpForVesting);
             }
 
             if (sushiPid != uint256(0)) {
@@ -669,7 +673,7 @@ contract RewardsManager is ReentrancyGuard {
         user.rewardTokenDebt = user.amount.mul(pool.accRewardsPerShare).div(1e12);
 
         if (pendingRewards > 0) {
-            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vpForVesting);
+            _distributeRewards(msg.sender, pendingRewards, pool.vestingPercent, pool.vestingPeriod, pool.vestingCliff, pool.vpForVesting);
         }
         
         if (pool.vpForDeposit) {
@@ -688,6 +692,7 @@ contract RewardsManager is ReentrancyGuard {
      * @param amount amount of rewards to distribute
      * @param vestingPercent percent of rewards to vest in bips
      * @param vestingPeriod number of days over which to vest rewards
+     * @param vestingCliff number of days for vesting cliff
      * @param vestingVotingPower if true, grant voting power for vesting balance
      */
     function _distributeRewards(
@@ -695,11 +700,12 @@ contract RewardsManager is ReentrancyGuard {
         uint256 amount, 
         uint32 vestingPercent, 
         uint16 vestingPeriod, 
+        uint16 vestingCliff,
         bool vestingVotingPower
     ) internal {
         uint256 rewardAmount = amount > rewardToken.balanceOf(address(this)) ? rewardToken.balanceOf(address(this)) : amount;
         uint256 vestingRewards = rewardAmount.mul(vestingPercent).div(1000000);
-        vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, vestingVotingPower);
+        vault.lockTokens(address(rewardToken), address(this), account, 0, vestingRewards, vestingPeriod, vestingCliff, vestingVotingPower);
         _safeRewardsTransfer(msg.sender, rewardAmount.sub(vestingRewards));
     }
 

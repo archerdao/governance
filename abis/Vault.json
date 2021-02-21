@@ -39,14 +39,20 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint48",
         "name": "startTime",
-        "type": "uint256"
+        "type": "uint48"
       },
       {
         "indexed": false,
         "internalType": "uint16",
         "name": "durationInDays",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "cliffInDays",
         "type": "uint16"
       },
       {
@@ -64,6 +70,12 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "lockId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
         "internalType": "uint16",
         "name": "oldDuration",
         "type": "uint16"
@@ -76,15 +88,21 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "startTime",
-        "type": "uint256"
+        "internalType": "uint16",
+        "name": "oldCliff",
+        "type": "uint16"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "lockId",
-        "type": "uint256"
+        "internalType": "uint16",
+        "name": "newCliff",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint48",
+        "name": "startTime",
+        "type": "uint48"
       }
     ],
     "name": "LockExtended",
@@ -108,13 +126,13 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "amountClaimed",
+        "name": "lockId",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "lockId",
+        "name": "amountClaimed",
         "type": "uint256"
       }
     ],
@@ -125,103 +143,108 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "receiver",
         "type": "address"
-      },
+      }
+    ],
+    "name": "activeLockBalances",
+    "outputs": [
       {
-        "internalType": "uint256",
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "claimableAmount",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+              },
+              {
+                "internalType": "uint48",
+                "name": "startTime",
+                "type": "uint48"
+              },
+              {
+                "internalType": "uint16",
+                "name": "vestingDurationInDays",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint16",
+                "name": "cliffDurationInDays",
+                "type": "uint16"
+              },
+              {
+                "internalType": "bool",
+                "name": "hasVotingPower",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountClaimed",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Vault.Lock",
+            "name": "lock",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct Vault.ActiveLockBalance[]",
         "name": "",
-        "type": "uint256"
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      }
+    ],
+    "name": "activeLockIds",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
       }
     ],
     "name": "activeLocks",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "lockIds",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "claimAllUnlockedTokens",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "lockIds",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "amounts",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "claimUnlockedTokens",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "lockId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "daysToAdd",
-        "type": "uint16"
-      }
-    ],
-    "name": "extendLock",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      }
-    ],
-    "name": "getActiveLocks",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      }
-    ],
-    "name": "getAllActiveLocks",
     "outputs": [
       {
         "components": [
@@ -236,9 +259,24 @@
             "type": "address"
           },
           {
-            "internalType": "uint256",
+            "internalType": "uint48",
             "name": "startTime",
-            "type": "uint256"
+            "type": "uint48"
+          },
+          {
+            "internalType": "uint16",
+            "name": "vestingDurationInDays",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "cliffDurationInDays",
+            "type": "uint16"
+          },
+          {
+            "internalType": "bool",
+            "name": "hasVotingPower",
+            "type": "bool"
           },
           {
             "internalType": "uint256",
@@ -246,24 +284,161 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint16",
-            "name": "duration",
-            "type": "uint16"
-          },
-          {
             "internalType": "uint256",
             "name": "amountClaimed",
             "type": "uint256"
+          }
+        ],
+        "internalType": "struct Vault.Lock[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "allActiveLockIds",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      }
+    ],
+    "name": "allLocks",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "uint48",
+            "name": "startTime",
+            "type": "uint48"
+          },
+          {
+            "internalType": "uint16",
+            "name": "vestingDurationInDays",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "cliffDurationInDays",
+            "type": "uint16"
           },
           {
             "internalType": "bool",
             "name": "hasVotingPower",
             "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountClaimed",
+            "type": "uint256"
           }
         ],
         "internalType": "struct Vault.Lock[]",
-        "name": "receiverLocks",
+        "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "locks",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "claimAllUnlockedTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "locks",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "claimUnlockedTokenAmounts",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "lockId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "vestingDaysToAdd",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "cliffDaysToAdd",
+        "type": "uint16"
+      }
+    ],
+    "name": "extendLock",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "lockId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getClaimableBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -301,67 +476,28 @@
         "type": "address"
       }
     ],
-    "name": "getLockedTokenBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "lockedBalance",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "lockId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getTokenLock",
+    "name": "getTokenBalance",
     "outputs": [
       {
         "components": [
           {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "receiver",
-            "type": "address"
-          },
-          {
             "internalType": "uint256",
-            "name": "startTime",
+            "name": "totalAmount",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "claimableAmount",
             "type": "uint256"
-          },
-          {
-            "internalType": "uint16",
-            "name": "duration",
-            "type": "uint16"
           },
           {
             "internalType": "uint256",
-            "name": "amountClaimed",
+            "name": "claimedAmount",
             "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "hasVotingPower",
-            "type": "bool"
           }
         ],
-        "internalType": "struct Vault.Lock",
-        "name": "",
+        "internalType": "struct Vault.TokenBalance",
+        "name": "balance",
         "type": "tuple"
       }
     ],
@@ -371,40 +507,21 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "lockId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getUnlockedBalance",
-    "outputs": [
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      }
-    ],
-    "name": "getUnlockedTokenBalance",
+    "name": "lockIds",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "unlockedBalance",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -442,9 +559,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint48",
         "name": "startTime",
-        "type": "uint256"
+        "type": "uint48"
       },
       {
         "internalType": "uint256",
@@ -453,7 +570,12 @@
       },
       {
         "internalType": "uint16",
-        "name": "lockDurationInDays",
+        "name": "vestingDurationInDays",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "cliffDurationInDays",
         "type": "uint16"
       },
       {
@@ -485,9 +607,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint48",
         "name": "startTime",
-        "type": "uint256"
+        "type": "uint48"
       },
       {
         "internalType": "uint256",
@@ -496,7 +618,12 @@
       },
       {
         "internalType": "uint16",
-        "name": "lockDurationInDays",
+        "name": "vestingDurationInDays",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "cliffDurationInDays",
         "type": "uint16"
       },
       {
@@ -564,9 +691,24 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint48",
         "name": "startTime",
-        "type": "uint256"
+        "type": "uint48"
+      },
+      {
+        "internalType": "uint16",
+        "name": "vestingDurationInDays",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "cliffDurationInDays",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasVotingPower",
+        "type": "bool"
       },
       {
         "internalType": "uint256",
@@ -574,19 +716,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16",
-        "name": "duration",
-        "type": "uint16"
-      },
-      {
         "internalType": "uint256",
         "name": "amountClaimed",
         "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "hasVotingPower",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
