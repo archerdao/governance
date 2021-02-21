@@ -173,6 +173,49 @@ contract Vault {
     }
 
     /**
+     * @notice Get all active token locks
+     * @return the locks
+     */
+    function allActiveLocks() public view returns(Lock[] memory){
+        uint256 activeCount;
+        for (uint256 i; i < numLocks; i++) {
+            Lock memory lock = tokenLocks[i];
+            if(lock.amount != lock.amountClaimed) {
+                activeCount++;
+            }
+        }
+
+        Lock[] memory result = new Lock[](activeCount);
+        uint256 j;
+
+        for (uint256 i; i < numLocks; i++) {
+            Lock memory lock = tokenLocks[i];
+            if(lock.amount != lock.amountClaimed) {
+                result[j] = lock;
+                j++;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @notice Get all active token lock balances
+     * @return the active lock balances
+     */
+    function allActiveLockBalances() public view returns(ActiveLockBalance[] memory){
+        uint256[] memory totalActiveLockIds = allActiveLockIds();
+        ActiveLockBalance[] memory result = new ActiveLockBalance[](totalActiveLockIds.length);
+        for (uint256 i; i < totalActiveLockIds.length; i++) {
+            ActiveLockBalance memory balance;
+            balance.id = totalActiveLockIds[i];
+            balance.lock = tokenLocks[totalActiveLockIds[i]];
+            balance.claimableAmount = getClaimableBalance(totalActiveLockIds[i]);
+            result[i] = balance;
+        }
+        return result;
+    }
+
+    /**
      * @notice Get all active token lock ids for receiver
      * @param receiver The address that has locked balances
      * @return the active lock ids
@@ -229,7 +272,7 @@ contract Vault {
     }
 
     /**
-     * @notice Get all active token locks for receiver
+     * @notice Get all active token lock balances for receiver
      * @param receiver The address that has locked balances
      * @return the active lock balances
      */
@@ -246,12 +289,11 @@ contract Vault {
         return result;
     }
 
-
      /**
      * @notice Get total claimable token balance of receiver
      * @param token The token to check
      * @param receiver The address that has unlocked balances
-     * @return balance the total active balance of `token` for `recipient`
+     * @return balance the total active balance of `token` for `receiver`
      */
     function getTokenBalance(address token, address receiver) public view returns(TokenBalance memory balance){
         Lock[] memory locks = activeLocks(receiver);

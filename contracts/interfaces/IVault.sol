@@ -33,6 +33,8 @@ interface IVault {
     function claimAllUnlockedTokens(uint256[] memory lockIds) external;
     function tokenLocks(uint256 lockId) external view returns(Lock memory);
     function allActiveLockIds() external view returns(uint256[] memory);
+    function allActiveLocks() external view returns(Lock[] memory);
+    function allActiveLockBalances() external view returns(ActiveLockBalance[] memory);
     function activeLockIds(address receiver) external view returns(uint256[] memory);
     function allLocks(address receiver) external view returns(Lock[] memory);
     function activeLocks(address receiver) external view returns(Lock[] memory);
