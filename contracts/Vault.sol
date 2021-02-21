@@ -32,7 +32,7 @@ contract Vault {
     }
 
     /// @notice Active Lock balance definition
-    struct ActiveLockBalance {
+    struct LockBalance {
         uint256 id;
         uint256 claimableAmount;
         Lock lock;
@@ -202,15 +202,11 @@ contract Vault {
      * @notice Get all active token lock balances
      * @return the active lock balances
      */
-    function allActiveLockBalances() public view returns(ActiveLockBalance[] memory){
+    function allActiveLockBalances() public view returns(LockBalance[] memory){
         uint256[] memory totalActiveLockIds = allActiveLockIds();
-        ActiveLockBalance[] memory result = new ActiveLockBalance[](totalActiveLockIds.length);
+        LockBalance[] memory result = new LockBalance[](totalActiveLockIds.length);
         for (uint256 i; i < totalActiveLockIds.length; i++) {
-            ActiveLockBalance memory balance;
-            balance.id = totalActiveLockIds[i];
-            balance.lock = tokenLocks[totalActiveLockIds[i]];
-            balance.claimableAmount = claimableBalance(totalActiveLockIds[i]);
-            result[i] = balance;
+            result[i] = lockBalance(totalActiveLockIds[i]);
         }
         return result;
     }
@@ -276,15 +272,11 @@ contract Vault {
      * @param receiver The address that has locked balances
      * @return the active lock balances
      */
-    function activeLockBalances(address receiver) public view returns(ActiveLockBalance[] memory){
+    function activeLockBalances(address receiver) public view returns(LockBalance[] memory){
         uint256[] memory receiverActiveLockIds = activeLockIds(receiver);
-        ActiveLockBalance[] memory result = new ActiveLockBalance[](receiverActiveLockIds.length);
+        LockBalance[] memory result = new LockBalance[](receiverActiveLockIds.length);
         for (uint256 i; i < receiverActiveLockIds.length; i++) {
-            ActiveLockBalance memory balance;
-            balance.id = receiverActiveLockIds[i];
-            balance.lock = tokenLocks[receiverActiveLockIds[i]];
-            balance.claimableAmount = claimableBalance(receiverActiveLockIds[i]);
-            result[i] = balance;
+            result[i] = lockBalance(receiverActiveLockIds[i]);
         }
         return result;
     }
@@ -357,31 +349,14 @@ contract Vault {
     }
 
     /**
-     * @notice Get locked balance for a given lock id
-     * @dev Returns 0 if duration has ended
+     * @notice Get lock balance for a given lock id
      * @param lockId The lock ID
-     * @return The amount that is locked
+     * @return balance the lock balance
      */
-    function lockedBalance(uint256 lockId) public view returns (uint256) {
-        Lock storage lock = tokenLocks[lockId];
-
-        if (block.timestamp <= lock.startTime) {
-            return lock.amount;
-        }
-
-        uint256 elapsedTime = block.timestamp.sub(lock.startTime);
-        uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
-        
-        if (elapsedDays >= lock.vestingDurationInDays) {
-            return 0;
-        } else if (elapsedDays < lock.cliffDurationInDays) {
-            return lock.amount;
-        } else {
-            uint256 vestingDurationInSecs = uint256(lock.vestingDurationInDays).mul(SECONDS_PER_DAY);
-            uint256 vestingAmountPerSec = lock.amount.div(vestingDurationInSecs);
-            uint256 amountVested = vestingAmountPerSec.mul(elapsedTime);
-            return lock.amount.sub(amountVested);
-        }
+    function lockBalance(uint256 lockId) public view returns (LockBalance memory balance) {
+        balance.id = lockId;
+        balance.lock = tokenLocks[lockId];
+        balance.claimableAmount = claimableBalance(lockId);
     }
 
     /**

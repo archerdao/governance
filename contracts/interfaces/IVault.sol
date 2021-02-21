@@ -15,7 +15,7 @@ interface IVault {
         uint256 amountClaimed;
     }
 
-    struct ActiveLockBalance {
+    struct LockBalance {
         uint256 id;
         uint256 claimableAmount;
         Lock lock;
@@ -34,14 +34,14 @@ interface IVault {
     function tokenLocks(uint256 lockId) external view returns(Lock memory);
     function allActiveLockIds() external view returns(uint256[] memory);
     function allActiveLocks() external view returns(Lock[] memory);
-    function allActiveLockBalances() external view returns(ActiveLockBalance[] memory);
+    function allActiveLockBalances() external view returns(LockBalance[] memory);
     function activeLockIds(address receiver) external view returns(uint256[] memory);
     function allLocks(address receiver) external view returns(Lock[] memory);
     function activeLocks(address receiver) external view returns(Lock[] memory);
-    function activeLockBalances(address receiver) external view returns(ActiveLockBalance[] memory);
+    function activeLockBalances(address receiver) external view returns(LockBalance[] memory);
     function totalTokenBalance(address token) external view returns(TokenBalance memory balance);
     function tokenBalance(address token, address receiver) external view returns(TokenBalance memory balance);
-    function lockedBalance(uint256 lockId) external view returns (uint256);
+    function lockBalance(uint256 lockId) external view returns (LockBalance memory);
     function claimableBalance(uint256 lockId) external view returns (uint256);
     function extendLock(uint256 lockId, uint16 vestingDaysToAdd, uint16 cliffDaysToAdd) external;
 } 
