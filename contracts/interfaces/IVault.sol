@@ -39,8 +39,9 @@ interface IVault {
     function allLocks(address receiver) external view returns(Lock[] memory);
     function activeLocks(address receiver) external view returns(Lock[] memory);
     function activeLockBalances(address receiver) external view returns(ActiveLockBalance[] memory);
-    function getTokenBalance(address token, address receiver) external view returns(TokenBalance memory balance);
-    function getLockedBalance(uint256 lockId) external view returns (uint256);
-    function getClaimableBalance(uint256 lockId) external view returns (uint256);
+    function totalTokenBalance(address token) external view returns(TokenBalance memory balance);
+    function tokenBalance(address token, address receiver) external view returns(TokenBalance memory balance);
+    function lockedBalance(uint256 lockId) external view returns (uint256);
+    function claimableBalance(uint256 lockId) external view returns (uint256);
     function extendLock(uint256 lockId, uint16 vestingDaysToAdd, uint16 cliffDaysToAdd) external;
 } 

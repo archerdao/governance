@@ -209,7 +209,7 @@ contract Vault {
             ActiveLockBalance memory balance;
             balance.id = totalActiveLockIds[i];
             balance.lock = tokenLocks[totalActiveLockIds[i]];
-            balance.claimableAmount = getClaimableBalance(totalActiveLockIds[i]);
+            balance.claimableAmount = claimableBalance(totalActiveLockIds[i]);
             result[i] = balance;
         }
         return result;
@@ -283,26 +283,59 @@ contract Vault {
             ActiveLockBalance memory balance;
             balance.id = receiverActiveLockIds[i];
             balance.lock = tokenLocks[receiverActiveLockIds[i]];
-            balance.claimableAmount = getClaimableBalance(receiverActiveLockIds[i]);
+            balance.claimableAmount = claimableBalance(receiverActiveLockIds[i]);
             result[i] = balance;
         }
         return result;
     }
 
-     /**
-     * @notice Get total claimable token balance of receiver
+    /**
+     * @notice Get total token balance
+     * @param token The token to check
+     * @return balance the total active balance of `token`
+     */
+    function totalTokenBalance(address token) public view returns(TokenBalance memory balance){
+        Lock[] memory locks = allActiveLocks();
+        for (uint256 i; i < locks.length; i++) {
+            if(locks[i].token == token){
+                balance.totalAmount = balance.totalAmount.add(locks[i].amount);
+                if(block.timestamp > locks[i].startTime) {
+                    balance.claimedAmount = balance.claimedAmount.add(locks[i].amountClaimed);
+
+                    uint256 elapsedTime = block.timestamp.sub(locks[i].startTime);
+                    uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
+
+                    if (
+                        elapsedDays >= locks[i].cliffDurationInDays
+                    ) {
+                        if (elapsedDays >= locks[i].vestingDurationInDays) {
+                            balance.claimableAmount = balance.claimableAmount.add(locks[i].amount).sub(locks[i].amountClaimed);
+                        } else {
+                            uint256 vestingDurationInSecs = uint256(locks[i].vestingDurationInDays).mul(SECONDS_PER_DAY);
+                            uint256 vestingAmountPerSec = locks[i].amount.div(vestingDurationInSecs);
+                            uint256 amountVested = vestingAmountPerSec.mul(elapsedTime);
+                            balance.claimableAmount = balance.claimableAmount.add(amountVested.sub(locks[i].amountClaimed));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @notice Get token balance of receiver
      * @param token The token to check
      * @param receiver The address that has unlocked balances
      * @return balance the total active balance of `token` for `receiver`
      */
-    function getTokenBalance(address token, address receiver) public view returns(TokenBalance memory balance){
+    function tokenBalance(address token, address receiver) public view returns(TokenBalance memory balance){
         Lock[] memory locks = activeLocks(receiver);
         for (uint256 i; i < locks.length; i++) {
             if(locks[i].token == token){
                 balance.totalAmount = balance.totalAmount.add(locks[i].amount);
-                balance.claimedAmount = balance.claimedAmount.add(locks[i].amountClaimed);
                 if(block.timestamp > locks[i].startTime) {
-                    // Check if duration was reached
+                    balance.claimedAmount = balance.claimedAmount.add(locks[i].amountClaimed);
+
                     uint256 elapsedTime = block.timestamp.sub(locks[i].startTime);
                     uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
 
@@ -329,14 +362,13 @@ contract Vault {
      * @param lockId The lock ID
      * @return The amount that is locked
      */
-    function getLockedBalance(uint256 lockId) public view returns (uint256) {
+    function lockedBalance(uint256 lockId) public view returns (uint256) {
         Lock storage lock = tokenLocks[lockId];
 
         if (block.timestamp <= lock.startTime) {
             return lock.amount;
         }
 
-        // Check duration was reached
         uint256 elapsedTime = block.timestamp.sub(lock.startTime);
         uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
         
@@ -358,7 +390,7 @@ contract Vault {
      * @param lockId The lock ID
      * @return The amount that can be claimed
      */
-    function getClaimableBalance(uint256 lockId) public view returns (uint256) {
+    function claimableBalance(uint256 lockId) public view returns (uint256) {
         Lock storage lock = tokenLocks[lockId];
 
         // For locks created with a future start date, that hasn't been reached, return 0
@@ -366,7 +398,6 @@ contract Vault {
             return 0;
         }
 
-        // Check duration was reached
         uint256 elapsedTime = block.timestamp.sub(lock.startTime);
         uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
         
@@ -387,12 +418,12 @@ contract Vault {
     /**
      * @notice Allows receiver to claim all of their unlocked tokens for a set of locks
      * @dev Errors if no tokens are unlocked
-     * @dev It is advised receivers check they are entitled to claim via `getClaimableBalance` before calling this
+     * @dev It is advised receivers check they are entitled to claim via `claimableBalance` before calling this
      * @param locks The lock ids for unlocked token balances
      */
     function claimAllUnlockedTokens(uint256[] memory locks) external {
         for (uint i = 0; i < locks.length; i++) {
-            uint256 claimableAmount = getClaimableBalance(locks[i]);
+            uint256 claimableAmount = claimableBalance(locks[i]);
             require(claimableAmount > 0, "Vault::claimAllUnlockedTokens: claimableAmount is 0");
 
             Lock storage lock = tokenLocks[locks[i]];
@@ -407,14 +438,14 @@ contract Vault {
     /**
      * @notice Allows receiver to claim a portion of their unlocked tokens for a given lock
      * @dev Errors if no tokens are unlocked
-     * @dev It is advised receivers check they are entitled to claim via `getClaimableBalance` before calling this
+     * @dev It is advised receivers check they are entitled to claim via `claimableBalance` before calling this
      * @param locks The lock ids for unlocked token balances
      * @param amounts The amount of each unlocked token to claim
      */
     function claimUnlockedTokenAmounts(uint256[] memory locks, uint256[] memory amounts) external {
         require(locks.length == amounts.length, "Vault::claimUnlockedTokenAmounts: arrays must be same length");
         for (uint i = 0; i < locks.length; i++) {
-            uint256 claimableAmount = getClaimableBalance(locks[i]);
+            uint256 claimableAmount = claimableBalance(locks[i]);
             require(claimableAmount >= amounts[i], "Vault::claimUnlockedTokenAmounts: claimableAmount < amount");
 
             Lock storage lock = tokenLocks[locks[i]];
