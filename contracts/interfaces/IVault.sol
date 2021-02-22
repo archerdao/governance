@@ -10,9 +10,9 @@ interface IVault {
         uint48 startTime;
         uint16 vestingDurationInDays;
         uint16 cliffDurationInDays;
-        bool hasVotingPower;
         uint256 amount;
         uint256 amountClaimed;
+        uint256 votingPower;
     }
 
     struct LockBalance {
@@ -25,6 +25,7 @@ interface IVault {
         uint256 totalAmount;
         uint256 claimableAmount;
         uint256 claimedAmount;
+        uint256 votingPower;
     }
 
     function lockTokens(address token, address locker, address receiver, uint48 startTime, uint256 amount, uint16 lockDurationInDays, uint16 cliffDurationInDays, bool grantVotingPower) external;

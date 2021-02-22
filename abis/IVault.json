@@ -49,11 +49,6 @@
                 "type": "uint16"
               },
               {
-                "internalType": "bool",
-                "name": "hasVotingPower",
-                "type": "bool"
-              },
-              {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -61,6 +56,11 @@
               {
                 "internalType": "uint256",
                 "name": "amountClaimed",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "votingPower",
                 "type": "uint256"
               }
             ],
@@ -134,11 +134,6 @@
             "type": "uint16"
           },
           {
-            "internalType": "bool",
-            "name": "hasVotingPower",
-            "type": "bool"
-          },
-          {
             "internalType": "uint256",
             "name": "amount",
             "type": "uint256"
@@ -146,6 +141,11 @@
           {
             "internalType": "uint256",
             "name": "amountClaimed",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "votingPower",
             "type": "uint256"
           }
         ],
@@ -201,11 +201,6 @@
                 "type": "uint16"
               },
               {
-                "internalType": "bool",
-                "name": "hasVotingPower",
-                "type": "bool"
-              },
-              {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -213,6 +208,11 @@
               {
                 "internalType": "uint256",
                 "name": "amountClaimed",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "votingPower",
                 "type": "uint256"
               }
             ],
@@ -274,11 +274,6 @@
             "type": "uint16"
           },
           {
-            "internalType": "bool",
-            "name": "hasVotingPower",
-            "type": "bool"
-          },
-          {
             "internalType": "uint256",
             "name": "amount",
             "type": "uint256"
@@ -286,6 +281,11 @@
           {
             "internalType": "uint256",
             "name": "amountClaimed",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "votingPower",
             "type": "uint256"
           }
         ],
@@ -335,11 +335,6 @@
             "type": "uint16"
           },
           {
-            "internalType": "bool",
-            "name": "hasVotingPower",
-            "type": "bool"
-          },
-          {
             "internalType": "uint256",
             "name": "amount",
             "type": "uint256"
@@ -347,6 +342,11 @@
           {
             "internalType": "uint256",
             "name": "amountClaimed",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "votingPower",
             "type": "uint256"
           }
         ],
@@ -481,11 +481,6 @@
                 "type": "uint16"
               },
               {
-                "internalType": "bool",
-                "name": "hasVotingPower",
-                "type": "bool"
-              },
-              {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -493,6 +488,11 @@
               {
                 "internalType": "uint256",
                 "name": "amountClaimed",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "votingPower",
                 "type": "uint256"
               }
             ],
@@ -656,6 +656,11 @@
             "internalType": "uint256",
             "name": "claimedAmount",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "votingPower",
+            "type": "uint256"
           }
         ],
         "internalType": "struct IVault.TokenBalance",
@@ -704,11 +709,6 @@
             "type": "uint16"
           },
           {
-            "internalType": "bool",
-            "name": "hasVotingPower",
-            "type": "bool"
-          },
-          {
             "internalType": "uint256",
             "name": "amount",
             "type": "uint256"
@@ -716,6 +716,11 @@
           {
             "internalType": "uint256",
             "name": "amountClaimed",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "votingPower",
             "type": "uint256"
           }
         ],
@@ -752,6 +757,11 @@
           {
             "internalType": "uint256",
             "name": "claimedAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "votingPower",
             "type": "uint256"
           }
         ],

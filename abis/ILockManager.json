@@ -102,7 +102,13 @@
       }
     ],
     "name": "grantVotingPower",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "votingPowerGranted",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -125,7 +131,13 @@
       }
     ],
     "name": "removeVotingPower",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "votingPowerRemoved",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   }

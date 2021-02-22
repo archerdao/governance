@@ -26,12 +26,12 @@ contract Vault {
         uint48 startTime;
         uint16 vestingDurationInDays;
         uint16 cliffDurationInDays;
-        bool hasVotingPower;
         uint256 amount;
         uint256 amountClaimed;
+        uint256 votingPower;
     }
 
-    /// @notice Active Lock balance definition
+    /// @notice Lock balance definition
     struct LockBalance {
         uint256 id;
         uint256 claimableAmount;
@@ -43,6 +43,7 @@ contract Vault {
         uint256 totalAmount;
         uint256 claimableAmount;
         uint256 claimedAmount;
+        uint256 votingPower;
     }
 
     /// @dev Used to translate lock periods specified in days to seconds
@@ -58,10 +59,10 @@ contract Vault {
     uint256 public numLocks;
 
     /// @notice Event emitted when a new lock is created
-    event LockCreated(address indexed token, address indexed locker, address indexed receiver, uint256 amount, uint48 startTime, uint16 durationInDays, uint16 cliffInDays, uint256 lockId);
+    event LockCreated(address indexed token, address indexed locker, address indexed receiver, uint256 lockId, uint256 amount, uint48 startTime, uint16 durationInDays, uint16 cliffInDays, uint256 votingPower);
     
     /// @notice Event emitted when tokens are claimed by a receiver from an unlocked balance
-    event UnlockedTokensClaimed(address indexed receiver, address indexed token, uint256 indexed lockId, uint256 amountClaimed);
+    event UnlockedTokensClaimed(address indexed receiver, address indexed token, uint256 indexed lockId, uint256 amountClaimed, uint256 votingPowerRemoved);
 
     /// @notice Event emitted when lock duration extended
     event LockExtended(uint256 indexed lockId, uint16 indexed oldDuration, uint16 indexed newDuration, uint16 oldCliff, uint16 newCliff, uint48 startTime);
@@ -74,12 +75,12 @@ contract Vault {
     }
 
     /**
-     * @notice Lock tokens
+     * @notice Lock tokens, optionally providing voting power
      * @param locker The account that is locking tokens
      * @param receiver The account that will be able to retrieve unlocked tokens
      * @param startTime The unix timestamp when the lock period will start
      * @param amount The amount of tokens being locked
-     * @param vestingDurationInDays The lock period in days
+     * @param vestingDurationInDays The vesting period in days
      * @param cliffDurationInDays The cliff duration in days
      * @param grantVotingPower if true, give user voting power from tokens
      */
@@ -150,8 +151,10 @@ contract Vault {
      * @notice Get all active token lock ids
      * @return the lock ids
      */
-    function allActiveLockIds() public view returns(uint256[] memory){
+    function allActiveLockIds() external view returns(uint256[] memory){
         uint256 activeCount;
+
+        // Get number of active locks
         for (uint256 i; i < numLocks; i++) {
             Lock memory lock = tokenLocks[i];
             if(lock.amount != lock.amountClaimed) {
@@ -159,9 +162,11 @@ contract Vault {
             }
         }
 
+        // Create result array of length `activeCount`
         uint256[] memory result = new uint256[](activeCount);
         uint256 j;
 
+        // Populate result array
         for (uint256 i; i < numLocks; i++) {
             Lock memory lock = tokenLocks[i];
             if(lock.amount != lock.amountClaimed) {
@@ -176,8 +181,10 @@ contract Vault {
      * @notice Get all active token locks
      * @return the locks
      */
-    function allActiveLocks() public view returns(Lock[] memory){
+    function allActiveLocks() external view returns(Lock[] memory){
         uint256 activeCount;
+
+        // Get number of active locks
         for (uint256 i; i < numLocks; i++) {
             Lock memory lock = tokenLocks[i];
             if(lock.amount != lock.amountClaimed) {
@@ -185,9 +192,11 @@ contract Vault {
             }
         }
 
+        // Create result array of length `activeCount`
         Lock[] memory result = new Lock[](activeCount);
         uint256 j;
 
+        // Populate result array
         for (uint256 i; i < numLocks; i++) {
             Lock memory lock = tokenLocks[i];
             if(lock.amount != lock.amountClaimed) {
@@ -202,11 +211,28 @@ contract Vault {
      * @notice Get all active token lock balances
      * @return the active lock balances
      */
-    function allActiveLockBalances() public view returns(LockBalance[] memory){
-        uint256[] memory totalActiveLockIds = allActiveLockIds();
-        LockBalance[] memory result = new LockBalance[](totalActiveLockIds.length);
-        for (uint256 i; i < totalActiveLockIds.length; i++) {
-            result[i] = lockBalance(totalActiveLockIds[i]);
+    function allActiveLockBalances() external view returns(LockBalance[] memory){
+        uint256 activeCount;
+
+        // Get number of active locks
+        for (uint256 i; i < numLocks; i++) {
+            Lock memory lock = tokenLocks[i];
+            if(lock.amount != lock.amountClaimed) {
+                activeCount++;
+            }
+        }
+
+        // Create result array of length `activeCount`
+        LockBalance[] memory result = new LockBalance[](activeCount);
+        uint256 j;
+
+        // Populate result array
+        for (uint256 i; i < numLocks; i++) {
+            Lock memory lock = tokenLocks[i];
+            if(lock.amount != lock.amountClaimed) {
+                result[j] = lockBalance(i);
+                j++;
+            }
         }
         return result;
     }
@@ -216,9 +242,11 @@ contract Vault {
      * @param receiver The address that has locked balances
      * @return the active lock ids
      */
-    function activeLockIds(address receiver) public view returns(uint256[] memory){
-        uint256[] memory receiverLockIds = lockIds[receiver];
+    function activeLockIds(address receiver) external view returns(uint256[] memory){
         uint256 activeCount;
+        uint256[] memory receiverLockIds = lockIds[receiver];
+
+        // Get number of active locks
         for (uint256 i; i < receiverLockIds.length; i++) {
             Lock memory lock = tokenLocks[receiverLockIds[i]];
             if(lock.amount != lock.amountClaimed) {
@@ -226,9 +254,11 @@ contract Vault {
             }
         }
 
+        // Create result array of length `activeCount`
         uint256[] memory result = new uint256[](activeCount);
         uint256 j;
 
+        // Populate result array
         for (uint256 i; i < receiverLockIds.length; i++) {
             Lock memory lock = tokenLocks[receiverLockIds[i]];
             if(lock.amount != lock.amountClaimed) {
@@ -244,7 +274,7 @@ contract Vault {
      * @param receiver The address that has locked balances
      * @return the locks
      */
-    function allLocks(address receiver) public view returns(Lock[] memory){
+    function allLocks(address receiver) external view returns(Lock[] memory){
         uint256[] memory allLockIds = lockIds[receiver];
         Lock[] memory result = new Lock[](allLockIds.length);
         for (uint256 i; i < allLockIds.length; i++) {
@@ -258,11 +288,29 @@ contract Vault {
      * @param receiver The address that has locked balances
      * @return the locks
      */
-    function activeLocks(address receiver) public view returns(Lock[] memory){
-        uint256[] memory receiverActiveLockIds = activeLockIds(receiver);
-        Lock[] memory result = new Lock[](receiverActiveLockIds.length);
-        for (uint256 i; i < receiverActiveLockIds.length; i++) {
-            result[i] = tokenLocks[receiverActiveLockIds[i]];
+    function activeLocks(address receiver) external view returns(Lock[] memory){
+        uint256 activeCount;
+        uint256[] memory receiverLockIds = lockIds[receiver];
+
+        // Get number of active locks
+        for (uint256 i; i < receiverLockIds.length; i++) {
+            Lock memory lock = tokenLocks[receiverLockIds[i]];
+            if(lock.amount != lock.amountClaimed) {
+                activeCount++;
+            }
+        }
+
+        // Create result array of length `activeCount`
+        Lock[] memory result = new Lock[](activeCount);
+        uint256 j;
+
+        // Populate result array
+        for (uint256 i; i < receiverLockIds.length; i++) {
+            Lock memory lock = tokenLocks[receiverLockIds[i]];
+            if(lock.amount != lock.amountClaimed) {
+                result[j] = tokenLocks[receiverLockIds[i]];
+                j++;
+            }
         }
         return result;
     }
@@ -272,11 +320,29 @@ contract Vault {
      * @param receiver The address that has locked balances
      * @return the active lock balances
      */
-    function activeLockBalances(address receiver) public view returns(LockBalance[] memory){
-        uint256[] memory receiverActiveLockIds = activeLockIds(receiver);
-        LockBalance[] memory result = new LockBalance[](receiverActiveLockIds.length);
-        for (uint256 i; i < receiverActiveLockIds.length; i++) {
-            result[i] = lockBalance(receiverActiveLockIds[i]);
+    function activeLockBalances(address receiver) external view returns(LockBalance[] memory){
+        uint256 activeCount;
+        uint256[] memory receiverLockIds = lockIds[receiver];
+
+        // Get number of active locks
+        for (uint256 i; i < receiverLockIds.length; i++) {
+            Lock memory lock = tokenLocks[receiverLockIds[i]];
+            if(lock.amount != lock.amountClaimed) {
+                activeCount++;
+            }
+        }
+
+        // Create result array of length `activeCount`
+        LockBalance[] memory result = new LockBalance[](activeCount);
+        uint256 j;
+
+        // Populate result array
+        for (uint256 i; i < receiverLockIds.length; i++) {
+            Lock memory lock = tokenLocks[receiverLockIds[i]];
+            if(lock.amount != lock.amountClaimed) {
+                result[j] = lockBalance(receiverLockIds[i]);
+                j++;
+            }
         }
         return result;
     }
@@ -286,27 +352,28 @@ contract Vault {
      * @param token The token to check
      * @return balance the total active balance of `token`
      */
-    function totalTokenBalance(address token) public view returns(TokenBalance memory balance){
-        Lock[] memory locks = allActiveLocks();
-        for (uint256 i; i < locks.length; i++) {
-            if(locks[i].token == token){
-                balance.totalAmount = balance.totalAmount.add(locks[i].amount);
-                if(block.timestamp > locks[i].startTime) {
-                    balance.claimedAmount = balance.claimedAmount.add(locks[i].amountClaimed);
+    function totalTokenBalance(address token) external view returns(TokenBalance memory balance){
+        for (uint256 i; i < numLocks; i++) {
+            Lock memory tokenLock = tokenLocks[i];
+            if(tokenLock.token == token && tokenLock.amount != tokenLock.amountClaimed){
+                balance.totalAmount = balance.totalAmount.add(tokenLock.amount);
+                balance.votingPower = balance.votingPower.add(tokenLock.votingPower);
+                if(block.timestamp > tokenLock.startTime) {
+                    balance.claimedAmount = balance.claimedAmount.add(tokenLock.amountClaimed);
 
-                    uint256 elapsedTime = block.timestamp.sub(locks[i].startTime);
+                    uint256 elapsedTime = block.timestamp.sub(tokenLock.startTime);
                     uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
 
                     if (
-                        elapsedDays >= locks[i].cliffDurationInDays
+                        elapsedDays >= tokenLock.cliffDurationInDays
                     ) {
-                        if (elapsedDays >= locks[i].vestingDurationInDays) {
-                            balance.claimableAmount = balance.claimableAmount.add(locks[i].amount).sub(locks[i].amountClaimed);
+                        if (elapsedDays >= tokenLock.vestingDurationInDays) {
+                            balance.claimableAmount = balance.claimableAmount.add(tokenLock.amount).sub(tokenLock.amountClaimed);
                         } else {
-                            uint256 vestingDurationInSecs = uint256(locks[i].vestingDurationInDays).mul(SECONDS_PER_DAY);
-                            uint256 vestingAmountPerSec = locks[i].amount.div(vestingDurationInSecs);
+                            uint256 vestingDurationInSecs = uint256(tokenLock.vestingDurationInDays).mul(SECONDS_PER_DAY);
+                            uint256 vestingAmountPerSec = tokenLock.amount.div(vestingDurationInSecs);
                             uint256 amountVested = vestingAmountPerSec.mul(elapsedTime);
-                            balance.claimableAmount = balance.claimableAmount.add(amountVested.sub(locks[i].amountClaimed));
+                            balance.claimableAmount = balance.claimableAmount.add(amountVested.sub(tokenLock.amountClaimed));
                         }
                     }
                 }
@@ -320,27 +387,29 @@ contract Vault {
      * @param receiver The address that has unlocked balances
      * @return balance the total active balance of `token` for `receiver`
      */
-    function tokenBalance(address token, address receiver) public view returns(TokenBalance memory balance){
-        Lock[] memory locks = activeLocks(receiver);
-        for (uint256 i; i < locks.length; i++) {
-            if(locks[i].token == token){
-                balance.totalAmount = balance.totalAmount.add(locks[i].amount);
-                if(block.timestamp > locks[i].startTime) {
-                    balance.claimedAmount = balance.claimedAmount.add(locks[i].amountClaimed);
+    function tokenBalance(address token, address receiver) external view returns(TokenBalance memory balance){
+        uint256[] memory receiverLockIds = lockIds[receiver];
+        for (uint256 i; i < receiverLockIds.length; i++) {
+            Lock memory receiverLock = tokenLocks[receiverLockIds[i]];
+            if(receiverLock.token == token && receiverLock.amount != receiverLock.amountClaimed){
+                balance.totalAmount = balance.totalAmount.add(receiverLock.amount);
+                balance.votingPower = balance.votingPower.add(receiverLock.votingPower);
+                if(block.timestamp > receiverLock.startTime) {
+                    balance.claimedAmount = balance.claimedAmount.add(receiverLock.amountClaimed);
 
-                    uint256 elapsedTime = block.timestamp.sub(locks[i].startTime);
+                    uint256 elapsedTime = block.timestamp.sub(receiverLock.startTime);
                     uint256 elapsedDays = elapsedTime.div(SECONDS_PER_DAY);
 
                     if (
-                        elapsedDays >= locks[i].cliffDurationInDays
+                        elapsedDays >= receiverLock.cliffDurationInDays
                     ) {
-                        if (elapsedDays >= locks[i].vestingDurationInDays) {
-                            balance.claimableAmount = balance.claimableAmount.add(locks[i].amount).sub(locks[i].amountClaimed);
+                        if (elapsedDays >= receiverLock.vestingDurationInDays) {
+                            balance.claimableAmount = balance.claimableAmount.add(receiverLock.amount).sub(receiverLock.amountClaimed);
                         } else {
-                            uint256 vestingDurationInSecs = uint256(locks[i].vestingDurationInDays).mul(SECONDS_PER_DAY);
-                            uint256 vestingAmountPerSec = locks[i].amount.div(vestingDurationInSecs);
+                            uint256 vestingDurationInSecs = uint256(receiverLock.vestingDurationInDays).mul(SECONDS_PER_DAY);
+                            uint256 vestingAmountPerSec = receiverLock.amount.div(vestingDurationInSecs);
                             uint256 amountVested = vestingAmountPerSec.mul(elapsedTime);
-                            balance.claimableAmount = balance.claimableAmount.add(amountVested.sub(locks[i].amountClaimed));
+                            balance.claimableAmount = balance.claimableAmount.add(amountVested.sub(receiverLock.amountClaimed));
                         }
                     }
                 }
@@ -355,8 +424,8 @@ contract Vault {
      */
     function lockBalance(uint256 lockId) public view returns (LockBalance memory balance) {
         balance.id = lockId;
-        balance.lock = tokenLocks[lockId];
         balance.claimableAmount = claimableBalance(lockId);
+        balance.lock = tokenLocks[lockId];
     }
 
     /**
@@ -392,7 +461,7 @@ contract Vault {
 
     /**
      * @notice Allows receiver to claim all of their unlocked tokens for a set of locks
-     * @dev Errors if no tokens are unlocked
+     * @dev Errors if no tokens are claimable
      * @dev It is advised receivers check they are entitled to claim via `claimableBalance` before calling this
      * @param locks The lock ids for unlocked token balances
      */
@@ -400,19 +469,13 @@ contract Vault {
         for (uint i = 0; i < locks.length; i++) {
             uint256 claimableAmount = claimableBalance(locks[i]);
             require(claimableAmount > 0, "Vault::claimAllUnlockedTokens: claimableAmount is 0");
-
-            Lock storage lock = tokenLocks[locks[i]];
-            lock.amountClaimed = claimableAmount;
-            
-            require(msg.sender == lock.receiver, "Vault::claimAllUnlockedTokens: msg.sender must be receiver");
-            IERC20(lock.token).safeTransfer(lock.receiver, claimableAmount);
-            emit UnlockedTokensClaimed(lock.receiver, lock.token, locks[i], claimableAmount);
+            _claimTokens(locks[i], claimableAmount);
         }
     }
 
     /**
      * @notice Allows receiver to claim a portion of their unlocked tokens for a given lock
-     * @dev Errors if no tokens are unlocked
+     * @dev Errors if token amounts provided are > claimable amounts
      * @dev It is advised receivers check they are entitled to claim via `claimableBalance` before calling this
      * @param locks The lock ids for unlocked token balances
      * @param amounts The amount of each unlocked token to claim
@@ -422,13 +485,7 @@ contract Vault {
         for (uint i = 0; i < locks.length; i++) {
             uint256 claimableAmount = claimableBalance(locks[i]);
             require(claimableAmount >= amounts[i], "Vault::claimUnlockedTokenAmounts: claimableAmount < amount");
-
-            Lock storage lock = tokenLocks[locks[i]];
-            lock.amountClaimed = lock.amountClaimed.add(amounts[i]);
-            
-            require(msg.sender == lock.receiver, "Vault::claimUnlockedTokenAmounts: msg.sender must be receiver");
-            IERC20(lock.token).safeTransfer(lock.receiver, amounts[i]);
-            emit UnlockedTokensClaimed(lock.receiver, lock.token, locks[i], amounts[i]);
+            _claimTokens(locks[i], amounts[i]);
         }
     }
 
@@ -452,6 +509,16 @@ contract Vault {
         emit LockExtended(lockId, oldVestingDuration, newVestingDuration, oldCliffDuration, newCliffDuration, lock.startTime);
     }
 
+    /**
+     * @notice Internal implementation of lockTokens
+     * @param locker The account that is locking tokens
+     * @param receiver The account that will be able to retrieve unlocked tokens
+     * @param startTime The unix timestamp when the lock period will start
+     * @param amount The amount of tokens being locked
+     * @param vestingDurationInDays The vesting period in days
+     * @param cliffDurationInDays The cliff duration in days
+     * @param grantVotingPower if true, give user voting power from tokens
+     */
     function _lockTokens(
         address token,
         address locker,
@@ -467,25 +534,54 @@ contract Vault {
         IERC20(token).safeTransferFrom(locker, address(this), amount);
 
         uint48 lockStartTime = startTime == 0 ? uint48(block.timestamp) : startTime;
+        uint256 votingPowerGranted;
+        
+        // Grant voting power, if specified
+        if(grantVotingPower) {
+            votingPowerGranted = lockManager.grantVotingPower(receiver, token, amount);
+        }
 
+        // Create lock
         Lock memory lock = Lock({
             token: token,
             receiver: receiver,
             startTime: lockStartTime,
             vestingDurationInDays: vestingDurationInDays,
             cliffDurationInDays: cliffDurationInDays,
-            hasVotingPower: grantVotingPower,
             amount: amount,
-            amountClaimed: 0
+            amountClaimed: 0,
+            votingPower: votingPowerGranted
         });
 
         tokenLocks[numLocks] = lock;
         lockIds[receiver].push(numLocks);
-        emit LockCreated(token, locker, receiver, amount, lockStartTime, vestingDurationInDays, cliffDurationInDays, numLocks);
+        emit LockCreated(token, locker, receiver, numLocks, amount, lockStartTime, vestingDurationInDays, cliffDurationInDays, votingPowerGranted);
+        
+        // Increment lock id
         numLocks++;
-        if(grantVotingPower) {
-            lockManager.grantVotingPower(receiver, token, amount);
+    }
+
+    /**
+     * @notice Internal implementation of token claims
+     * @param lockId The lock id for claim
+     * @param claimAmount The amount to claim
+     */
+    function _claimTokens(uint256 lockId, uint256 claimAmount) internal {
+        Lock storage lock = tokenLocks[lockId];
+        uint256 votingPowerRemoved;
+
+        // Remove voting power, if exists
+        if (lock.votingPower > 0) {
+            votingPowerRemoved = lockManager.removeVotingPower(lock.receiver, lock.token, claimAmount);
+            lock.votingPower = lock.votingPower.sub(votingPowerRemoved);
         }
+
+        // Update claimed amount
+        lock.amountClaimed = lock.amountClaimed.add(claimAmount);
+
+        // Release tokens
+        IERC20(lock.token).safeTransfer(lock.receiver, claimAmount);
+        emit UnlockedTokensClaimed(lock.receiver, lock.token, lockId, claimAmount, votingPowerRemoved);
     }
 
     /**

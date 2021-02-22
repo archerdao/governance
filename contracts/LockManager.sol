@@ -93,13 +93,18 @@ contract LockManager is AccessControl {
      * @param receiver recipient of voting power
      * @param token token that is locked
      * @param tokenAmount amount of token that is locked
+     * @return votingPowerGranted amount of voting power granted
      */
-    function grantVotingPower(address receiver, address token, uint256 tokenAmount) public onlyLockers {
-        uint256 vpToAdd = calculateVotingPower(token, tokenAmount);
+    function grantVotingPower(
+        address receiver, 
+        address token, 
+        uint256 tokenAmount
+    ) public onlyLockers returns (uint256 votingPowerGranted){
+        votingPowerGranted = calculateVotingPower(token, tokenAmount);
         lockedStakes[receiver][token].amount = lockedStakes[receiver][token].amount.add(tokenAmount);
-        lockedStakes[receiver][token].votingPower = lockedStakes[receiver][token].votingPower.add(vpToAdd);
-        votingPower.addVotingPowerForLockedTokens(receiver, vpToAdd);
-        emit StakeLocked(receiver, token, tokenAmount, vpToAdd);
+        lockedStakes[receiver][token].votingPower = lockedStakes[receiver][token].votingPower.add(votingPowerGranted);
+        votingPower.addVotingPowerForLockedTokens(receiver, votingPowerGranted);
+        emit StakeLocked(receiver, token, tokenAmount, votingPowerGranted);
     }
 
     /**
@@ -107,14 +112,19 @@ contract LockManager is AccessControl {
      * @param receiver holder of voting power
      * @param token token that is being unlocked
      * @param tokenAmount amount of token that is being unlocked
+     * @return votingPowerRemoved amount of voting power removed
      */
-    function removeVotingPower(address receiver, address token, uint256 tokenAmount) public onlyLockers {
+    function removeVotingPower(
+        address receiver, 
+        address token, 
+        uint256 tokenAmount
+    ) public onlyLockers returns (uint256 votingPowerRemoved) {
         require(lockedStakes[receiver][token].amount >= tokenAmount, "LM::removeVotingPower: not enough tokens staked");
         LockedStake memory s = getStake(receiver, token);
-        uint256 vpToWithdraw = tokenAmount.mul(s.votingPower).div(s.amount);
+        votingPowerRemoved = tokenAmount.mul(s.votingPower).div(s.amount);
         lockedStakes[receiver][token].amount = lockedStakes[receiver][token].amount.sub(tokenAmount);
-        lockedStakes[receiver][token].votingPower = lockedStakes[receiver][token].votingPower.sub(vpToWithdraw);
-        votingPower.removeVotingPowerForUnlockedTokens(receiver, vpToWithdraw);
-        emit StakeUnlocked(receiver, token, tokenAmount, vpToWithdraw);
+        lockedStakes[receiver][token].votingPower = lockedStakes[receiver][token].votingPower.sub(votingPowerRemoved);
+        votingPower.removeVotingPowerForUnlockedTokens(receiver, votingPowerRemoved);
+        emit StakeUnlocked(receiver, token, tokenAmount, votingPowerRemoved);
     }
 }
