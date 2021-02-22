@@ -97,7 +97,7 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
     const ArchToken = new ethers.Contract(ARCH_TOKEN_ADDRESS, ARCH_ABI, deployer)
     await deployer.sendTransaction({ to: DAO_TREASURY_ADDRESS, value: ethers.utils.parseEther("0.5")})
     await ArchToken.connect(treasury).transfer(ADMIN_ADDRESS, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE))
-    await ArchToken.connect(treasury).transfer(deployer.address, ethers.BigNumber.from(TOKEN_LIQUIDITY))
+    await ArchToken.connect(treasury).transfer(deployer.address, ethers.BigNumber.from(INITIAL_ARCH_REWARDS_BALANCE))
     await ArchToken.connect(treasury).transfer(alice.address, ethers.BigNumber.from(TOKEN_LIQUIDITY))
     await ArchToken.connect(treasury).transfer(bob.address, ethers.BigNumber.from(TOKEN_LIQUIDITY))
     await deployer.sendTransaction({ to: ADMIN_ADDRESS, value: ethers.utils.parseEther("1.0")})

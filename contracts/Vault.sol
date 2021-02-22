@@ -96,7 +96,6 @@ contract Vault {
     )
         external
     {
-        require(cliffDurationInDays <= 10*365, "Vault::lockTokens: cliff more than 10 years");
         require(vestingDurationInDays > 0, "Vault::lockTokens: vesting duration must be > 0");
         require(vestingDurationInDays <= 25*365, "Vault::lockTokens: vesting duration more than 25 years");
         require(vestingDurationInDays >= cliffDurationInDays, "Vault::lockTokens: vesting duration < cliff");
@@ -136,7 +135,6 @@ contract Vault {
     ) 
         external
     {
-        require(cliffDurationInDays <= 10*365, "Vault::lockTokensWithPermit: cliff more than 10 years");
         require(vestingDurationInDays > 0, "Vault::lockTokensWithPermit: vesting duration must be > 0");
         require(vestingDurationInDays <= 25*365, "Vault::lockTokensWithPermit: vesting duration more than 25 years");
         require(vestingDurationInDays >= cliffDurationInDays, "Vault::lockTokensWithPermit: duration < cliff");
