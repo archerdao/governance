@@ -256,7 +256,7 @@ contract RewardsManager is ReentrancyGuard {
      * @notice Returns true if rewards are actively being accumulated
      */
     function rewardsActive() public view returns (bool) {
-        return block.number >= startBlock && block.number <= endBlock ? true : false;
+        return block.number >= startBlock && block.number <= endBlock && totalAllocPoint > 0 ? true : false;
     }
 
     /**

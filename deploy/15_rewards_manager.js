@@ -6,7 +6,6 @@ module.exports = async function ({ ethers, getNamedAccounts, deployments }) {
     const MASTERCHEF_ADDRESS = process.env.MASTERCHEF_ADDRESS
     const ARCH_REWARDS_PER_BLOCK = process.env.ARCH_REWARDS_PER_BLOCK
     const ARCH_REWARDS_START_BLOCK = process.env.ARCH_REWARDS_START_BLOCK
-    const INITIAL_ARCH_REWARDS_BALANCE = process.env.INITIAL_ARCH_REWARDS_BALANCE
     const archToken = await deployments.get("ArchToken")
     const lockManager = await deployments.get("LockManager")
     const vault = await deployments.get("Vault")

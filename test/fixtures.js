@@ -17,6 +17,7 @@ const VOTING_POWER_ABI = require("./abis/VotingPower.json")
 const DAO_TREASURY_ADDRESS = process.env.DAO_TREASURY_ADDRESS
 const ADMIN_ADDRESS = process.env.ADMIN_ADDRESS
 const INITIAL_ARCH_REWARDS_BALANCE = process.env.INITIAL_ARCH_REWARDS_BALANCE
+const ARCH_REWARDS_START_BLOCK = process.env.ARCH_REWARDS_START_BLOCK
 const ARCH_REWARDS_PER_BLOCK = process.env.ARCH_REWARDS_PER_BLOCK
 const TOKEN_LIQUIDITY = "100000000000000000000"
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
@@ -135,7 +136,7 @@ const rewardsFixture = deployments.createFixture(async ({deployments, getNamedAc
     const VaultFactory = await ethers.getContractFactory("Vault");
     const Vault = await VaultFactory.deploy(LockManager.address);
     const RewardsManagerFactory = await ethers.getContractFactory("RewardsManager");
-    const RewardsManager = await RewardsManagerFactory.deploy(ADMIN_ADDRESS, LockManager.address, Vault.address, ArchToken.address, SUSHI_ADDRESS, MASTERCHEF_ADDRESS, 0, ARCH_REWARDS_PER_BLOCK)
+    const RewardsManager = await RewardsManagerFactory.deploy(ADMIN_ADDRESS, LockManager.address, Vault.address, ArchToken.address, SUSHI_ADDRESS, MASTERCHEF_ADDRESS, ARCH_REWARDS_START_BLOCK, ARCH_REWARDS_PER_BLOCK)
     await ArchToken.connect(admin).approve(RewardsManager.address, INITIAL_ARCH_REWARDS_BALANCE)
 
     return {
