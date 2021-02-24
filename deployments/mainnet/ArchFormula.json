@@ -1,0 +1,75 @@
+{
+  "address": "0x68CB730510E9821553FC4646AcEB51758e3A65dE",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "convertTokensToVotingPower",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x532e42ddc5fb85495e4a6746502a49f7ec55d5e63b64169fe14adbdff65a3251",
+  "receipt": {
+    "to": null,
+    "from": "0x62E0D8E38297E4A50D5abBb822CA7548b7d2F9ca",
+    "contractAddress": "0x68CB730510E9821553FC4646AcEB51758e3A65dE",
+    "transactionIndex": 111,
+    "gasUsed": "84977",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x7da7a67b46674c2f9dfc27e789c11ce9fe76f012fda61c8004bfd7df3ffcc025",
+    "transactionHash": "0x532e42ddc5fb85495e4a6746502a49f7ec55d5e63b64169fe14adbdff65a3251",
+    "logs": [],
+    "blockNumber": 11914123,
+    "cumulativeGasUsed": "6865467",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "2e9142a3380a2374076d02017f19bf74",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.4+commit.3f05b770\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertTokensToVotingPower\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Convert ARCH to voting power\",\"kind\":\"dev\",\"methods\":{\"convertTokensToVotingPower(uint256)\":{\"details\":\"Always converts 1-1\",\"params\":{\"amount\":\"token amount\"},\"returns\":{\"_0\":\"voting power amount\"}}},\"title\":\"ArchFormula\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"convertTokensToVotingPower(uint256)\":{\"notice\":\"Convert ARCH amount to voting power\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/formulas/ArchFormula.sol\":\"ArchFormula\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":999999},\"remappings\":[]},\"sources\":{\"contracts/formulas/ArchFormula.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\n\\nimport \\\"../lib/VotingPowerFormula.sol\\\";\\n\\n/**\\n * @title ArchFormula\\n * @dev Convert ARCH to voting power\\n */\\ncontract ArchFormula is VotingPowerFormula {\\n    /**\\n     * @notice Convert ARCH amount to voting power\\n     * @dev Always converts 1-1\\n     * @param amount token amount\\n     * @return voting power amount\\n     */\\n    function convertTokensToVotingPower(uint256 amount) external pure override returns (uint256) {\\n        return amount;\\n    }\\n}\",\"keccak256\":\"0x22063e61bc8cfddbdd4015181db0bddafe9d84a37f753c75d92fc818ae523d24\",\"license\":\"MIT\"},\"contracts/lib/VotingPowerFormula.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\n\\nabstract contract VotingPowerFormula {\\n   function convertTokensToVotingPower(uint256 amount) external view virtual returns (uint256);\\n}\",\"keccak256\":\"0x720259b29e520f66c8dde0e7d687199bb4333ccb9b55906d98f8222475bfe535\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b5060928061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b69fb7f914602d575b600080fd5b604760048036036020811015604157600080fd5b50356059565b60408051918252519081900360200190f35b9056fea2646970667358221220eb265659992a8e10d2ced785f3a5701d4973ff8c739189e269ff82b8de9373fd64736f6c63430007040033",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063b69fb7f914602d575b600080fd5b604760048036036020811015604157600080fd5b50356059565b60408051918252519081900360200190f35b9056fea2646970667358221220eb265659992a8e10d2ced785f3a5701d4973ff8c739189e269ff82b8de9373fd64736f6c63430007040033",
+  "devdoc": {
+    "details": "Convert ARCH to voting power",
+    "kind": "dev",
+    "methods": {
+      "convertTokensToVotingPower(uint256)": {
+        "details": "Always converts 1-1",
+        "params": {
+          "amount": "token amount"
+        },
+        "returns": {
+          "_0": "voting power amount"
+        }
+      }
+    },
+    "title": "ArchFormula",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "convertTokensToVotingPower(uint256)": {
+        "notice": "Convert ARCH amount to voting power"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

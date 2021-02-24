@@ -1,0 +1,277 @@
+{
+  "address": "0xa6e743Af491b0f0070fa9Da52ED0D0ee527AcB32",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_cvrRate",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "ChangedOwner",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "oldRate",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "newRate",
+          "type": "uint32"
+        }
+      ],
+      "name": "ConversionRateChanged",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "changeOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "conversionRate",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "convertTokensToVotingPower",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "newConversionRate",
+          "type": "uint32"
+        }
+      ],
+      "name": "setConversionRate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x443aec723f28e62c036a28f4b9dabb81eae7246d2d23b475044bd58466647660",
+  "receipt": {
+    "to": null,
+    "from": "0x62E0D8E38297E4A50D5abBb822CA7548b7d2F9ca",
+    "contractAddress": "0xa6e743Af491b0f0070fa9Da52ED0D0ee527AcB32",
+    "transactionIndex": 56,
+    "gasUsed": "403173",
+    "logsBloom": "0x00000000000000000000000000000000000002000000000008000000002000000000000000000000000000000000000000000000000000000000008000000000000000000100000000000010000000000000000000000000000000000000000000000000020000000000000000000800000000000000000000000000000000000020000000000000000000000000000000000000000000001000001000000000000000000000000000000000000000000000008000000000000000000000000000000400000080000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x4e2d74dce36252830261ff84a041997840859b3ff493253711f2e9bc6f4d55b9",
+    "transactionHash": "0x443aec723f28e62c036a28f4b9dabb81eae7246d2d23b475044bd58466647660",
+    "logs": [
+      {
+        "transactionIndex": 56,
+        "blockNumber": 11914125,
+        "transactionHash": "0x443aec723f28e62c036a28f4b9dabb81eae7246d2d23b475044bd58466647660",
+        "address": "0xa6e743Af491b0f0070fa9Da52ED0D0ee527AcB32",
+        "topics": [
+          "0x2748503f8f31d8071821d1d5144384ba6a465036cda17fa1629a8a2509ccee0e",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x00000000000000000000000013d5b8fc84f73fc5a0a5832aa8373044371314d3"
+        ],
+        "data": "0x",
+        "logIndex": 84,
+        "blockHash": "0x4e2d74dce36252830261ff84a041997840859b3ff493253711f2e9bc6f4d55b9"
+      },
+      {
+        "transactionIndex": 56,
+        "blockNumber": 11914125,
+        "transactionHash": "0x443aec723f28e62c036a28f4b9dabb81eae7246d2d23b475044bd58466647660",
+        "address": "0xa6e743Af491b0f0070fa9Da52ED0D0ee527AcB32",
+        "topics": [
+          "0xeaaffbc2ab3e2fdc994897a9d9c2bff2123a3b8cdad9848b944e949ef1198bd4"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400",
+        "logIndex": 85,
+        "blockHash": "0x4e2d74dce36252830261ff84a041997840859b3ff493253711f2e9bc6f4d55b9"
+      }
+    ],
+    "blockNumber": 11914125,
+    "cumulativeGasUsed": "3366969",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x13d5B8Fc84F73fc5a0A5832Aa8373044371314d3",
+    "3200000"
+  ],
+  "solcInputHash": "2e9142a3380a2374076d02017f19bf74",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.4+commit.3f05b770\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"uint32\",\"name\":\"_cvrRate\",\"type\":\"uint32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"ChangedOwner\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"oldRate\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"newRate\",\"type\":\"uint32\"}],\"name\":\"ConversionRateChanged\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"changeOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"conversionRate\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"convertTokensToVotingPower\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"newConversionRate\",\"type\":\"uint32\"}],\"name\":\"setConversionRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Convert Sushi LP tokens to voting power\",\"kind\":\"dev\",\"methods\":{\"changeOwner(address)\":{\"params\":{\"newOwner\":\"New owner address\"}},\"constructor\":{\"params\":{\"_cvrRate\":\"the conversion rate in bips\",\"_owner\":\"contract owner\"}},\"convertTokensToVotingPower(uint256)\":{\"params\":{\"amount\":\"token amount\"},\"returns\":{\"_0\":\"voting power amount\"}},\"setConversionRate(uint32)\":{\"params\":{\"newConversionRate\":\"New conversion rate\"}}},\"title\":\"SushiLPFormula\",\"version\":1},\"userdoc\":{\"events\":{\"ChangedOwner(address,address)\":{\"notice\":\"Event emitted when the owner of the contract is updated\"},\"ConversionRateChanged(uint32,uint32)\":{\"notice\":\"Event emitted when the conversion rate of the contract is changed\"}},\"kind\":\"user\",\"methods\":{\"changeOwner(address)\":{\"notice\":\"Change owner of contract\"},\"constructor\":{\"notice\":\"Construct a new voting power formula contract\"},\"conversionRate()\":{\"notice\":\"Conversion rate of token to voting power (measured in bips: 10,000 bips = 1%)\"},\"convertTokensToVotingPower(uint256)\":{\"notice\":\"Convert token amount to voting power\"},\"owner()\":{\"notice\":\"Current owner of this contract\"},\"setConversionRate(uint32)\":{\"notice\":\"Set conversion rate of contract\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/formulas/SushiLPFormula.sol\":\"SushiLPFormula\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":999999},\"remappings\":[]},\"sources\":{\"contracts/formulas/SushiLPFormula.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\n\\nimport \\\"../lib/SafeMath.sol\\\";\\nimport \\\"../lib/VotingPowerFormula.sol\\\";\\n\\n/**\\n * @title SushiLPFormula\\n * @dev Convert Sushi LP tokens to voting power\\n */\\ncontract SushiLPFormula is VotingPowerFormula {\\n    using SafeMath for uint256;\\n\\n    /// @notice Current owner of this contract\\n    address public owner;\\n\\n    /// @notice Conversion rate of token to voting power (measured in bips: 10,000 bips = 1%)\\n    uint32 public conversionRate;\\n\\n    /// @notice Event emitted when the owner of the contract is updated\\n    event ChangedOwner(address indexed oldOwner, address indexed newOwner);\\n\\n    /// @notice Event emitted when the conversion rate of the contract is changed\\n    event ConversionRateChanged(uint32 oldRate, uint32 newRate);\\n\\n    /// @notice only owner can call function\\n    modifier onlyOwner {\\n        require(msg.sender == owner, \\\"not owner\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @notice Construct a new voting power formula contract\\n     * @param _owner contract owner\\n     * @param _cvrRate the conversion rate in bips\\n     */\\n    constructor(address _owner, uint32 _cvrRate) {\\n        owner = _owner;\\n        emit ChangedOwner(address(0), owner);\\n\\n        conversionRate = _cvrRate;\\n        emit ConversionRateChanged(uint32(0), conversionRate);\\n    }\\n\\n    /**\\n     * @notice Convert token amount to voting power\\n     * @param amount token amount\\n     * @return voting power amount\\n     */\\n    function convertTokensToVotingPower(uint256 amount) external view override returns (uint256) {\\n        return amount.mul(conversionRate).div(1000000);\\n    }\\n\\n    /**\\n     * @notice Set conversion rate of contract\\n     * @param newConversionRate New conversion rate\\n     */\\n    function setConversionRate(uint32 newConversionRate) external onlyOwner {\\n        emit ConversionRateChanged(conversionRate, newConversionRate);\\n        conversionRate = newConversionRate;\\n    }\\n\\n    /**\\n     * @notice Change owner of contract\\n     * @param newOwner New owner address\\n     */\\n    function changeOwner(address newOwner) external onlyOwner {\\n        emit ChangedOwner(owner, newOwner);\\n        owner = newOwner;\\n    }\\n}\",\"keccak256\":\"0x34227eaa6fa7ca3be886eceb9c8314df9a6eeb749adeee8b4f5e350eb9d47449\",\"license\":\"MIT\"},\"contracts/lib/SafeMath.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\n\\n// From https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/Math.sol\\n// Subject to the MIT license.\\n\\n/**\\n * @dev Wrappers over Solidity's arithmetic operations with added overflow\\n * checks.\\n *\\n * Arithmetic operations in Solidity wrap on overflow. This can easily result\\n * in bugs, because programmers usually assume that an overflow raises an\\n * error, which is the standard behavior in high level programming languages.\\n * `SafeMath` restores this intuition by reverting the transaction when an\\n * operation overflows.\\n *\\n * Using this library instead of the unchecked operations eliminates an entire\\n * class of bugs, so it's recommended to use it always.\\n */\\nlibrary SafeMath {\\n    /**\\n     * @dev Returns the addition of two unsigned integers, reverting on overflow.\\n     *\\n     * Counterpart to Solidity's `+` operator.\\n     *\\n     * Requirements:\\n     * - Addition cannot overflow.\\n     */\\n    function add(uint256 a, uint256 b) internal pure returns (uint256) {\\n        uint256 c = a + b;\\n        require(c >= a, \\\"SafeMath: addition overflow\\\");\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the addition of two unsigned integers, reverting with custom message on overflow.\\n     *\\n     * Counterpart to Solidity's `+` operator.\\n     *\\n     * Requirements:\\n     * - Addition cannot overflow.\\n     */\\n    function add(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        uint256 c = a + b;\\n        require(c >= a, errorMessage);\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the subtraction of two unsigned integers, reverting on underflow (when the result is negative).\\n     *\\n     * Counterpart to Solidity's `-` operator.\\n     *\\n     * Requirements:\\n     * - Subtraction cannot underflow.\\n     */\\n    function sub(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return sub(a, b, \\\"SafeMath: subtraction underflow\\\");\\n    }\\n\\n    /**\\n     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on underflow (when the result is negative).\\n     *\\n     * Counterpart to Solidity's `-` operator.\\n     *\\n     * Requirements:\\n     * - Subtraction cannot underflow.\\n     */\\n    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        require(b <= a, errorMessage);\\n        uint256 c = a - b;\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the multiplication of two unsigned integers, reverting on overflow.\\n     *\\n     * Counterpart to Solidity's `*` operator.\\n     *\\n     * Requirements:\\n     * - Multiplication cannot overflow.\\n     */\\n    function mul(uint256 a, uint256 b) internal pure returns (uint256) {\\n        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the\\n        // benefit is lost if 'b' is also tested.\\n        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522\\n        if (a == 0) {\\n            return 0;\\n        }\\n\\n        uint256 c = a * b;\\n        require(c / a == b, \\\"SafeMath: multiplication overflow\\\");\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the multiplication of two unsigned integers, reverting on overflow.\\n     *\\n     * Counterpart to Solidity's `*` operator.\\n     *\\n     * Requirements:\\n     * - Multiplication cannot overflow.\\n     */\\n    function mul(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the\\n        // benefit is lost if 'b' is also tested.\\n        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522\\n        if (a == 0) {\\n            return 0;\\n        }\\n\\n        uint256 c = a * b;\\n        require(c / a == b, errorMessage);\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the integer division of two unsigned integers.\\n     * Reverts on division by zero. The result is rounded towards zero.\\n     *\\n     * Counterpart to Solidity's `/` operator. Note: this function uses a\\n     * `revert` opcode (which leaves remaining gas untouched) while Solidity\\n     * uses an invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     * - The divisor cannot be zero.\\n     */\\n    function div(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return div(a, b, \\\"SafeMath: division by zero\\\");\\n    }\\n\\n    /**\\n     * @dev Returns the integer division of two unsigned integers.\\n     * Reverts with custom message on division by zero. The result is rounded towards zero.\\n     *\\n     * Counterpart to Solidity's `/` operator. Note: this function uses a\\n     * `revert` opcode (which leaves remaining gas untouched) while Solidity\\n     * uses an invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     * - The divisor cannot be zero.\\n     */\\n    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        // Solidity only automatically asserts when dividing by 0\\n        require(b > 0, errorMessage);\\n        uint256 c = a / b;\\n        // assert(a == b * c + a % b); // There is no case in which this doesn't hold\\n\\n        return c;\\n    }\\n\\n    /**\\n     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),\\n     * Reverts when dividing by zero.\\n     *\\n     * Counterpart to Solidity's `%` operator. This function uses a `revert`\\n     * opcode (which leaves remaining gas untouched) while Solidity uses an\\n     * invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     * - The divisor cannot be zero.\\n     */\\n    function mod(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return mod(a, b, \\\"SafeMath: modulo by zero\\\");\\n    }\\n\\n    /**\\n     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),\\n     * Reverts with custom message when dividing by zero.\\n     *\\n     * Counterpart to Solidity's `%` operator. This function uses a `revert`\\n     * opcode (which leaves remaining gas untouched) while Solidity uses an\\n     * invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     * - The divisor cannot be zero.\\n     */\\n    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        require(b != 0, errorMessage);\\n        return a % b;\\n    }\\n}\",\"keccak256\":\"0x961855901713e710c05dd67f9a01e501a54e82e68a526fe3662e228c27f788d9\",\"license\":\"MIT\"},\"contracts/lib/VotingPowerFormula.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.7.0;\\n\\nabstract contract VotingPowerFormula {\\n   function convertTokensToVotingPower(uint256 amount) external view virtual returns (uint256);\\n}\",\"keccak256\":\"0x720259b29e520f66c8dde0e7d687199bb4333ccb9b55906d98f8222475bfe535\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516106d53803806106d58339818101604052604081101561003357600080fd5b508051602090910151600080546001600160a01b0319166001600160a01b0380851691909117808355604051911691907f2748503f8f31d8071821d1d5144384ba6a465036cda17fa1629a8a2509ccee0e908290a36000805463ffffffff60a01b1916600160a01b63ffffffff84811682029290921780845560408051948552919004909116602083015280517feaaffbc2ab3e2fdc994897a9d9c2bff2123a3b8cdad9848b944e949ef1198bd49281900390910190a150506105da806100fb6000396000f3fe608060405234801561001057600080fd5b50600436106100675760003560e01c8063a6f9dae111610050578063a6f9dae1146100be578063b69fb7f9146100f3578063e43ccb1a1461012257610067565b80637ffdf53e1461006c5780638da5cb5b1461008d575b600080fd5b610074610145565b6040805163ffffffff9092168252519081900360200190f35b610095610169565b6040805173ffffffffffffffffffffffffffffffffffffffff9092168252519081900360200190f35b6100f1600480360360208110156100d457600080fd5b503573ffffffffffffffffffffffffffffffffffffffff16610185565b005b6101106004803603602081101561010957600080fd5b5035610298565b60408051918252519081900360200190f35b6100f16004803603602081101561013857600080fd5b503563ffffffff166102de565b60005474010000000000000000000000000000000000000000900463ffffffff1681565b60005473ffffffffffffffffffffffffffffffffffffffff1681565b60005473ffffffffffffffffffffffffffffffffffffffff16331461020b57604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152600960248201527f6e6f74206f776e65720000000000000000000000000000000000000000000000604482015290519081900360640190fd5b6000805460405173ffffffffffffffffffffffffffffffffffffffff808516939216917f2748503f8f31d8071821d1d5144384ba6a465036cda17fa1629a8a2509ccee0e91a3600080547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff92909216919091179055565b600080546102d890620f4240906102d290859063ffffffff7401000000000000000000000000000000000000000090910481169061041016565b9061048a565b92915050565b60005473ffffffffffffffffffffffffffffffffffffffff16331461036457604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152600960248201527f6e6f74206f776e65720000000000000000000000000000000000000000000000604482015290519081900360640190fd5b6000546040805163ffffffff7401000000000000000000000000000000000000000090930483168152918316602083015280517feaaffbc2ab3e2fdc994897a9d9c2bff2123a3b8cdad9848b944e949ef1198bd49281900390910190a16000805463ffffffff90921674010000000000000000000000000000000000000000027fffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffff909216919091179055565b60008261041f575060006102d8565b8282028284828161042c57fe5b0414610483576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260218152602001806105846021913960400191505060405180910390fd5b9392505050565b600061048383836040518060400160405280601a81526020017f536166654d6174683a206469766973696f6e206279207a65726f0000000000008152506000818361056d576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825283818151815260200191508051906020019080838360005b8381101561053257818101518382015260200161051a565b50505050905090810190601f16801561055f5780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b50600083858161057957fe5b049594505050505056fe536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f77a26469706673582212209daafa6a717695db8cf0e02820a9697c4382ad34ebc580a81ab0c20bd608768c64736f6c63430007040033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100675760003560e01c8063a6f9dae111610050578063a6f9dae1146100be578063b69fb7f9146100f3578063e43ccb1a1461012257610067565b80637ffdf53e1461006c5780638da5cb5b1461008d575b600080fd5b610074610145565b6040805163ffffffff9092168252519081900360200190f35b610095610169565b6040805173ffffffffffffffffffffffffffffffffffffffff9092168252519081900360200190f35b6100f1600480360360208110156100d457600080fd5b503573ffffffffffffffffffffffffffffffffffffffff16610185565b005b6101106004803603602081101561010957600080fd5b5035610298565b60408051918252519081900360200190f35b6100f16004803603602081101561013857600080fd5b503563ffffffff166102de565b60005474010000000000000000000000000000000000000000900463ffffffff1681565b60005473ffffffffffffffffffffffffffffffffffffffff1681565b60005473ffffffffffffffffffffffffffffffffffffffff16331461020b57604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152600960248201527f6e6f74206f776e65720000000000000000000000000000000000000000000000604482015290519081900360640190fd5b6000805460405173ffffffffffffffffffffffffffffffffffffffff808516939216917f2748503f8f31d8071821d1d5144384ba6a465036cda17fa1629a8a2509ccee0e91a3600080547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff92909216919091179055565b600080546102d890620f4240906102d290859063ffffffff7401000000000000000000000000000000000000000090910481169061041016565b9061048a565b92915050565b60005473ffffffffffffffffffffffffffffffffffffffff16331461036457604080517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152600960248201527f6e6f74206f776e65720000000000000000000000000000000000000000000000604482015290519081900360640190fd5b6000546040805163ffffffff7401000000000000000000000000000000000000000090930483168152918316602083015280517feaaffbc2ab3e2fdc994897a9d9c2bff2123a3b8cdad9848b944e949ef1198bd49281900390910190a16000805463ffffffff90921674010000000000000000000000000000000000000000027fffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffff909216919091179055565b60008261041f575060006102d8565b8282028284828161042c57fe5b0414610483576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260218152602001806105846021913960400191505060405180910390fd5b9392505050565b600061048383836040518060400160405280601a81526020017f536166654d6174683a206469766973696f6e206279207a65726f0000000000008152506000818361056d576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825283818151815260200191508051906020019080838360005b8381101561053257818101518382015260200161051a565b50505050905090810190601f16801561055f5780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b50600083858161057957fe5b049594505050505056fe536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f77a26469706673582212209daafa6a717695db8cf0e02820a9697c4382ad34ebc580a81ab0c20bd608768c64736f6c63430007040033",
+  "devdoc": {
+    "details": "Convert Sushi LP tokens to voting power",
+    "kind": "dev",
+    "methods": {
+      "changeOwner(address)": {
+        "params": {
+          "newOwner": "New owner address"
+        }
+      },
+      "constructor": {
+        "params": {
+          "_cvrRate": "the conversion rate in bips",
+          "_owner": "contract owner"
+        }
+      },
+      "convertTokensToVotingPower(uint256)": {
+        "params": {
+          "amount": "token amount"
+        },
+        "returns": {
+          "_0": "voting power amount"
+        }
+      },
+      "setConversionRate(uint32)": {
+        "params": {
+          "newConversionRate": "New conversion rate"
+        }
+      }
+    },
+    "title": "SushiLPFormula",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "ChangedOwner(address,address)": {
+        "notice": "Event emitted when the owner of the contract is updated"
+      },
+      "ConversionRateChanged(uint32,uint32)": {
+        "notice": "Event emitted when the conversion rate of the contract is changed"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "changeOwner(address)": {
+        "notice": "Change owner of contract"
+      },
+      "constructor": {
+        "notice": "Construct a new voting power formula contract"
+      },
+      "conversionRate()": {
+        "notice": "Conversion rate of token to voting power (measured in bips: 10,000 bips = 1%)"
+      },
+      "convertTokensToVotingPower(uint256)": {
+        "notice": "Convert token amount to voting power"
+      },
+      "owner()": {
+        "notice": "Current owner of this contract"
+      },
+      "setConversionRate(uint32)": {
+        "notice": "Set conversion rate of contract"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 9400,
+        "contract": "contracts/formulas/SushiLPFormula.sol:SushiLPFormula",
+        "label": "owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 9403,
+        "contract": "contracts/formulas/SushiLPFormula.sol:SushiLPFormula",
+        "label": "conversionRate",
+        "offset": 20,
+        "slot": "0",
+        "type": "t_uint32"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_uint32": {
+        "encoding": "inplace",
+        "label": "uint32",
+        "numberOfBytes": "4"
+      }
+    }
+  }
+}
