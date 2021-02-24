@@ -19,13 +19,18 @@ Vue.filter("to6Dp", function (value) {
   return parseFloat(value).toFixed(6);
 });
 
+Vue.filter("fromWei", function (value) {
+  if (!value) return value;
+  return parseFloat(value) / 1e18;
+});
+
 import VueCurrencyFilter from "vue-currency-filter";
 
 Vue.use(VueCurrencyFilter, [
   {
     symbol: "",
     thousandsSeparator: ",",
-    fractionCount: 6,
+    fractionCount: 0,
     fractionSeparator: ".",
     symbolPosition: "front",
     symbolSpacing: false,
