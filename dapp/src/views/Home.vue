@@ -43,15 +43,9 @@
     },
     methods: {
       connect() {
-        if (this.account && this.tokenGrant) {
-          // console.log('Have account and token grant >>> Vesting');
-          this.$router.push({name: 'Vesting'});
-          return;
-        }
         this.$store.dispatch("bootstrap", {
           onSuccessCallback: () => {
-            // console.log('Bootstrapped >>> Staking');
-            this.$router.push({name: 'Staking'});
+            this.$router.push({name: 'Migrate'});
           },
         });
       },

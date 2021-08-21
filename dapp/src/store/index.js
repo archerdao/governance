@@ -5,13 +5,17 @@ Vue.use(Vuex);
 
 import {ethers} from 'ethers';
 
+import FormulaABI from '../contracts/ArchFormula';
+import MigratorABI from '../contracts/Migrator';
+import PairABI from '../contracts/UniswapV2Pair';
+import RegistryABI from '../contracts/TokenRegistry';
+import RewardsManagerABI from '../contracts/RewardsManager';
 import TokenABI from '../contracts/VestingToken';
+import VaultABI from '../contracts/Vault';
 import VestingABI from '../contracts/Vesting';
 import VotingPowerABI from '../contracts/VotingPower';
 
-import DeployedVestingAddresses from '../contracts/DeployedVestingAddresses';
-import DeployedVestingTokenAddresses from '../contracts/DeployedVestingTokenAddresses';
-import DeployedVotingPowerPrismAddresses from '../contracts/DeployedVotingPowerPrismAddresses';
+import DeployedAddresses from '../contracts/Deployed';
 
 import {initOnboard, initNotify} from '@/services/BlocknativeServices';
 
@@ -35,15 +39,31 @@ const mapGrant = (tokenGrant, totalDue) => {
   };
 };
 
+const mapTokenLock = (tokenLock) => {
+  return {
+    id: tokenLock.id.toString(),
+    startTime: tokenLock.lock.startTime.toString(),
+    amount: ethers.utils.formatEther(tokenLock.lock.amount),
+    vestingDuration: tokenLock.lock.vestingDurationInDays.toString(),
+    vestingCliff: tokenLock.lock.cliffDurationInDays.toString(),
+    totalClaimed: ethers.utils.formatEther(tokenLock.lock.amountClaimed),
+    totalDue: ethers.utils.formatEther(tokenLock.claimableAmount),
+  };
+};
+
 export default new Vuex.Store({
   state: {
     account: null,
-    approvedBalance: null,
+    approvedBalances: null,
     contracts: null,
-    stakedBalance: null,
+    depositWithPermit: null,
+    pendingBalances: null,
+    stakedBalances: null,
     stakeWithPermit: null,
-    tokenBalance: null,
+    stakingTokenList: null,
+    tokenBalances: null,
     tokenGrant: null,
+    tokenGrants: null,
     tokenGrantAdmin: null,
     tokenGrantTxs: null,
     votingPower: null,
@@ -58,23 +78,35 @@ export default new Vuex.Store({
     setAccount(state, account) {
       state.account = account;
     },
-    setApprovedBalance(state, approvedBalance) {
-      state.approvedBalance = approvedBalance;
+    setApprovedBalances(state, approvedBalances) {
+      state.approvedBalances = approvedBalances;
     },
     setContracts(state, contracts) {
       state.contracts = contracts;
     },
-    setStakedBalance(state, stakedBalance) {
-      state.stakedBalance = stakedBalance;
+    setDepositWithPermit(state, depositWithPermit) {
+      state.depositWithPermit = depositWithPermit;
+    },
+    setPendingBalances(state, pendingBalances) {
+      state.pendingBalances = pendingBalances;
+    },
+    setStakedBalances(state, stakedBalances) {
+      state.stakedBalances = stakedBalances;
     },
     setStakeWithPermit(state, stakeWithPermit) {
       state.stakeWithPermit = stakeWithPermit;
     },
-    setTokenBalance(state, tokenBalance) {
-      state.tokenBalance = tokenBalance;
+    setStakingTokenList(state, stakingTokenList) {
+      state.stakingTokenList = stakingTokenList;
+    },
+    setTokenBalances(state, tokenBalances) {
+      state.tokenBalances = tokenBalances;
     },
     setTokenGrant(state, tokenGrant) {
       state.tokenGrant = tokenGrant;
+    },
+    setTokenGrants(state, tokenGrants) {
+      state.tokenGrants = tokenGrants;
     },
     setTokenGrantAdmin(state, tokenGrantAdmin) {
       state.tokenGrantAdmin = tokenGrantAdmin;
@@ -105,44 +137,114 @@ export default new Vuex.Store({
     },
     async disconnect({commit}) {
       commit('setAccount', null);
-      commit('setApprovedBalance', null);
-      commit('setStakedBalance', null);
+      commit('setApprovedBalances', null);
+      commit('setDepositWithPermit', null);
+      commit('setPendingBalances', null);
+      commit('setStakedBalances', null);
       commit('setStakeWithPermit', null);
+      commit('setStakingTokenList', null);
       commit('setTokenGrant', null);
-      commit('setTokenBalance', null);
+      commit('setTokenGrants', null);
+      commit('setTokenBalances', null);
       commit('setVotingPower', null);
     },
     async setupContracts({commit, dispatch}) {
       const signer = provider.getSigner();
       const chain = await provider.getNetwork();
 
-      const vestingContractAddress = DeployedVestingAddresses[chain.chainId.toString()];
-      const vestingContract = new ethers.Contract(
-        vestingContractAddress,
-        VestingABI,
+      const migratorContractAddress = DeployedAddresses.Migrator[chain.chainId.toString()];
+      const migratorContract = new ethers.Contract(
+        migratorContractAddress,
+        MigratorABI,
         signer
       );
 
-      const votingPowerPrismContractAddress = DeployedVotingPowerPrismAddresses[chain.chainId.toString()];
-      const votingPowerPrismContract = new ethers.Contract(
-        votingPowerPrismContractAddress,
-        VotingPowerABI,
+      const edenTokenAddress = DeployedAddresses.EDEN[chain.chainId.toString()];
+      const edenTokenContract = new ethers.Contract(
+        edenTokenAddress,
+        TokenABI,
         signer
       );
 
-      const tokenContractAddress = DeployedVestingTokenAddresses[chain.chainId.toString()];
+      const rewardsManagerContractAddress = DeployedAddresses.RewardsManager[chain.chainId.toString()];
+      const rewardsManagerContract = new ethers.Contract(
+        rewardsManagerContractAddress,
+        RewardsManagerABI,
+        signer
+      );
+
+      const sushiTokenAddress = DeployedAddresses.SUSHI[chain.chainId.toString()];
+      const sushiTokenContract = new ethers.Contract(
+        sushiTokenAddress,
+        TokenABI,
+        signer
+      );
+
+      const sushiswapPairContractAddress = DeployedAddresses.SLP[chain.chainId.toString()];
+      const sushiswapPairContract = new ethers.Contract(
+        sushiswapPairContractAddress,
+        PairABI,
+        signer
+      );
+
+      const tokenContractAddress = DeployedAddresses.ARCH[chain.chainId.toString()];
       const tokenContract = new ethers.Contract(
         tokenContractAddress,
         TokenABI,
         signer
       );
 
-      commit('setContracts', {tokenContract, vestingContract, votingPowerPrismContract});
+      const tokenRegistryAddress = DeployedAddresses.TokenRegistry[chain.chainId.toString()];
+      const tokenRegistryContract = new ethers.Contract(tokenRegistryAddress, RegistryABI, signer);
+
+      const vaultContractAddress = DeployedAddresses.Vault[chain.chainId.toString()];
+      const vaultContract = new ethers.Contract(vaultContractAddress, VaultABI, signer);
+
+      const vestingContractAddress = DeployedAddresses.Vesting[chain.chainId.toString()];
+      const vestingContract = new ethers.Contract(vestingContractAddress, VestingABI, signer);
+
+      const votingPowerPrismContractAddress = DeployedAddresses.VotingPowerPrism[chain.chainId.toString()];
+      const votingPowerPrismContract = new ethers.Contract(votingPowerPrismContractAddress, VotingPowerABI, signer);
+
+      commit('setContracts', {
+        edenTokenContract,
+        migratorContract,
+        rewardsManagerContract,
+        sushiswapPairContract,
+        sushiTokenContract,
+        tokenRegistryContract,
+        tokenContract, 
+        vaultContract, 
+        vestingContract, 
+        votingPowerPrismContract
+      });
       dispatch('getTokenGrantsForUser');
       dispatch('getVotingPowerForUser');
-      dispatch('getTokenBalanceForUser');
-      dispatch('getStakedBalanceForUser');
-      dispatch('getApprovedBalanceForUser');
+      dispatch('getTokenBalancesForUser');
+      dispatch('getPendingBalancesForUser');
+      dispatch('getStakedBalancesForUser');
+      dispatch('getStakingTokenList');
+      dispatch('getApprovedBalancesForUser');
+    },
+    async addToMetaMask({state}) {
+      if (state.contracts) {
+        try {
+          let result = await window.ethereum?.request({
+            method: "wallet_watchAsset",
+            params: {
+              type: "ERC20",
+              options: {
+                address: state.contracts.edenTokenContract.address,
+                symbol: "EDEN",
+                decimals: 18
+              }
+            }
+          });
+        }
+        catch (err) {
+          console.log(err);
+        }
+      }
     },
     async getVotingPowerForUser({state, commit}) {
       if (state.contracts && state.account) {
@@ -153,34 +255,98 @@ export default new Vuex.Store({
     },
     async getTokenGrantsForUser({state, commit}) {
       if (state.contracts && state.account) {
-        const {vestingContract} = state.contracts;
+        const {vaultContract, vestingContract} = state.contracts;
         const tokenGrant = await vestingContract.getTokenGrant(state.account);
         const totalDue = await vestingContract.calculateGrantClaim(state.account);
+
+        let grants = []
+        const activeLocks = await vaultContract.activeLockBalances(state.account);
+        for (let lock of activeLocks) {
+          grants.push(mapTokenLock(lock));
+        }
         commit('setTokenGrant', mapGrant(tokenGrant, totalDue));
+        commit('setTokenGrants', grants);
       }
     },
-    async getApprovedBalanceForUser({state, commit}) {
+    async getApprovedBalancesForUser({state, commit}) {
       if (state.contracts && state.account) {
-        const {tokenContract, votingPowerPrismContract} = state.contracts;
-        const approvedBalance = await tokenContract.allowance(
-          state.account,
-          votingPowerPrismContract.address
+        const { sushiswapPairContract, tokenContract, rewardsManagerContract, votingPowerPrismContract, migratorContract } = state.contracts;
+        let approvedBalances = {};
+        approvedBalances[tokenContract.address] = await tokenContract.allowance(state.account, migratorContract.address);
+        // approvedBalances[sushiswapPairContract.address] = await sushiswapPairContract.allowance(state.account, rewardsManagerContract.address);
+        commit('setApprovedBalances', approvedBalances);
+      }
+    },
+    async getPendingBalancesForUser({state, commit}) {
+      if (state.contracts && state.account) {
+        const {rewardsManagerContract, sushiTokenContract, tokenContract} = state.contracts;
+        let pendingBalances = [];
+        let pid = 0; // Hardcoded RewardsManager PID
+        pendingBalances.push({
+          address: tokenContract.address,
+          amount: await rewardsManagerContract.pendingRewardTokens(pid, state.account), // Includes claimable, plus vesting
+          symbol: "ARCH"
+        });
+        pendingBalances.push({
+          address: sushiTokenContract.address,
+          amount: await rewardsManagerContract.pendingSushi(pid, state.account), // Includes only claimable, not vesting
+          symbol: "SUSHI"
+        });
+        commit('setPendingBalances', pendingBalances);
+      }
+    },
+    async getStakedBalancesForUser({state, commit}) {
+      if (state.contracts && state.account) {
+        const {rewardsManagerContract, sushiswapPairContract, tokenContract, votingPowerPrismContract} = state.contracts;
+        let stakedBalances = {};
+        stakedBalances[tokenContract.address] = await votingPowerPrismContract.getAmountStaked(state.account, tokenContract.address);
+        let userInfo = await rewardsManagerContract.userInfo(0, state.account); // hardcoded RewardsManager PID
+        stakedBalances[sushiswapPairContract.address] = userInfo.amount;
+        commit('setStakedBalances', stakedBalances);
+      }
+    },
+    async getStakingTokenList({state, commit}) {
+      if (state.contracts) {
+        const {tokenRegistryContract, tokenContract, sushiswapPairContract} = state.contracts;
+        const stakingTokenList = [];
+
+        let archTokenFormulaAddress = await tokenRegistryContract.tokenFormulas(tokenContract.address);
+        let archTokenFormulaContract = new ethers.Contract(
+          archTokenFormulaAddress,
+          FormulaABI,
+          provider
         );
-        commit('setApprovedBalance', approvedBalance);
+        let archRatio = await archTokenFormulaContract.convertTokensToVotingPower(ethers.utils.parseUnits("1"));
+
+        let slptokenFormulaAddress = await tokenRegistryContract.tokenFormulas(sushiswapPairContract.address);
+        let slpTokenFormulaContract = new ethers.Contract(
+          slptokenFormulaAddress,
+          FormulaABI,
+          provider
+        );
+        let slpRatio = await slpTokenFormulaContract.convertTokensToVotingPower(ethers.utils.parseUnits("1"));
+
+        stakingTokenList.push({ 
+          symbol: await tokenContract.symbol(), 
+          address: tokenContract.address,
+          ratio: archRatio
+        });
+        stakingTokenList.push({ 
+          symbol: await sushiswapPairContract.symbol(), 
+          address: sushiswapPairContract.address,
+          ratio: slpRatio
+        });
+        commit('setStakingTokenList', stakingTokenList);
       }
     },
-    async getStakedBalanceForUser({state, commit}) {
+    async getTokenBalancesForUser({state, commit}) {
       if (state.contracts && state.account) {
-        const {votingPowerPrismContract} = state.contracts;
-        const stakedBalance = await votingPowerPrismContract.getARCHAmountStaked(state.account);
-        commit('setStakedBalance', stakedBalance);
-      }
-    },
-    async getTokenBalanceForUser({state, commit}) {
-      if (state.contracts && state.account) {
-        const {tokenContract} = state.contracts;
-        const tokenBalance = await tokenContract.balanceOf(state.account);
-        commit('setTokenBalance', tokenBalance);
+        const { sushiswapPairContract, tokenContract, edenTokenContract } = state.contracts;
+        let tokenBalances = {};
+        tokenBalances[tokenContract.address] = await tokenContract.balanceOf(state.account);
+        tokenBalances[sushiswapPairContract.address] = await sushiswapPairContract.balanceOf(state.account);
+        tokenBalances[edenTokenContract.address] = await edenTokenContract.balanceOf(state.account);
+        commit('setTokenBalances', tokenBalances);
       }
     },
     async getTokenGrantsForUserAdmin({state, commit}, address) {
@@ -199,6 +365,20 @@ export default new Vuex.Store({
         const {vestingContract} = state.contracts;
         try {
           const tx = await vestingContract.claimVestedTokens(state.account);
+          await tx.wait(1);
+          return true;
+        }
+        catch (err) {
+          return false;
+        }
+      }
+    },
+    async claimFromLocks({state}, lockIds) {
+      // console.log("claimFromLocks", lockIds);
+      if (state.contracts && state.account) {
+        const {vaultContract} = state.contracts;
+        try {
+          const tx = await vaultContract.claimAllUnlockedTokens(lockIds);
           await tx.wait(1);
           return true;
         }
@@ -266,8 +446,125 @@ export default new Vuex.Store({
         const params = [state.account, msgParams];
 
         try {
+          throw Error(); // disable stake with permit Jul 22
           const signature = await provider.send("eth_signTypedData_v4", params);
           this.commit('setStakeWithPermit', {
+            amount: stakeAmount.toString(),
+            deadline: deadline.toString(),
+            r: ethers.utils.arrayify("0x" + signature.substring(2).substring(0,64)),
+            s: ethers.utils.arrayify("0x" + signature.substring(2).substring(64, 128)),
+            v: parseInt(signature.substring(2).substring(128, 130), 16),
+          });
+          return true;
+        }
+        catch (err) {
+          // if (err.code == -32603) {
+            // MetaMask Message Signature: Error: Not supported on this device
+            // Use on-chain approval method
+            try {
+              const votingPowerPrismContractAddress = DeployedAddresses.VotingPowerPrism[chain.chainId.toString()];
+              const tx = await tokenContract.approve(votingPowerPrismContractAddress, ethers.constants.MaxUint256);
+              await tx.wait(1);
+              return true;
+            }
+            catch (err) {
+              return false;
+            }
+          // }
+          // return false;
+        }
+      }
+    },
+    async approveARCHForMigration({state}) {
+      if (state.contracts && state.account) {
+        const { tokenContract, migratorContract } = state.contracts;
+        try {
+          const tx = await tokenContract.approve(migratorContract.address, ethers.constants.MaxUint256);
+          const txReceipt = await tx.wait(1);
+          return txReceipt.status;
+        }
+        catch (err) {
+          return false;
+        }
+      }
+    },
+    async migrateARCHToEDEN({state}, amount) {
+      if (state.contracts && state.account) {
+        const { migratorContract } = state.contracts;
+        try {
+          const tx = await migratorContract.migrate(amount);
+          const txReceipt = await tx.wait(1);
+          return txReceipt.status;
+        }
+        catch (err) {
+          return false;
+        }
+      }
+    },
+    async approveSLP({state}, stakeAmount) {
+      // Approval function for EIP-712
+      // Note: this solution uses provider.sent("eth_signTypedData_v4", ...)
+      // instead of experimental _signTypedData. This is not supported by Ledger
+      // and Trezor, so there is a fallback for normal approvals.
+      // See https://github.com/ethers-io/ethers.js/issues/298
+      if (state.contracts && state.account) {
+        const {sushiswapPairContract, rewardsManagerContract} = state.contracts;
+        const chain = await provider.getNetwork();
+
+        let pid = 0; // hardcoded for RewardsManager PID
+
+        const name = await sushiswapPairContract.name(); // token name
+        const version = "1";
+        const chainId = chain.chainId.toString();
+        const verifyingContract = ethers.utils.getAddress(sushiswapPairContract.address);
+
+        const nonce = await sushiswapPairContract.nonces(state.account);
+        const deadline = parseInt(Date.now() / 1000) + 1200; // now plus 20 mins
+
+        const domain = {
+          name,
+          version,
+          chainId,
+          verifyingContract
+        };
+
+        const types = {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "version", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+          Permit: [
+            { name: "owner", type: "address" },
+            { name: "spender", type: "address" },
+            { name: "value", type: "uint256" },
+            { name: "nonce", type: "uint256" },
+            { name: "deadline", type: "uint256" },
+          ]
+        };
+
+        const value = {
+          owner: ethers.utils.getAddress(state.account),
+          spender: ethers.utils.getAddress(rewardsManagerContract.address),
+          value: stakeAmount.toString(),
+          nonce: nonce.toString(),
+          deadline: deadline.toString(),
+        };
+
+        const msgParams = JSON.stringify({
+          types,
+          domain,
+          primaryType: "Permit",
+          message: value,
+        });
+
+        const params = [state.account, msgParams];
+
+        try {
+          const signature = await provider.send("eth_signTypedData_v4", params);
+          this.commit('setDepositWithPermit', {
+            pid: pid.toString(),
             amount: stakeAmount.toString(),
             deadline: deadline.toString(),
             r: ethers.utils.arrayify("0x" + signature.substring(2).substring(0,64)),
@@ -281,10 +578,8 @@ export default new Vuex.Store({
             // MetaMask Message Signature: Error: Not supported on this device
             // Use on-chain approval method
             try {
-              const votingPowerPrismContractAddress = DeployedVotingPowerPrismAddresses[chain.chainId.toString()];
-              const tx = await tokenContract.approve(votingPowerPrismContractAddress, ethers.constants.MaxUint256);
+              const tx = await sushiswapPairContract.approve(rewardsManagerContract.address, ethers.constants.MaxUint256);
               await tx.wait(1);
-              // updated approved amount?
               return true;
             }
             catch (err) {
@@ -295,10 +590,41 @@ export default new Vuex.Store({
         }
       }
     },
+    async depositWithPermit({state}, amountToStake) {
+      if (state.contracts && state.account) {
+        const {rewardsManagerContract} = state.contracts;
+
+        if (state.depositWithPermit) {
+          // Handle depositWithPermit
+          const {pid, amount, deadline, v, r, s} = state.depositWithPermit;
+  
+          try {
+            const tx = await rewardsManagerContract.depositWithPermit(pid, amount, deadline, v, r, s);
+            await tx.wait(1);
+            return true;
+          }
+          catch (err) {
+            return false;
+          }
+        }
+        else {
+          // Handle deposit
+          try {
+            let pid = 0; // Hardcoded RewardsManager PID
+            const tx = await rewardsManagerContract.deposit(pid, amountToStake);
+            await tx.wait(1);
+            return true;
+          }
+          catch (err) {
+            return false;
+          }
+        }
+      }
+    },
     async stakeWithPermit({state}, amountToStake) {
       if (state.contracts && state.account) {
         const {votingPowerPrismContract} = state.contracts;
-        if (state.stakeWithPermit) {
+        if (1 == 0 && state.stakeWithPermit) { // disable stake with permit Jul 22
           // Handle stake with permit
           const {amount, deadline, v, r, s} = state.stakeWithPermit;
   
@@ -338,19 +664,37 @@ export default new Vuex.Store({
         }
       }
     },
+    async withdrawSLP({state}, unstakeAmount) {
+      if (state.contracts && state.account) {
+        const {rewardsManagerContract} = state.contracts;
+        try {
+          let pid = 0; // RewardsManager PID
+          const tx = await rewardsManagerContract.withdraw(pid, unstakeAmount);
+          await tx.wait(1);
+          return true;
+        }
+        catch (err) {
+          return false;
+        }
+      }
+    },
   },
   getters: {
     contracts: (state) => state.contracts,
     account: (state) => state.account,
     accountAdmin: (state) => state.account && state.admins.indexOf(ethers.utils.getAddress(state.account)) !== -1,
-    approvedBalance: (state) => state.approvedBalance,
+    approvedBalances: (state) => state.approvedBalances,
+    depositWithPermit: (state) => state.depositWithPermit,
     tokenGrant: (state) => state.tokenGrant,
+    tokenGrants: (state) => state.tokenGrants,
     tokenGrantAdmin: (state) => state.tokenGrantAdmin,
     tokenGrantTxs: (state) => state.tokenGrantTxs,
     votingPower: (state) => state.votingPower,
+    pendingBalances: (state) => state.pendingBalances,
     stakeWithPermit: (state) => state.stakeWithPermit,
-    stakedBalance: (state) => state.stakedBalance,
-    tokenBalance: (state) => state.tokenBalance,
+    stakedBalances: (state) => state.stakedBalances,
+    stakingTokenList: (state) => state.stakingTokenList,
+    tokenBalances: (state) => state.tokenBalances,
     loadingVestingSchedules: (state) => state.loadingVestingSchedules,
   },
 });

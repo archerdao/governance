@@ -22,14 +22,23 @@
             </div>
             <div class="navbar-menu" :class="{ 'is-active': showNav }" v-if="account">
                 <div class="navbar-start">
+                    <b-navbar-item tag="router-link" :to="{ name: 'Migrate' }">
+                        Migrate
+                    </b-navbar-item>
                     <b-navbar-item tag="router-link" :to="{ name: 'Staking' }">
                         Staking
                     </b-navbar-item>
                     <b-navbar-item tag="router-link" :to="{ name: 'Vesting' }">
                         Vesting
                     </b-navbar-item>
-                    <b-navbar-item href="https://gov.archerdao.io" target="_blank">
+                    <!-- <b-navbar-item href="https://gov.archerdao.io" target="_blank">
                         <span>Voting</span>
+                        <span class="icon is-medium ml-1">
+                            <i class="mdi mdi-arrow-top-right"></i>
+                        </span>
+                    </b-navbar-item> -->
+                    <b-navbar-item href="https://swap.archerdao.io" target="_blank">
+                        <span>Swap</span>
                         <span class="icon is-medium ml-1">
                             <i class="mdi mdi-arrow-top-right"></i>
                         </span>
@@ -110,7 +119,8 @@
       if (
           this.$router.currentRoute.path === '/staking' ||
           this.$router.currentRoute.path === '/vesting' || 
-          this.$router.currentRoute.path === '/vesting-admin'
+          this.$router.currentRoute.path === '/vesting-admin' || 
+          this.$router.currentRoute.path === '/migrate'
         ) {
         this.$router.push({name: 'Home'});
       }
@@ -155,6 +165,9 @@
     $button-text-decoration: "none";
     $button-text-hover-background-color: $archer-helper-box;
     $button-text-hover-color: $link;
+
+    $border: $archer-secondary-gray;
+    // $table-cell-border: 1px solid $text;
 
     $input-border-color: $archer-background;
     $input-hover-border-color: $archer-background;

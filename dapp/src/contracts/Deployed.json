@@ -1,0 +1,35 @@
+{
+    "ARCH": {
+        "1": "0x1f3f9d3068568f8040775be2e8c03c103c61f3af",
+        "4": "0x66F945815Da39D1FCB341d46059AE8d7395DA40A"
+    },
+    "EDEN": {
+        "1": "0x1559fa1b8f28238fd5d76d9f434ad86fd20d1559"
+    },
+    "Migrator": {
+        "1": "0xDFCcB0225CE7618F9ecE7297635C4bB703d566CF"
+    },
+    "RewardsManager": {
+        "1": "0x31FF00F7BEb461D13630B2f3c191A726aAD251Cc"
+    },
+    "SLP": {
+        "1": "0x4441eb3076f828d5176f4fe74d7c775542dae106"
+    },
+    "SUSHI": {
+        "1": "0x6b3595068778dd592e39a122f4f5a5cf09c90fe2"
+    },
+    "TokenRegistry": {
+        "1": "0xC0cc30cC09387139b300234768C3d9819f22Ac26"
+    },
+    "Vault": {
+        "1": "0x0AdB62b2E331E05c718b96184317D320548A9377"
+    },
+    "Vesting": {
+        "1": "0x8E64bAAdF8E440CbB5e538FF38720D8dF2e3C503",
+        "4": "0xeeBbfB8819489eC75FD2ef8Ad125C66FfF5fe756"
+    },
+    "VotingPowerPrism": {
+        "1": "0x000100bB517E0c003200502A822083000a3B005d",
+        "4": "0x6EE7Ed1e03948954D548745F56c60072683d1257"
+    }
+}

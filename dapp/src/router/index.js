@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
+import Migrate from '../views/Migrate.vue';
 import Vesting from '../views/Vesting.vue';
 import Staking from '../views/Staking.vue';
 import VestingAdmin from '../views/VestingAdmin.vue';
@@ -17,6 +18,11 @@ const routes = [
         path: '/vesting',
         name: 'Vesting',
         component: Vesting
+    },
+    {
+        path: '/migrate',
+        name: 'Migrate',
+        component: Migrate
     },
     {
         path: '/staking',

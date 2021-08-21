@@ -27,10 +27,28 @@ Vue.filter("fromWei", function (value) {
 import VueCurrencyFilter from "vue-currency-filter";
 
 Vue.use(VueCurrencyFilter, [
-  {
+  { // default name 'currency'
     symbol: "",
     thousandsSeparator: ",",
     fractionCount: 0,
+    fractionSeparator: ".",
+    symbolPosition: "front",
+    symbolSpacing: false,
+  },
+  {
+    name: "currency_2",
+    symbol: "",
+    thousandsSeparator: ",",
+    fractionCount: 2,
+    fractionSeparator: ".",
+    symbolPosition: "front",
+    symbolSpacing: false,
+  },
+  {
+    name: "currency_6",
+    symbol: "",
+    thousandsSeparator: ",",
+    fractionCount: 6,
     fractionSeparator: ".",
     symbolPosition: "front",
     symbolSpacing: false,

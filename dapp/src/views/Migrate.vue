@@ -3,36 +3,27 @@
         <div class="hero-body">
             <div class="container has-text-centered">
                 <h1 class="title has-text-weight-bold is-size-1">
-                    Staking
+                    Token Migration
                 </h1>
-                <!-- <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
-                    Stake tokens for voting power
-                </h2> -->
+                <h2 class="subtitle has-text-weight-bold is-size-4 has-text-primary">
+                    <a href="https://medium.com/archer-dao/arch-token-migration-915e6af976c6" target="_blank">Learn more&nbsp;&nearr;</a>
+                </h2>
             </div>
         </div>
 
         <section v-if="account && (votingPower || tokenBalances) && stakingTokenList">
             <div class="container is-max-desktop">
                 <section>
-                    <voting-power 
+                    <migrator 
                       :approvedBalances="approvedBalances"
                       :pendingBalances="pendingBalances"
                       :stakedBalances="stakedBalances"
                       :stakingTokenList="stakingTokenList"
                       :tokenBalances="tokenBalances"
-                      :votingPower="votingPower"
-                    ></voting-power>
+                    ></migrator>
                 </section>
             </div>
         </section>
-
-        <!-- <section v-else-if="account">
-            <div class="container has-text-centered">
-                <h2 class="title has-text-weight-bold is-size-3 has-text-primary">
-                    Stake tokens for voting power.
-                </h2>
-            </div>
-        </section> -->
 
         <spinner v-else></spinner>
     </article>
@@ -40,12 +31,12 @@
 <script>
   import {mapGetters} from 'vuex';
   import Spinner from "@/components/Spinner";
-  import VotingPower from '../components/VotingPower';
+  import Migrator from '../components/Migrator';
 
   const POLL_RATE = 15 * 1000;
   export default {
     components: {
-      VotingPower,
+      Migrator,
       Spinner,
     },
     computed: {
@@ -74,7 +65,6 @@
     },
     methods: {
       async getStakingBalancesForUser() {
-        await this.$store.dispatch('getVotingPowerForUser');
         await this.$store.dispatch('getTokenBalancesForUser');
         await this.$store.dispatch('getPendingBalancesForUser');
         await this.$store.dispatch('getStakedBalancesForUser');
