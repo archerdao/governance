@@ -4,6 +4,8 @@ pragma experimental ABIEncoderV2;
 
 import "../interfaces/IArchToken.sol";
 import "../interfaces/IVesting.sol";
+import "../interfaces/IVault.sol";
+import "../interfaces/ITokenRegistry.sol";
 
 /// @notice App metadata storage
 struct AppStorage {
@@ -15,6 +17,15 @@ struct AppStorage {
 
     // Vesting contract
     IVesting vesting;
+
+    // Voting Power owner
+    address owner;
+    
+    // lockManager contract
+    address lockManager;
+
+    // Token registry contract
+    ITokenRegistry tokenRegistry;
 }
 
 /// @notice A checkpoint for marking number of votes from a given block

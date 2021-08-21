@@ -32,25 +32,30 @@ let hardhatConfig = {
   tags: ["test"]
 }
 
+let localhostConfig = {
+  url: 'http://localhost:8545',
+  live: false,
+  saveDeployments: true,
+  tags: ["local"]
+}
+
 // If FORK_URL env var is set, enable forking on Hardhat network
 // Documentation: https://hardhat.org/hardhat-network/#mainnet-forking
 if (FORK_URL && FORK_URL.length > 0) {
   hardhatConfig.forking = {}
   hardhatConfig.forking.url = FORK_URL
   hardhatConfig.tags.push("dev")
+  localhostConfig.chainId = 1
+  localhostConfig.forking = {}
+  localhostConfig.forking.url = FORK_URL
+  localhostConfig.tags.push("dev")
   // If FORK_BLOCK_NUMBER env var is set, create fork from specific block
   if (FORK_BLOCK_NUMBER && parseInt(FORK_BLOCK_NUMBER)) {
-    hardhatConfig.forking.blockNumber = FORK_BLOCK_NUMBER
+    hardhatConfig.forking.blockNumber = parseInt(FORK_BLOCK_NUMBER)
+    localhostConfig.forking.blockNumber = parseInt(FORK_BLOCK_NUMBER)
   }
 } else {
   hardhatConfig.tags.push("local")
-}
-
-let localhostConfig = {
-  url: 'http://localhost:8545',
-  live: false,
-  saveDeployments: true,
-  tags: ["local"]
 }
 
 let rinkebyConfig = {
@@ -70,19 +75,23 @@ let mainnetConfig = {
 }
 
 if (DEPLOYER_PRIVATE_KEY && DEPLOYER_PRIVATE_KEY.length > 0) {
+  // localhostConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   rinkebyConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   mainnetConfig.accounts = [DEPLOYER_PRIVATE_KEY]
   if (LIQUIDITY_PROVIDER_PRIVATE_KEY && LIQUIDITY_PROVIDER_PRIVATE_KEY.length > 0) {
+    // localhostConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
     rinkebyConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
     mainnetConfig.accounts.push(LIQUIDITY_PROVIDER_PRIVATE_KEY)
   }
 
   if (VP_DEPLOYER_PRIVATE_KEY && VP_DEPLOYER_PRIVATE_KEY.length > 0) {
+    // localhostConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
     rinkebyConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
     mainnetConfig.accounts.push(VP_DEPLOYER_PRIVATE_KEY)
   }
 
   if (STAKER_PRIVATE_KEY && STAKER_PRIVATE_KEY.length > 0) {
+    // localhostConfig.accounts.push(STAKER_PRIVATE_KEY)
     rinkebyConfig.accounts.push(STAKER_PRIVATE_KEY)
     mainnetConfig.accounts.push(STAKER_PRIVATE_KEY)
   }
@@ -111,6 +120,9 @@ module.exports = {
         runs: 999999
       }
     }
+  },
+  mocha: {
+    timeout: 350000
   },
   defaultNetwork: "hardhat",
   networks: {
